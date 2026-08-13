@@ -17,14 +17,6 @@
 
 ---
 
-## 📸 Screenshots
-
-| Landing Page | Login Page |
-|---|---|
-| ![Hero Section](eventhub_hero.jpg) | ![Dashboard](eventhub_dashboard_feature.jpg) |
-
----
-
 ## ✨ Features
 
 - 🎨 **Premium Dark UI** — Deep purple/indigo theme with glassmorphism cards and neon accents
