@@ -37,8 +37,8 @@
         <a href="#faq" class="nav-link">FAQ</a>
       </nav>
       <div class="nav-cta">
-        <a href="login.html" class="btn btn-ghost" id="login-btn">Log In</a>
-        <a href="#" class="btn btn-primary" id="get-started-btn">Get Started Free</a>
+        <a href="login.html?action=login" class="btn btn-ghost" id="login-btn">Log In</a>
+        <a href="login.html?action=login" class="btn btn-primary" id="get-started-btn">Get Started Free</a>
       </div>
       <button class="hamburger" id="hamburger" aria-label="Toggle menu">
         <span></span><span></span><span></span>
@@ -74,7 +74,7 @@
         Create stunning event pages, manage registrations, issue QR tickets, and run blazing-fast check‑ins — all from one powerful dashboard.
       </p>
       <div class="hero-actions">
-        <a href="#" class="btn btn-primary btn-lg" id="hero-cta-primary">
+        <a href="register.html" class="btn btn-primary btn-lg" id="hero-cta-primary">
           <i data-lucide="zap"></i>
           Start for Free
         </a>
@@ -83,24 +83,25 @@
           See How It Works
         </a>
       </div>
+      <!-- STATS: fill in your real numbers below -->
       <div class="hero-stats">
         <div class="hero-stat">
-          <span class="stat-num" data-target="50000">0</span><span class="stat-suffix">+</span>
+          <span class="stat-num" data-target="0">0</span><span class="stat-suffix">+</span>
           <span class="stat-label">Registrations</span>
         </div>
         <div class="hero-stat-divider"></div>
         <div class="hero-stat">
-          <span class="stat-num" data-target="1200">0</span><span class="stat-suffix">+</span>
+          <span class="stat-num" data-target="0">0</span><span class="stat-suffix">+</span>
           <span class="stat-label">Events Hosted</span>
         </div>
         <div class="hero-stat-divider"></div>
         <div class="hero-stat">
-          <span class="stat-num" data-target="300">0</span><span class="stat-suffix">+</span>
+          <span class="stat-num" data-target="0">0</span><span class="stat-suffix">+</span>
           <span class="stat-label">Colleges</span>
         </div>
         <div class="hero-stat-divider"></div>
         <div class="hero-stat">
-          <span class="stat-num" data-target="99">0</span><span class="stat-suffix">%</span>
+          <span class="stat-num" data-target="0">0</span><span class="stat-suffix">%</span>
           <span class="stat-label">Uptime</span>
         </div>
       </div>
@@ -114,14 +115,14 @@
           <i data-lucide="check-circle-2" class="float-icon green"></i>
           <div>
             <div class="float-title">Check-In Live</div>
-            <div class="float-sub">247 attendees scanned</div>
+            <div class="float-sub">— attendees scanned</div>
           </div>
         </div>
         <div class="float-card float-card-2">
           <i data-lucide="trending-up" class="float-icon purple"></i>
           <div>
             <div class="float-title">Registrations</div>
-            <div class="float-sub">+38% this week</div>
+            <div class="float-sub">Growing fast</div>
           </div>
         </div>
         <div class="float-card float-card-3">
@@ -135,34 +136,7 @@
     </div>
   </section>
 
-  <!-- ===== MARQUEE / TRUSTED BY ===== -->
-  <section class="marquee-section">
-    <p class="marquee-label">Trusted by student organizers at</p>
-    <div class="marquee-track-wrap">
-      <div class="marquee-track" id="marquee-track">
-        <span class="marquee-item">🏛️ IIT Bombay</span>
-        <span class="marquee-item">🎓 NIT Trichy</span>
-        <span class="marquee-item">🏫 BITS Pilani</span>
-        <span class="marquee-item">📚 VIT Vellore</span>
-        <span class="marquee-item">🎯 DTU Delhi</span>
-        <span class="marquee-item">💡 NSUT</span>
-        <span class="marquee-item">🚀 Manipal</span>
-        <span class="marquee-item">⚡ COEP Pune</span>
-        <span class="marquee-item">🌟 SRM Chennai</span>
-        <span class="marquee-item">🔥 Amity</span>
-        <span class="marquee-item">🏛️ IIT Bombay</span>
-        <span class="marquee-item">🎓 NIT Trichy</span>
-        <span class="marquee-item">🏫 BITS Pilani</span>
-        <span class="marquee-item">📚 VIT Vellore</span>
-        <span class="marquee-item">🎯 DTU Delhi</span>
-        <span class="marquee-item">💡 NSUT</span>
-        <span class="marquee-item">🚀 Manipal</span>
-        <span class="marquee-item">⚡ COEP Pune</span>
-        <span class="marquee-item">🌟 SRM Chennai</span>
-        <span class="marquee-item">🔥 Amity</span>
-      </div>
-    </div>
-  </section>
+  <!-- University marquee removed -->
 
   <!-- ===== FEATURES ===== -->
   <section class="section" id="features">
@@ -273,7 +247,7 @@
           <li><i data-lucide="check" class="list-icon"></i> Real-time volunteer coordination</li>
           <li><i data-lucide="check" class="list-icon"></i> Auto-generated attendance report</li>
         </ul>
-        <a href="#" class="btn btn-primary" id="qr-cta">Try QR Check-In Free</a>
+        <a href="register.html" class="btn btn-primary" id="qr-cta">Try QR Check-In Free</a>
       </div>
       <div class="qr-spotlight-img" data-animate>
         <div class="qr-image-glow"></div>
@@ -429,9 +403,9 @@
     <div class="cta-bg-orb cta-orb2"></div>
     <div class="container cta-content">
       <h2 class="cta-title">Ready to run your best event yet?</h2>
-      <p class="cta-subtitle">Join 1,200+ events that chose EventHub. Get started free — no credit card needed.</p>
+      <p class="cta-subtitle">Get started free — no credit card needed.</p>
       <div class="cta-actions">
-        <a href="#" class="btn btn-white btn-lg" id="cta-final-primary">🚀 Create Your Event Free</a>
+        <a href="register.html" class="btn btn-white btn-lg" id="cta-final-primary">🚀 Create Your Event Free</a>
         <a href="#" class="btn btn-ghost-white btn-lg" id="cta-final-secondary">Talk to Sales</a>
       </div>
     </div>
@@ -492,6 +466,6 @@
     <i data-lucide="arrow-up"></i>
   </button>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

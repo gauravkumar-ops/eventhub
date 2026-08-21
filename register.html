@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complete Your Profile — EventHub</title>
+  <meta name="description" content="Complete your EventHub profile to register for events and receive QR tickets." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    :root {
+      --bg-deep:      #0d0b1f;
+      --bg-card:      #16122e;
+      --bg-field:     #1f1a3d;
+      --border:       rgba(255,255,255,0.08);
+      --border-focus: rgba(167,139,250,0.55);
+      --purple-400:   #a78bfa;
+      --gold:         #f59e0b;
+      --green-400:    #4ade80;
+      --text-primary: #f1f5f9;
+      --text-secondary:#cbd5e1;
+      --text-muted:   #64748b;
+      --radius-md:    14px;
+      --radius-lg:    20px;
+      --radius-full:  999px;
+      --transition:   0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-deep); color: var(--text-primary); min-height: 100vh; padding: 0 0 80px; }
+    a { text-decoration: none; color: inherit; }
+
+    .orb { position:fixed; border-radius:50%; filter:blur(90px); pointer-events:none; z-index:0; }
+    .orb1 { width:500px; height:500px; background:rgba(124,58,237,.12); top:-100px; left:-150px; }
+    .orb2 { width:400px; height:400px; background:rgba(236,72,153,.08); bottom:-80px; right:-100px; }
+
+    .navbar {
+      position:sticky; top:0; z-index:100;
+      background:rgba(13,11,31,.88); backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+      padding:14px 28px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .nav-logo { display:flex; align-items:center; gap:8px; font-family:'Outfit',sans-serif; font-size:1.35rem; font-weight:800; }
+    .logo-accent { color:var(--purple-400); }
+    .back-btn {
+      display:flex; align-items:center; gap:6px; font-size:.84rem; font-weight:500; color:var(--text-muted);
+      background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:var(--radius-full);
+      padding:7px 16px; transition:var(--transition); cursor:pointer;
+    }
+    .back-btn:hover { color:var(--purple-400); border-color:rgba(167,139,250,.4); }
+
+    .page-header { text-align:center; padding:52px 24px 32px; position:relative; z-index:1; }
+    .avatar-ring {
+      width:72px; height:72px; border-radius:50%;
+      background:linear-gradient(135deg,#7c3aed,#ec4899);
+      display:flex; align-items:center; justify-content:center;
+      margin:0 auto 20px; font-size:2rem;
+      box-shadow:0 0 0 6px rgba(124,58,237,.18), 0 8px 32px rgba(124,58,237,.3);
+    }
+    .page-title {
+      font-family:'Outfit',sans-serif; font-size:clamp(1.8rem,4vw,2.6rem);
+      font-weight:900; letter-spacing:-.025em;
+      background:linear-gradient(90deg,#f59e0b,#f472b6 50%,#a78bfa);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      margin-bottom:10px;
+    }
+    .page-subtitle { font-size:.95rem; color:var(--text-secondary); max-width:500px; margin:0 auto; line-height:1.6; }
+
+    .progress-wrap { max-width:580px; margin:0 auto 40px; padding:0 24px; position:relative; z-index:1; }
+    .progress-labels { display:flex; justify-content:space-between; font-size:.72rem; color:var(--text-muted); margin-bottom:8px; }
+    .progress-bar { height:5px; background:rgba(255,255,255,.08); border-radius:var(--radius-full); overflow:hidden; }
+    .progress-fill { height:100%; border-radius:var(--radius-full); background:linear-gradient(90deg,#7c3aed,#ec4899); width:0%; transition:width .5s ease; }
+
+    .form-wrap { max-width:880px; margin:0 auto; padding:0 20px; display:flex; flex-direction:column; gap:24px; position:relative; z-index:1; }
+
+    .section-card {
+      background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg);
+      padding:28px 28px 24px; transition:border-color var(--transition);
+    }
+    .section-card:hover { border-color:rgba(167,139,250,.2); }
+
+    .card-heading { display:flex; align-items:center; gap:10px; font-size:1.05rem; font-weight:700; color:var(--gold); margin-bottom:24px; font-family:'Outfit',sans-serif; }
+    .card-heading .hicon { font-size:1.25rem; }
+
+    .field-grid { display:grid; gap:18px; }
+    .col-3  { grid-template-columns:repeat(3,1fr); }
+    .col-2  { grid-template-columns:repeat(2,1fr); }
+    .col-1  { grid-template-columns:1fr; }
+    @media(max-width:700px) { .col-3,.col-2 { grid-template-columns:1fr; } }
+
+    .field { display:flex; flex-direction:column; gap:8px; }
+    .field-label { font-size:.82rem; font-weight:600; color:var(--text-secondary); letter-spacing:.01em; display:flex; align-items:center; gap:5px; }
+    .req { color:#f87171; }
+
+    .select-wrap { position:relative; }
+    .select-wrap .chevron { position:absolute; right:14px; top:50%; transform:translateY(-50%); width:17px; height:17px; color:var(--text-muted); pointer-events:none; }
+
+    select {
+      width:100%; padding:13px 42px 13px 16px;
+      background:var(--bg-field); border:1.5px solid var(--border); border-radius:var(--radius-md);
+      color:var(--text-primary); font-size:.9rem; font-family:'Inter',sans-serif;
+      appearance:none; -webkit-appearance:none; outline:none; cursor:pointer; transition:var(--transition);
+    }
+    select:focus { border-color:var(--border-focus); background:rgba(139,92,246,.07); box-shadow:0 0 0 3px rgba(139,92,246,.12); }
+    select:disabled { opacity:.4; cursor:not-allowed; }
+    select option { background:#1f1a3d; color:var(--text-primary); }
+
+    .phone-wrap { display:flex; }
+    .phone-prefix {
+      display:flex; align-items:center; background:var(--bg-field);
+      border:1.5px solid var(--border); border-right:none;
+      border-radius:var(--radius-md) 0 0 var(--radius-md);
+      padding:0 14px; font-size:.9rem; font-weight:600; color:var(--text-muted); white-space:nowrap;
+    }
+    .phone-input {
+      flex:1; padding:13px 14px; background:var(--bg-field);
+      border:1.5px solid var(--border); border-radius:0 var(--radius-md) var(--radius-md) 0;
+      color:var(--text-primary); font-size:.9rem; font-family:'Inter',sans-serif;
+      outline:none; transition:var(--transition);
+    }
+    .phone-input:focus { border-color:var(--border-focus); background:rgba(139,92,246,.07); box-shadow:0 0 0 3px rgba(139,92,246,.12); }
+    .phone-hint { font-size:.72rem; color:var(--text-muted); display:flex; align-items:center; gap:5px; }
+    .phone-hint svg { width:13px; height:13px; color:#25d366; flex-shrink:0; }
+
+    .field-error { font-size:.75rem; color:#f87171; display:none; }
+    .field.has-error select,
+    .field.has-error .phone-input { border-color:rgba(248,113,113,.6) !important; }
+    .field.has-error .field-error { display:block; }
+
+    .submit-wrap { max-width:880px; margin:16px auto 0; padding:0 20px; position:relative; z-index:1; }
+    .submit-btn {
+      width:100%; padding:16px 28px;
+      background:linear-gradient(135deg,#7c3aed,#a855f7,#ec4899);
+      color:#fff; font-size:1rem; font-weight:700; font-family:'Inter',sans-serif;
+      border:none; border-radius:var(--radius-lg); cursor:pointer;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      box-shadow:0 6px 28px rgba(139,92,246,.4); transition:var(--transition);
+      position:relative; overflow:hidden;
+    }
+    .submit-btn:hover { transform:translateY(-2px); box-shadow:0 10px 40px rgba(139,92,246,.55); }
+    .submit-btn:active { transform:translateY(0); }
+    .submit-btn.loading { pointer-events:none; opacity:.75; }
+    .btn-spinner { width:20px; height:20px; border-radius:50%; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; animation:spin .7s linear infinite; display:none; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .submit-btn.loading .btn-text { display:none; }
+    .submit-btn.loading .btn-spinner { display:block; }
+
+    .success-overlay {
+      display:none; position:fixed; inset:0; z-index:500;
+      background:rgba(13,11,31,.96); backdrop-filter:blur(16px);
+      align-items:center; justify-content:center; flex-direction:column;
+      gap:18px; text-align:center; padding:32px;
+    }
+    .success-overlay.show { display:flex; }
+    .success-icon { width:84px; height:84px; border-radius:50%; background:rgba(74,222,128,.12); border:2px solid rgba(74,222,128,.35); display:flex; align-items:center; justify-content:center; font-size:2.8rem; animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+    @keyframes popIn { from{opacity:0;transform:scale(.5)} to{opacity:1;transform:scale(1)} }
+    .success-title { font-family:'Outfit',sans-serif; font-size:1.9rem; font-weight:800; color:var(--green-400); }
+    .success-sub { color:var(--text-secondary); font-size:.95rem; max-width:400px; line-height:1.65; }
+    .success-meta { background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:var(--radius-md); padding:14px 24px; font-size:.82rem; color:var(--text-muted); max-width:380px; text-align:left; }
+    .success-meta strong { color:var(--text-primary); }
+    .success-btn { margin-top:8px; padding:13px 32px; background:linear-gradient(135deg,#7c3aed,#ec4899); color:#fff; font-size:.95rem; font-weight:700; border:none; border-radius:var(--radius-full); cursor:pointer; font-family:'Inter',sans-serif; box-shadow:0 6px 24px rgba(124,58,237,.4); transition:var(--transition); }
+    .success-btn:hover { transform:translateY(-2px); }
+  </style>
+</head>
+<body>
+
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">
+      <span>⚡</span><span>Event<span class="logo-accent">Hub</span></span>
+    </a>
+    <a href="index.html" class="back-btn">
+      <i data-lucide="arrow-left"></i> Back to Home
+    </a>
+  </nav>
+
+  <div class="page-header">
+    <div class="avatar-ring">👤</div>
+    <h1 class="page-title">Complete Your Profile</h1>
+    <p class="page-subtitle">Please provide your academic information to complete your EventHub profile and receive your event QR ticket.</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-labels">
+      <span>Profile Completion</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <form class="form-wrap" id="profile-form" novalidate>
+
+    <!-- LOCATION -->
+    <div class="section-card">
+      <div class="card-heading"><span class="hicon">📍</span> Location Information</div>
+      <div class="field-grid col-3">
+
+        <div class="field" id="field-state">
+          <label class="field-label" for="state">State <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="state" name="state">
+              <option value="">Select a State</option>
+              <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option>
+              <option>Bihar</option><option>Chhattisgarh</option><option>Goa</option>
+              <option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option>
+              <option>Jharkhand</option><option>Karnataka</option><option>Kerala</option>
+              <option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option>
+              <option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option>
+              <option>Odisha</option><option>Punjab</option><option>Rajasthan</option>
+              <option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
+              <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option>
+              <option>West Bengal</option><option>Delhi</option><option>Chandigarh</option>
+              <option>Puducherry</option><option>Ladakh</option><option>Jammu &amp; Kashmir</option>
+            </select>
+            <i data-lucide="chevron-down" class="chevron"></i>
+          </div>
+          <span class="field-error">Please select your state.</span>
+        </div>
+
+        <div class="field" id="field-district">
+          <label class="field-label" for="district">District <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="district" name="district" disabled>
+              <option value="">Select a District</option>
+            </select>
+            <i data-lucide="chevron-down" class="chevron"></i>
+          </div>
+          <span class="field-error">Please select your district.</span>
+        </div>
+
+        <div class="field" id="field-college">
+          <label class="field-label" for="college">College <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="college" name="college" disabled>
+              <option value="">Select a College</option>
+            </select>
+            <i data-lucide="chevron-down" class="chevron"></i>
+          </div>
+          <span class="field-error">Please select your college.</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ACADEMIC -->
+    <div class="section-card">
+      <div class="card-heading"><span class="hicon">🎓</span> Academic Information</div>
+
+      <div class="field-grid col-2" style="margin-bottom:18px;">
+        <div class="field" id="field-degree">
+          <label class="field-label" for="degree">Degree Program <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="degree" name="degree">
+              <option value="">Select your Degree Program</option>
+              <option value="btech">B.Tech / B.E.</option>
+              <option value="bsc">B.Sc</option>
+              <option value="bca">BCA</option>
+              <option value="bcom">B.Com</option>
+              <option value="ba">B.A.</option>
+              <option value="bba">BBA</option>
+              <option value="mtech">M.Tech / M.E.</option>
+              <option value="msc">M.Sc</option>
+              <option value="mca">MCA</option>
+              <option value="mba">MBA</option>
+              <option value="phd">Ph.D.</option>
+              <option value="diploma">Diploma</option>
+              <option value="other">Other</option>
+            </select>
+            <i data-lucide="chevron-down" class="chevron"></i>
+          </div>
+          <span class="field-error">Please select your degree program.</span>
+        </div>
+
+        <div class="field" id="field-specialization">
+          <label class="field-label" for="specialization">Specialization <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="specialization" name="specialization" disabled>
+              <option value="">Please select a degree first</option>
+            </select>
+            <i data-lucide="chevron-down" class="chevron"></i>
+          </div>
+          <span class="field-error">Please select your specialization.</span>
+        </div>
+      </div>
+
+      <div class="field-grid col-1">
+        <div class="field" id="field-department">
+          <label class="field-label" for="department">Department <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="department" name="department">
+              <option value="">Select your Department</option>
+              <option>Computer Science &amp; Engineering</option>
+              <option>Electronics &amp; Communication Engineering</option>
+              <option>Mechanical Engineering</option>
+              <option>Civil Engineering</option>
+              <option>Electrical Engineering</option>
+              <option>Information Technology</option>
+              <option>Chemical Engineering</option>
+              <option>Biotechnology</option>
+              <option>Artificial Intelligence &amp; Machine Learning</option>
+              <option>Data Science</option>
+              <option>Cyber Security</option>
+              <option>Business Administration</option>
+              <option>Commerce &amp; Finance</option>
+              <option>Arts &amp; Humanities</option>
+              <option>Science (General)</option>
+              <option>Law</option>
+              <option>Medicine &amp; Health Sciences</option>
+              <option>Architecture</option>
+              <option>Other</option>
+            </select>
+            <i data-lucide="chevron-down" class="chevron"></i>
+          </div>
+          <span class="field-error">Please select your department.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADDITIONAL -->
+    <div class="section-card">
+      <div class="card-heading"><span class="hicon">👤</span> Additional Information</div>
+      <div class="field-grid col-3">
+
+        <div class="field" id="field-gender">
+          <label class="field-label" for="gender">Gender <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="gender" name="gender">
+              <option value="">Select your gender</option>
+              <option>Male</option><option>Female</option>
+              <option>Non-binary</option><option>Prefer not to say</option>
+            </select>
+            <i data-lucide="chevron-down" class="chevron"></i>
+          </div>
+          <span class="field-error">Please select your gender.</span>
+        </div>
+
+        <div class="field" id="field-whatsapp">
+          <label class="field-label" for="whatsapp">
+            <i data-lucide="message-circle" style="width:15px;height:15px;color:#25d366;"></i>
+            WhatsApp Number <span class="req">*</span>
+          </label>
+          <div class="phone-wrap">
+            <div class="phone-prefix">+91</div>
+            <input class="phone-input" type="tel" id="whatsapp" name="whatsapp" placeholder="9876543210" maxlength="10" inputmode="numeric" />
+          </div>
+          <div class="phone-hint">
+            <i data-lucide="message-circle"></i>
+            We'll send your QR code &amp; event updates on WhatsApp
+          </div>
+          <span class="field-error">Please enter a valid 10-digit WhatsApp number.</span>
+        </div>
+
+        <div class="field" id="field-gradyear">
+          <label class="field-label" for="gradyear">Expected Graduation Year <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="gradyear" name="gradyear">
+              <option value="">Select graduation year</option>
+              <option>2024</option><option>2025</option><option>2026</option>
+              <option>2027</option><option>2028</option><option>2029</option><option>2030</option>
+            </select>
+            <i data-lucide="chevron-down" class="chevron"></i>
+          </div>
+          <span class="field-error">Please select your expected graduation year.</span>
+        </div>
+
+      </div>
+    </div>
+
+  </form>
+
+  <div class="submit-wrap">
+    <button class="submit-btn" id="submit-btn" type="button">
+      <span class="btn-text"><i data-lucide="check-square"></i>&nbsp; Complete Profile</span>
+      <div class="btn-spinner"></div>
+    </button>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-overlay" id="success-overlay">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Profile Saved!</div>
+    <p class="success-sub">Your profile has been saved to this device. You're all set to explore events and receive your QR ticket.</p>
+    <div class="success-meta" id="success-meta"></div>
+    <button class="success-btn" id="success-go-home">Go to Home →</button>
+  </div>
+
+  <script>
+    // ── Data ──────────────────────────────────────────────────────
+    const stateDistricts = {
+      "Maharashtra":["Mumbai","Pune","Nagpur","Nashik","Aurangabad","Solapur","Kolhapur","Thane","Amravati","Navi Mumbai"],
+      "Delhi":["Central Delhi","East Delhi","New Delhi","North Delhi","North East Delhi","North West Delhi","South Delhi","South East Delhi","South West Delhi","West Delhi","Shahdara"],
+      "Karnataka":["Bengaluru Urban","Bengaluru Rural","Mysuru","Hubli-Dharwad","Mangaluru","Belagavi","Davangere","Kalaburagi","Ballari","Shivamogga"],
+      "Tamil Nadu":["Chennai","Coimbatore","Madurai","Tiruchirappalli","Salem","Tirunelveli","Vellore","Erode","Thoothukudi","Dindigul"],
+      "Uttar Pradesh":["Lucknow","Kanpur","Agra","Varanasi","Prayagraj","Meerut","Ghaziabad","Noida","Aligarh","Bareilly"],
+      "West Bengal":["Kolkata","Howrah","Darjeeling","Asansol","Siliguri","Durgapur","Bardhaman","Malda","Cooch Behar","Jalpaiguri"],
+      "Gujarat":["Ahmedabad","Surat","Vadodara","Rajkot","Bhavnagar","Jamnagar","Gandhinagar","Anand","Junagadh","Navsari"],
+      "Rajasthan":["Jaipur","Jodhpur","Udaipur","Kota","Ajmer","Bikaner","Alwar","Bharatpur","Sikar","Pali"],
+      "Andhra Pradesh":["Visakhapatnam","Vijayawada","Guntur","Nellore","Kurnool","Kakinada","Rajamahendravaram","Tirupati","Anantapur","Kadapa"],
+      "Telangana":["Hyderabad","Warangal","Nizamabad","Karimnagar","Khammam","Mahbubnagar","Nalgonda","Adilabad","Medak","Rangareddy"],
+      "Madhya Pradesh":["Bhopal","Indore","Gwalior","Jabalpur","Ujjain","Sagar","Ratlam","Satna","Dewas","Murwara"],
+      "Bihar":["Patna","Gaya","Muzaffarpur","Bhagalpur","Darbhanga","Purnia","Arrah","Begusarai","Katihar","Munger"],
+      "Punjab":["Ludhiana","Amritsar","Jalandhar","Patiala","Bathinda","Hoshiarpur","Mohali","Gurdaspur","Firozpur","Moga"],
+      "Haryana":["Gurugram","Faridabad","Panipat","Ambala","Yamunanagar","Rohtak","Hisar","Karnal","Sonipat","Rewari"],
+      "Kerala":["Thiruvananthapuram","Kochi","Kozhikode","Thrissur","Kollam","Palakkad","Alappuzha","Malappuram","Kannur","Kottayam"],
+      "Odisha":["Bhubaneswar","Cuttack","Rourkela","Brahmapur","Sambalpur","Puri","Balasore","Baripada","Bhadrak","Jeypore"],
+      "Assam":["Guwahati","Silchar","Dibrugarh","Jorhat","Nagaon","Tinsukia","Tezpur","Bongaigaon","Dhubri","North Lakhimpur"],
+      "Jharkhand":["Ranchi","Jamshedpur","Dhanbad","Bokaro","Deoghar","Hazaribagh","Giridih","Ramgarh","Medininagar","Phusro"],
+      "Chhattisgarh":["Raipur","Bhilai","Bilaspur","Korba","Rajnandgaon","Durg","Jagdalpur","Ambikapur","Chirmiri","Dhamtari"],
+      "Himachal Pradesh":["Shimla","Mandi","Solan","Dharamshala","Palampur","Baddi","Nahan","Paonta Sahib","Sundernagar","Chamba"],
+      "Uttarakhand":["Dehradun","Haridwar","Roorkee","Haldwani","Rudrapur","Kashipur","Rishikesh","Nainital","Mussoorie","Almora"],
+      "Goa":["North Goa","South Goa"],
+      "Chandigarh":["Chandigarh"],
+      "Puducherry":["Puducherry","Karaikal","Yanam","Mahe"],
+      "Arunachal Pradesh":["Itanagar","Naharlagun","Pasighat","Tezpur","Bomdila"],
+      "Manipur":["Imphal East","Imphal West","Bishnupur","Thoubal","Churachandpur"],
+      "Meghalaya":["East Khasi Hills","West Khasi Hills","Ri Bhoi","East Jaintia Hills","West Jaintia Hills"],
+      "Mizoram":["Aizawl","Lunglei","Champhai","Kolasib","Serchhip"],
+      "Nagaland":["Kohima","Dimapur","Mokokchung","Tuensang","Mon"],
+      "Sikkim":["East Sikkim","West Sikkim","North Sikkim","South Sikkim"],
+      "Tripura":["West Tripura","Sepahijala","Khowai","Gomati","South Tripura"],
+      "Ladakh":["Leh","Kargil"],
+      "Jammu & Kashmir":["Jammu","Srinagar","Anantnag","Baramulla","Udhampur","Rajouri","Pulwama","Sopore","Kathua","Poonch"]
+    };
+
+    const districtColleges = {
+      "Mumbai":["IIT Bombay","VJTI Mumbai","NMIMS Mumbai","University of Mumbai","Jai Hind College","St. Xavier's College","HR College","KJ Somaiya College","TISS Mumbai","Other"],
+      "Pune":["COEP Pune","Symbiosis International University","Savitribai Phule Pune University","Fergusson College","MIT Pune","VIT Pune","Indira College of Engineering","Other"],
+      "Bengaluru Urban":["IISc Bengaluru","RV College of Engineering","PES University","BMS College of Engineering","Christ University","Manipal Institute of Technology (Bengaluru)","Other"],
+      "Chennai":["IIT Madras","Anna University","Loyola College","Madras Christian College","SRM Institute of Science & Technology","VIT Chennai","Other"],
+      "Hyderabad":["IIT Hyderabad","BITS Pilani Hyderabad","IIIT Hyderabad","Osmania University","JNTUH","CVR College of Engineering","Other"],
+      "New Delhi":["IIT Delhi","Delhi University","Jawaharlal Nehru University","Jamia Millia Islamia","IP University","DTU Delhi","NSUT","Ambedkar University Delhi","Other"],
+      "Central Delhi":["Delhi University","Ramjas College","Hindu College","Sri Ram College of Commerce","Other"],
+      "South Delhi":["Jamia Millia Islamia","Jawaharlal Nehru University","Other"],
+      "North Delhi":["Delhi University North Campus","Other"],
+      "Lucknow":["IIT Lucknow","BBAU Lucknow","University of Lucknow","AKTU","Amity University Lucknow","Other"],
+      "Jaipur":["Malaviya National Institute of Technology","University of Rajasthan","Manipal University Jaipur","LNM Institute of Information Technology","Jaipur National University","Other"],
+      "Kolkata":["Jadavpur University","Presidency University","Calcutta University","IIEST Shibpur","St. Xavier's College Kolkata","Other"],
+      "Ahmedabad":["IIT Gandhinagar","DAIICT Gandhinagar","Gujarat University","Nirma University","CEPT University","Other"],
+      "Bengaluru Rural":["Other"],
+      "Kozhikode":["NIT Calicut","University of Calicut","Other"],
+      "Kochi":["CUSAT","Rajagiri College","Other"],
+      "Thiruvananthapuram":["Trivandrum Engineering College","University of Kerala","Other"],
+      "Noida":["Amity University Noida","Galgotias University","Sharda University","GL Bajaj Institute","Other"],
+      "Ghaziabad":["KIET Group of Institutions","Other"],
+      "Nagpur":["VNIT Nagpur","RTM Nagpur University","Other"],
+      "Bhopal":["IIT Bhopal","NIT Bhopal","Barkatullah University","LNCT Bhopal","Other"],
+      "Indore":["IIT Indore","DAVV Indore","Prestige Institute","Other"],
+      "Ranchi":["NIT Jamshedpur","BIT Mesra","Ranchi University","Other"],
+      "Bhubaneswar":["NIT Rourkela","IIT Bhubaneswar","KIIT University","SOA University","Other"],
+      "Chandigarh":["PU Chandigarh","NIPER","UIET Chandigarh","Other"],
+      "Dehradun":["IIT Roorkee","Graphic Era University","Doon University","Other"]
+    };
+
+    const specializationMap = {
+      btech: ["Computer Science","Electronics & Communication","Mechanical","Civil","Electrical","Information Technology","Chemical","Aerospace","Robotics & Automation","Other"],
+      bsc:   ["Computer Science","Physics","Chemistry","Mathematics","Biology","Statistics","Biotechnology","Environmental Science","Other"],
+      bca:   ["Computer Applications","Information Technology","Data Science","Cyber Security","Other"],
+      bcom:  ["Accounting & Finance","Banking & Insurance","Marketing","E-Commerce","Other"],
+      ba:    ["Economics","English Literature","History","Political Science","Psychology","Sociology","Philosophy","Other"],
+      bba:   ["Finance","Marketing","Human Resources","Operations Management","International Business","Other"],
+      mtech: ["Computer Science","Electronics","VLSI Design","Power Systems","Structural Engineering","CAD/CAM","Other"],
+      msc:   ["Computer Science","Data Science","Physics","Chemistry","Mathematics","Biotechnology","Other"],
+      mca:   ["Computer Applications","Information Systems","Software Engineering","Other"],
+      mba:   ["Finance","Marketing","Human Resources","Operations","Business Analytics","Healthcare Management","Other"],
+      phd:   ["Computer Science","Engineering","Science","Management","Humanities","Other"],
+      diploma:["Computer Engineering","Electronics","Mechanical","Civil","Electrical","Other"],
+      other: ["General","Other"]
+    };
+
+    // ── Cascading State → District ────────────────────────────────
+    document.getElementById('state').addEventListener('change', function() {
+      const distSel = document.getElementById('district');
+      const colSel  = document.getElementById('college');
+      distSel.innerHTML = '<option value="">Select a District</option>';
+      colSel.innerHTML  = '<option value="">Select a College</option>';
+      colSel.disabled = true;
+      if (this.value && stateDistricts[this.value]) {
+        stateDistricts[this.value].forEach(d => {
+          const o = document.createElement('option'); o.value = d; o.textContent = d;
+          distSel.appendChild(o);
+        });
+        distSel.disabled = false;
+      } else { distSel.disabled = true; }
+      updateProgress();
+    });
+
+    // ── Cascading District → College ─────────────────────────────
+    document.getElementById('district').addEventListener('change', function() {
+      const colSel = document.getElementById('college');
+      colSel.innerHTML = '<option value="">Select a College</option>';
+      const list = districtColleges[this.value] || ["Other"];
+      list.forEach(c => {
+        const o = document.createElement('option'); o.value = c; o.textContent = c;
+        colSel.appendChild(o);
+      });
+      if (!list.includes('Other')) {
+        const o = document.createElement('option'); o.value = 'Other'; o.textContent = 'Other';
+        colSel.appendChild(o);
+      }
+      colSel.disabled = false;
+      updateProgress();
+    });
+
+    // ── Degree → Specialization ───────────────────────────────────
+    document.getElementById('degree').addEventListener('change', function() {
+      const specSel = document.getElementById('specialization');
+      specSel.innerHTML = '<option value="">Select your specialization</option>';
+      if (this.value && specializationMap[this.value]) {
+        specializationMap[this.value].forEach(s => {
+          const o = document.createElement('option'); o.value = s; o.textContent = s;
+          specSel.appendChild(o);
+        });
+        specSel.disabled = false;
+      } else {
+        specSel.innerHTML = '<option value="">Please select a degree first</option>';
+        specSel.disabled = true;
+      }
+      updateProgress();
+    });
+
+    // ── Progress bar ─────────────────────────────────────────────
+    const allFieldIds = ['state','district','college','degree','specialization','department','gender','whatsapp','gradyear'];
+
+    function updateProgress() {
+      let filled = 0;
+      allFieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const val = el.value.trim();
+        if (id === 'whatsapp') { if (/^\d{10}$/.test(val)) filled++; }
+        else { if (val) filled++; }
+      });
+      const pct = Math.round((filled / allFieldIds.length) * 100);
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-pct').textContent = pct + '%';
+    }
+
+    allFieldIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', updateProgress);
+    });
+    document.getElementById('whatsapp').addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g, '').slice(0, 10);
+      updateProgress();
+    });
+
+    // ── Validation ────────────────────────────────────────────────
+    function validate() {
+      let ok = true;
+      allFieldIds.forEach(id => {
+        const el    = document.getElementById(id);
+        const field = document.getElementById('field-' + id);
+        if (!el || !field) return;
+        const val = el.value.trim();
+        const valid = id === 'whatsapp' ? /^\d{10}$/.test(val) : val !== '';
+        field.classList.toggle('has-error', !valid);
+        if (!valid) ok = false;
+      });
+      return ok;
+    }
+
+    // ── Submit ────────────────────────────────────────────────────
+    document.getElementById('submit-btn').addEventListener('click', function() {
+      if (!validate()) {
+        document.querySelector('.field.has-error')?.scrollIntoView({ behavior:'smooth', block:'center' });
+        return;
+      }
+      this.classList.add('loading');
+      setTimeout(() => {
+        const data = {};
+        allFieldIds.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) data[id] = el.value.trim();
+        });
+        data.savedAt = new Date().toISOString();
+        localStorage.setItem('eventhub_profile', JSON.stringify(data));
+
+        // Show success meta
+        document.getElementById('success-meta').innerHTML =
+          `<strong>State:</strong> ${data.state} &nbsp;|&nbsp; <strong>District:</strong> ${data.district}<br>
+           <strong>College:</strong> ${data.college}<br>
+           <strong>Degree:</strong> ${data.degree.toUpperCase()} — ${data.specialization}<br>
+           <strong>WhatsApp:</strong> +91 ${data.whatsapp} &nbsp;|&nbsp; <strong>Graduation:</strong> ${data.gradyear}`;
+
+        this.classList.remove('loading');
+        document.getElementById('success-overlay').classList.add('show');
+      }, 900);
+    });
+
+    document.getElementById('success-go-home').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    // ── Icons ─────────────────────────────────────────────────────
+    if (window.lucide) window.lucide.createIcons();
+    document.addEventListener('DOMContentLoaded', () => { if (window.lucide) window.lucide.createIcons(); });
+  </script>
+</body>
+</html>
