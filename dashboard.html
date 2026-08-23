@@ -1092,11 +1092,11 @@
                   <span>Publish new registration page</span>
                 </div>
               </div>
-              <div class="quick-action" onclick="window.location.href='index.html#qr-spotlight'">
+              <div class="quick-action" onclick="window.location.href='scanner.html'">
                 <div class="feature-icon-wrap success" style="width:36px;height:36px;margin:0;"><i data-lucide="scan-line"></i></div>
                 <div>
-                  <strong>Mobile QR Scanner</strong>
-                  <span>Verify gate tickets instantly</span>
+                  <strong>Gate QR Scanner</strong>
+                  <span>Verify and approve attendee passes</span>
                 </div>
               </div>
               <div class="quick-action" onclick="window.location.href='register.html'">
@@ -1483,9 +1483,15 @@
             </div>
             <div class="ev-cat-badge">${ev.category || 'Event'}</div>
           </div>
-          <div class="ev-footer">
-            <span>Registration Active</span>
-            <span style="color:var(--md-sys-color-success); font-weight:600;">● Published</span>
+          <div class="ev-footer" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="color:var(--md-sys-color-success); font-weight:600;">● Published</span>
+              <span style="color:var(--md-sys-color-outline);">•</span>
+              <a href="ticket.html" style="color:var(--md-sys-color-primary); font-weight:600; text-decoration:none;">View Pass 🎟️</a>
+            </div>
+            <a href="scanner.html?eventId=${ev.id}" class="btn btn-primary btn-sm" style="height:32px; padding:0 14px;">
+              <i data-lucide="scan-line" style="width:14px;height:14px;"></i> Gate Scanner
+            </a>
           </div>`;
 
         listEl.appendChild(card);

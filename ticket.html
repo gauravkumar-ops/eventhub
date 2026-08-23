@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Event Passes &amp; QR Tickets — EventHub</title>
+  <meta name="description" content="Access and download your verified EventHub campus event entry passes with high-resolution digital QR codes." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&family=Roboto+Flex:wght@400;500;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <!-- Fast, robust QR code generator library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Apply saved theme BEFORE render -->
+  <script>
+    (function(){
+      const saved = localStorage.getItem('eventhub_theme') || 'dark';
+      const pref  = saved === 'system'
+        ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+        : saved;
+      document.documentElement.setAttribute('data-theme', pref);
+    })();
+  </script>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    body {
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      min-height: 100vh;
+      padding-bottom: 120px;
+    }
+
+    /* M3 Top App Bar with Navigation Chipset */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: rgba(20, 18, 24, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      padding: 12px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    [data-theme="light"] .top-nav {
+      background-color: rgba(253, 247, 255, 0.85);
+    }
+
+    .nav-chipset {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 4px;
+    }
+
+    .m3-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 16px;
+      border-radius: var(--md-sys-shape-corner-small);
+      border: 1px solid var(--md-sys-color-outline);
+      background-color: var(--md-sys-color-surface-container-low);
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .m3-chip svg { width: 16px; height: 16px; }
+    .m3-chip:hover {
+      background-color: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+      border-color: var(--md-sys-color-primary);
+    }
+    .m3-chip.active {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    /* Container */
+    .ticket-view-wrap {
+      max-width: 860px;
+      margin: 40px auto 0;
+      padding: 0 20px;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .page-title {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: clamp(2rem, 4vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      font-size: 0.95rem;
+      color: var(--md-sys-color-on-surface-variant);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* Event Selector Tabs / Filter Chipset */
+    .event-selector-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 6px 4px 16px;
+      margin-bottom: 24px;
+      justify-content: center;
+    }
+
+    /* M3 Expressive Boarding Pass Ticket Card */
+    .ticket-card {
+      background-color: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: var(--md-sys-shape-corner-extra-large-increased);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.35);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Ticket Banner */
+    .ticket-head {
+      background: linear-gradient(135deg, var(--md-sys-color-primary-container) 0%, var(--md-sys-color-surface-container-high) 100%);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .ticket-event-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: var(--md-sys-shape-corner-full);
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+
+    .ticket-event-name {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .ticket-event-venue {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.875rem;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-top: 6px;
+    }
+
+    .ticket-status-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--md-sys-shape-corner-full);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      background-color: var(--md-sys-color-success-container);
+      color: var(--md-sys-color-success);
+      border: 1px solid var(--md-sys-color-success);
+    }
+    .status-badge.checked-in {
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-primary);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    /* Ticket Body: QR and Attendee Info */
+    .ticket-body {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 36px;
+      padding: 36px 32px;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .ticket-body {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 28px;
+      }
+    }
+
+    .qr-container-box {
+      background-color: var(--md-sys-color-surface-container-lowest);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-extra-large);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    #qr-canvas-holder {
+      background: #ffffff;
+      padding: 12px;
+      border-radius: var(--md-sys-shape-corner-medium);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qr-hash-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--md-sys-color-primary);
+      margin-top: 14px;
+      letter-spacing: 0.08em;
+    }
+
+    .qr-hint {
+      font-size: 0.72rem;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Attendee Info Grid */
+    .attendee-info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 500px) {
+      .attendee-info-grid { grid-template-columns: 1fr; }
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .info-lbl {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface-variant);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .info-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+    }
+
+    /* Ticket Tear Perforations (M3 Ticket divider) */
+    .ticket-perforation {
+      display: flex;
+      align-items: center;
+      position: relative;
+      margin: 0 -1px;
+    }
+
+    .perf-notch-left, .perf-notch-right {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: var(--md-sys-color-surface);
+      border: 1px solid var(--md-sys-color-outline);
+      position: absolute;
+      z-index: 10;
+    }
+    .perf-notch-left { left: -12px; }
+    .perf-notch-right { right: -12px; }
+
+    .perf-line {
+      width: 100%;
+      border-top: 2px dashed var(--md-sys-color-outline-variant);
+    }
+
+    /* Ticket Footer Actions */
+    .ticket-footer {
+      background-color: var(--md-sys-color-surface-container);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .ticket-security-note {
+      font-size: 0.75rem;
+      color: var(--md-sys-color-on-surface-variant);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ticket-actions-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Empty state */
+    .empty-ticket-wrap {
+      background-color: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-extra-large);
+      padding: 64px 32px;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Bar with M3 Chipset -->
+  <header class="top-nav">
+    <a href="index.html" class="logo" aria-label="EventHub Home">
+      <div class="logo-icon" style="width:30px;height:30px;font-size:1rem;">⚡</div>
+      <span>Event<span class="logo-accent">Hub</span></span>
+    </a>
+
+    <!-- Navigation Chipsets -->
+    <div class="nav-chipset">
+      <a href="dashboard.html" class="m3-chip">
+        <i data-lucide="layout-dashboard"></i> Dashboard
+      </a>
+      <a href="scanner.html" class="m3-chip">
+        <i data-lucide="scan-line"></i> Gate Scanner
+      </a>
+      <a href="ticket.html" class="m3-chip active">
+        <i data-lucide="qr-code"></i> My QR Tickets
+      </a>
+      <a href="register.html" class="m3-chip">
+        <i data-lucide="user-check"></i> Profile
+      </a>
+    </div>
+  </header>
+
+  <main class="ticket-view-wrap">
+    <div class="page-header">
+      <h1 class="page-title">Digital Entry Pass &amp; QR Pass</h1>
+      <p class="page-subtitle">Present this dynamic QR code at the campus event gate or registration desk for instant optical check-in.</p>
+    </div>
+
+    <!-- Event Selector Chips -->
+    <div class="event-selector-bar" id="event-selector-bar">
+      <!-- Generated dynamically -->
+    </div>
+
+    <!-- Active Ticket Boarding Pass Card -->
+    <div class="ticket-card" id="ticket-card">
+      <!-- Header -->
+      <div class="ticket-head">
+        <div>
+          <span class="ticket-event-badge" id="t-category">Hackathon</span>
+          <div class="ticket-event-name" id="t-event-name">Apex AI &amp; Robotics Hackathon 2026</div>
+          <div class="ticket-event-venue">
+            <i data-lucide="map-pin" style="width:16px;height:16px;"></i>
+            <span id="t-venue">Main Auditorium, Tech Campus, Pune</span>
+          </div>
+        </div>
+        <div class="ticket-status-pill">
+          <div class="status-badge" id="t-status">
+            <i data-lucide="shield-check" style="width:16px;height:16px;"></i>
+            <span>Verified Attendee</span>
+          </div>
+          <span style="font-size:0.75rem; color:var(--md-sys-color-on-surface-variant);" id="t-entry-gate">Gate: Hall A • General Entry</span>
+        </div>
+      </div>
+
+      <!-- Body: QR & Details -->
+      <div class="ticket-body">
+        <div class="qr-container-box">
+          <div id="qr-canvas-holder"></div>
+          <div class="qr-hash-label" id="t-hash">PASS-948271</div>
+          <div class="qr-hint"><i data-lucide="camera" style="width:13px;height:13px;"></i> Ready for Optical Gate Scan</div>
+        </div>
+
+        <div class="attendee-info-grid">
+          <div class="info-item">
+            <span class="info-lbl">Attendee Name</span>
+            <span class="info-val" id="t-name">Alex Johnson</span>
+          </div>
+          <div class="info-item">
+            <span class="info-lbl">Institution / College</span>
+            <span class="info-val" id="t-college">IIT Bombay</span>
+          </div>
+          <div class="info-item">
+            <span class="info-lbl">Date &amp; Schedule</span>
+            <span class="info-val" id="t-datetime">Oct 24, 2026 • 09:00 AM</span>
+          </div>
+          <div class="info-item">
+            <span class="info-lbl">Academic Program</span>
+            <span class="info-val" id="t-degree">B.Tech • Computer Science</span>
+          </div>
+          <div class="info-item">
+            <span class="info-lbl">WhatsApp Contact</span>
+            <span class="info-val" id="t-whatsapp">+91 9876543210</span>
+          </div>
+          <div class="info-item">
+            <span class="info-lbl">Pass Verification Status</span>
+            <span class="info-val" style="color:var(--md-sys-color-success);" id="t-approval-state">● Approved for Entry</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tear Perforation -->
+      <div class="ticket-perforation">
+        <div class="perf-notch-left"></div>
+        <div class="perf-line"></div>
+        <div class="perf-notch-right"></div>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="ticket-footer">
+        <div class="ticket-security-note">
+          <i data-lucide="lock" style="width:14px;height:14px;color:var(--md-sys-color-primary);"></i>
+          <span>Cryptographically signed • 256-bit Gate Hash</span>
+        </div>
+        <div class="ticket-actions-group">
+          <button class="btn btn-tonal btn-sm" onclick="printOrSavePass()">
+            <i data-lucide="download"></i> Save Pass
+          </button>
+          <a href="scanner.html" class="btn btn-primary btn-sm">
+            <i data-lucide="scan-line"></i> Test Scanner
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State if no events exist -->
+    <div class="empty-ticket-wrap" id="empty-tickets">
+      <div style="font-size:3.5rem; margin-bottom:12px;">🎟️</div>
+      <h3 style="font-family:var(--md-sys-typescale-brand-font); font-size:1.4rem; font-weight:700; margin-bottom:8px;">No Registered Passes Yet</h3>
+      <p style="color:var(--md-sys-color-on-surface-variant); font-size:0.95rem; margin-bottom:24px;">Explore published campus events or create one to generate your verified digital QR ticket.</p>
+      <a href="create-event.html" class="btn btn-primary">
+        <i data-lucide="plus"></i> Create or Register for an Event
+      </a>
+    </div>
+  </main>
+
+  <script>
+    let activeQrCode = null;
+
+    // Load available events
+    function getStoredEvents() {
+      try {
+        const evs = JSON.parse(localStorage.getItem('eventhub_events') || '[]');
+        if (evs.length > 0) return evs;
+      } catch(_) {}
+      // Default fallback demo event
+      return [{
+        id: 'evt_demo_01',
+        name: 'Apex AI & Robotics Hackathon 2026',
+        category: 'Hackathon',
+        date: '2026-10-24',
+        startTime: '09:00',
+        endTime: '18:00',
+        venue: 'Main Auditorium',
+        city: 'Pune',
+        state: 'Maharashtra'
+      }];
+    }
+
+    function getUserData() {
+      const user = JSON.parse(localStorage.getItem('eventhub_user') || '{}');
+      const profile = JSON.parse(localStorage.getItem('eventhub_profile') || '{}');
+      return {
+        name: user.displayName || user.email?.split('@')[0] || 'Alex Johnson',
+        email: user.email || 'alex.johnson@campus.edu',
+        college: profile.college || 'IIT Bombay',
+        degree: (profile.degree ? profile.degree.toUpperCase() : 'B.TECH') + (profile.specialization ? ' • ' + profile.specialization : ' • Computer Science'),
+        whatsapp: profile.whatsapp ? '+91 ' + profile.whatsapp : '+91 9876543210'
+      };
+    }
+
+    let allEvents = getStoredEvents();
+    let currentEventIndex = 0;
+
+    function renderEventSelector() {
+      const bar = document.getElementById('event-selector-bar');
+      bar.innerHTML = '';
+      allEvents.forEach((ev, idx) => {
+        const chip = document.createElement('button');
+        chip.className = 'm3-chip' + (idx === currentEventIndex ? ' active' : '');
+        chip.innerHTML = `<i data-lucide="ticket"></i> ${ev.name}`;
+        chip.onclick = () => {
+          currentEventIndex = idx;
+          renderEventSelector();
+          renderActiveTicket();
+        };
+        bar.appendChild(chip);
+      });
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function generateQrCodeData(ev, user) {
+      // Formatted JSON payload for instant camera decoding & verification
+      const ticketId = 'EH-' + (ev.id || 'EVT').slice(-6).toUpperCase() + '-' + Math.abs(hashCode(user.name + ev.name)).toString().slice(0, 4);
+      
+      const payload = JSON.stringify({
+        ticketId: ticketId,
+        eventId: ev.id,
+        eventName: ev.name,
+        attendeeName: user.name,
+        attendeeEmail: user.email,
+        college: user.college,
+        whatsapp: user.whatsapp,
+        category: ev.category || 'General',
+        issuedAt: new Date().toISOString()
+      });
+
+      return { ticketId, payload };
+    }
+
+    function hashCode(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return hash;
+    }
+
+    function renderActiveTicket() {
+      if (allEvents.length === 0) {
+        document.getElementById('ticket-card').style.display = 'none';
+        document.getElementById('empty-tickets').style.display = 'block';
+        return;
+      }
+
+      const ev = allEvents[currentEventIndex];
+      const user = getUserData();
+      const { ticketId, payload } = generateQrCodeData(ev, user);
+
+      // Check if ticket has already been checked in
+      const checkedInMap = JSON.parse(localStorage.getItem('eventhub_checkins') || '{}');
+      const isCheckedIn = !!checkedInMap[ticketId];
+
+      document.getElementById('t-category').textContent = ev.category || 'Event';
+      document.getElementById('t-event-name').textContent = ev.name;
+      document.getElementById('t-venue').textContent = [ev.venue, ev.city, ev.state].filter(Boolean).join(', ') || 'Campus Venue';
+      document.getElementById('t-name').textContent = user.name;
+      document.getElementById('t-college').textContent = user.college;
+      document.getElementById('t-degree').textContent = user.degree;
+      document.getElementById('t-whatsapp').textContent = user.whatsapp;
+      document.getElementById('t-datetime').textContent = (ev.date || '2026-10-24') + ' • ' + (ev.startTime || '09:00 AM');
+      document.getElementById('t-hash').textContent = ticketId;
+
+      const statusBadge = document.getElementById('t-status');
+      const approvalState = document.getElementById('t-approval-state');
+      if (isCheckedIn) {
+        statusBadge.className = 'status-badge checked-in';
+        statusBadge.innerHTML = `<i data-lucide="check-check" style="width:16px;height:16px;"></i> Checked In (${checkedInMap[ticketId].time || 'Verified'})`;
+        approvalState.textContent = '✓ Admitted at Gate';
+        approvalState.style.color = 'var(--md-sys-color-primary)';
+      } else {
+        statusBadge.className = 'status-badge';
+        statusBadge.innerHTML = `<i data-lucide="shield-check" style="width:16px;height:16px;"></i> Verified Attendee`;
+        approvalState.textContent = '● Approved for Entry';
+        approvalState.style.color = 'var(--md-sys-color-success)';
+      }
+
+      // Generate QR Canvas
+      const container = document.getElementById('qr-canvas-holder');
+      container.innerHTML = '';
+      new QRCode(container, {
+        text: payload,
+        width: 180,
+        height: 180,
+        colorDark: "#141218",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    window.printOrSavePass = function() {
+      window.print();
+    };
+
+    renderEventSelector();
+    renderActiveTicket();
+  </script>
+</body>
+</html>

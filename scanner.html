@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Gate QR Scanner &amp; Entry Manager — EventHub</title>
+  <meta name="description" content="Optical real-time QR scanner and ticket verification console for EventHub event managers and gate volunteers." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&family=Roboto+Flex:wght@400;500;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <!-- High performance HTML5 QR Camera Decoder Library -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <!-- Apply saved theme BEFORE render -->
+  <script>
+    (function(){
+      const saved = localStorage.getItem('eventhub_theme') || 'dark';
+      const pref  = saved === 'system'
+        ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+        : saved;
+      document.documentElement.setAttribute('data-theme', pref);
+    })();
+  </script>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    body {
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      min-height: 100vh;
+      padding-bottom: 100px;
+    }
+
+    /* Top App Bar */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: rgba(20, 18, 24, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      padding: 12px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    [data-theme="light"] .top-nav {
+      background-color: rgba(253, 247, 255, 0.85);
+    }
+
+    .nav-chipset {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 4px;
+    }
+
+    .m3-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 16px;
+      border-radius: var(--md-sys-shape-corner-small);
+      border: 1px solid var(--md-sys-color-outline);
+      background-color: var(--md-sys-color-surface-container-low);
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .m3-chip svg { width: 16px; height: 16px; }
+    .m3-chip:hover {
+      background-color: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+      border-color: var(--md-sys-color-primary);
+    }
+    .m3-chip.active {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    /* Grid Layout */
+    .scanner-layout {
+      max-width: 1100px;
+      margin: 36px auto 0;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .scanner-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* M3 Surface Card */
+    .scanner-card {
+      background-color: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-extra-large);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    }
+
+    .card-title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .card-title {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--md-sys-color-on-surface);
+    }
+
+    /* Camera Viewfinder Box */
+    .viewfinder-wrapper {
+      position: relative;
+      width: 100%;
+      border-radius: var(--md-sys-shape-corner-large);
+      overflow: hidden;
+      background-color: var(--md-sys-color-surface-container-lowest);
+      border: 2px solid var(--md-sys-color-outline);
+      min-height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #camera-reader {
+      width: 100% !important;
+      border: none !important;
+    }
+
+    #camera-reader video {
+      border-radius: var(--md-sys-shape-corner-large);
+      object-fit: cover;
+    }
+
+    /* Laser Scanning Animation Overlay */
+    .scanning-laser {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--md-sys-color-primary), transparent);
+      box-shadow: 0 0 14px var(--md-sys-color-primary);
+      z-index: 10;
+      animation: scanLaser 2.2s ease-in-out infinite;
+      display: none;
+    }
+
+    .viewfinder-wrapper.active .scanning-laser {
+      display: block;
+    }
+
+    @keyframes scanLaser {
+      0% { top: 10%; opacity: 0.2; }
+      50% { top: 90%; opacity: 1; }
+      100% { top: 10%; opacity: 0.2; }
+    }
+
+    /* Viewfinder Corner Overlays */
+    .vf-corner {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-color: var(--md-sys-color-primary);
+      border-style: solid;
+      pointer-events: none;
+      z-index: 11;
+    }
+    .vf-tl { top: 18px; left: 18px; border-width: 3px 0 0 3px; border-top-left-radius: 6px; }
+    .vf-tr { top: 18px; right: 18px; border-width: 3px 3px 0 0; border-top-right-radius: 6px; }
+    .vf-bl { bottom: 18px; left: 18px; border-width: 0 0 3px 3px; border-bottom-left-radius: 6px; }
+    .vf-br { bottom: 18px; right: 18px; border-width: 0 3px 3px 0; border-bottom-right-radius: 6px; }
+
+    /* Controls */
+    .scanner-controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Manual Entry Input Group */
+    .manual-entry-box {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    /* Real-Time Scan Result Dialog / Banner */
+    .scan-feedback-banner {
+      display: none;
+      padding: 16px 20px;
+      border-radius: var(--md-sys-shape-corner-medium);
+      border: 1.5px solid transparent;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .scan-feedback-banner.success {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background-color: var(--md-sys-color-success-container);
+      color: var(--md-sys-color-on-success-container);
+      border-color: var(--md-sys-color-success);
+    }
+
+    .scan-feedback-banner.duplicate {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background-color: var(--md-sys-color-tertiary-container);
+      color: var(--md-sys-color-on-tertiary-container);
+      border-color: var(--md-sys-color-tertiary);
+    }
+
+    .scan-feedback-banner.error {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background-color: var(--md-sys-color-error-container);
+      color: var(--md-sys-color-on-error-container);
+      border-color: var(--md-sys-color-error);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Recent Check-Ins List */
+    .checkin-log-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .log-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-radius: var(--md-sys-shape-corner-medium);
+      background-color: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .log-item:hover {
+      background-color: var(--md-sys-color-surface-container-high);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    .log-user-name { font-size: 0.875rem; font-weight: 700; }
+    .log-user-meta { font-size: 0.75rem; color: var(--md-sys-color-on-surface-variant); margin-top: 2px; }
+    .log-time { font-size: 0.75rem; font-weight: 600; color: var(--md-sys-color-primary); font-family: 'Space Mono', monospace; }
+
+    /* Counter Badge */
+    .gate-stats-bar {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .gate-stat-box {
+      background-color: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-medium);
+      padding: 14px;
+      text-align: center;
+    }
+    .gate-stat-val { font-family: var(--md-sys-typescale-brand-font); font-size: 1.8rem; font-weight: 800; color: var(--md-sys-color-primary); }
+    .gate-stat-lbl { font-size: 0.75rem; font-weight: 600; color: var(--md-sys-color-on-surface-variant); text-transform: uppercase; }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Bar with M3 Chipset -->
+  <header class="top-nav">
+    <a href="index.html" class="logo" aria-label="EventHub Home">
+      <div class="logo-icon" style="width:30px;height:30px;font-size:1rem;">⚡</div>
+      <span>Event<span class="logo-accent">Hub</span></span>
+    </a>
+
+    <!-- Navigation Chipsets -->
+    <div class="nav-chipset">
+      <a href="dashboard.html" class="m3-chip">
+        <i data-lucide="layout-dashboard"></i> Dashboard
+      </a>
+      <a href="scanner.html" class="m3-chip active">
+        <i data-lucide="scan-line"></i> Gate Scanner
+      </a>
+      <a href="ticket.html" class="m3-chip">
+        <i data-lucide="qr-code"></i> Participant Passes
+      </a>
+      <a href="create-event.html" class="m3-chip">
+        <i data-lucide="calendar-plus"></i> Create Event
+      </a>
+    </div>
+  </header>
+
+  <main class="scanner-layout">
+
+    <!-- Column 1: Optical QR Viewfinder & Scanner -->
+    <div class="scanner-card">
+      <div class="card-title-bar">
+        <div class="card-title">
+          <i data-lucide="camera" style="color:var(--md-sys-color-primary);"></i>
+          <span>Optical Gate Scanner</span>
+        </div>
+        <span class="tag" id="gate-active-badge">Gate 01 • Active</span>
+      </div>
+
+      <!-- Viewfinder Box -->
+      <div class="viewfinder-wrapper" id="viewfinder-box">
+        <div class="scanning-laser"></div>
+        <div class="vf-corner vf-tl"></div>
+        <div class="vf-corner vf-tr"></div>
+        <div class="vf-corner vf-bl"></div>
+        <div class="vf-corner vf-br"></div>
+
+        <div id="camera-reader"></div>
+        <div id="camera-placeholder" style="text-align:center; padding:24px; color:var(--md-sys-color-on-surface-variant);">
+          <div style="font-size:2.8rem; margin-bottom:8px;">📷</div>
+          <div style="font-weight:600; margin-bottom:4px;">Camera Inactive</div>
+          <div style="font-size:0.8125rem;">Click "Start Camera" to launch optical QR validation.</div>
+        </div>
+      </div>
+
+      <!-- Scanner Controls -->
+      <div class="scanner-controls">
+        <button class="btn btn-primary" id="btn-start-camera" onclick="startScanner()">
+          <i data-lucide="play"></i> Start Camera
+        </button>
+        <button class="btn btn-outline" id="btn-stop-camera" onclick="stopScanner()" style="display:none;">
+          <i data-lucide="square"></i> Stop Camera
+        </button>
+        <a href="ticket.html" class="btn btn-tonal">
+          <i data-lucide="qr-code"></i> Open Participant Ticket
+        </a>
+      </div>
+
+      <!-- Live Scan Decision Feedback Banner -->
+      <div class="scan-feedback-banner" id="scan-feedback">
+        <!-- populated dynamically -->
+      </div>
+
+      <!-- Manual Code Verification Fallback -->
+      <div style="margin-top:10px;">
+        <label class="field-label" for="manual-ticket-input">Manual Ticket / Pass Code Verification</label>
+        <div class="manual-entry-box">
+          <input class="field-input" type="text" id="manual-ticket-input" placeholder="e.g. EH-948271 or Pass ID" style="text-transform:uppercase;" />
+          <button class="btn btn-tonal" onclick="handleManualVerify()">
+            <i data-lucide="check"></i> Verify
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 2: Gate Attendance Logs & Quick Stats -->
+    <div class="scanner-card">
+      <div class="card-title-bar">
+        <div class="card-title">
+          <i data-lucide="clipboard-check" style="color:var(--md-sys-color-success);"></i>
+          <span>Live Check-In Log</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="clearCheckinHistory()" title="Reset gate session log">
+          <i data-lucide="refresh-cw"></i> Reset
+        </button>
+      </div>
+
+      <!-- Quick Metrics -->
+      <div class="gate-stats-bar">
+        <div class="gate-stat-box">
+          <div class="gate-stat-val" id="stat-scanned-cnt">0</div>
+          <div class="gate-stat-lbl">Admitted Today</div>
+        </div>
+        <div class="gate-stat-box">
+          <div class="gate-stat-val" id="stat-speed-val">0.3s</div>
+          <div class="gate-stat-lbl">Average Gate Time</div>
+        </div>
+      </div>
+
+      <!-- Recent Log Stream -->
+      <div class="checkin-log-list" id="checkin-log-list">
+        <!-- populated dynamically -->
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    let html5QrCode = null;
+    let isScanning = false;
+    let checkinRecords = [];
+
+    // Load checkin history
+    function loadCheckinHistory() {
+      try {
+        const stored = JSON.parse(localStorage.getItem('eventhub_checkin_history') || '[]');
+        checkinRecords = stored;
+      } catch(_) {
+        checkinRecords = [];
+      }
+      renderCheckinLog();
+    }
+
+    function renderCheckinLog() {
+      const listEl = document.getElementById('checkin-log-list');
+      const countEl = document.getElementById('stat-scanned-cnt');
+      countEl.textContent = checkinRecords.length;
+
+      if (checkinRecords.length === 0) {
+        listEl.innerHTML = `
+          <div style="text-align:center; padding:36px 16px; color:var(--md-sys-color-on-surface-variant); font-size:0.875rem;">
+            No attendees checked in yet.<br>Scan tickets or enter codes to begin admission.
+          </div>`;
+        return;
+      }
+
+      listEl.innerHTML = '';
+      checkinRecords.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'log-item';
+        row.innerHTML = `
+          <div>
+            <div class="log-user-name">${item.attendeeName || 'Attendee'}</div>
+            <div class="log-user-meta">${item.college || 'Campus'} • ${item.ticketId || 'PASS'}</div>
+          </div>
+          <div class="log-time">${item.time}</div>
+        `;
+        listEl.appendChild(row);
+      });
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    // Audio Feedback for Approval / Rejection
+    function playBeep(type) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        if (type === 'success') {
+          osc.frequency.setValueAtTime(880, ctx.currentTime); // A5
+          osc.frequency.setValueAtTime(1174.66, ctx.currentTime + 0.08); // D6
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.25);
+        } else {
+          osc.frequency.setValueAtTime(260, ctx.currentTime);
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.3);
+        }
+      } catch(_) {}
+    }
+
+    // Handle Scanned Payload
+    function processScannedCode(rawText) {
+      let data = {};
+      try {
+        data = JSON.parse(rawText);
+      } catch(e) {
+        data = {
+          ticketId: rawText.trim(),
+          attendeeName: 'Attendee (' + rawText.trim().slice(-4) + ')',
+          college: 'Campus Delegate',
+          eventName: 'Campus Event'
+        };
+      }
+
+      const ticketId = data.ticketId || ('EH-' + Math.random().toString(36).substring(2, 8).toUpperCase());
+      const checkedInMap = JSON.parse(localStorage.getItem('eventhub_checkins') || '{}');
+      const banner = document.getElementById('scan-feedback');
+
+      if (checkedInMap[ticketId]) {
+        // DUPLICATE ATTEMPT
+        playBeep('error');
+        banner.className = 'scan-feedback-banner duplicate';
+        banner.innerHTML = `
+          <div style="font-weight:800; font-size:1.05rem; display:flex; align-items:center; gap:8px;">
+            <i data-lucide="alert-triangle"></i> DUPLICATE ENTRY DETECTED!
+          </div>
+          <div style="font-size:0.875rem;">
+            This pass (<strong>${ticketId}</strong>) was already scanned at <strong>${checkedInMap[ticketId].time}</strong>.<br>
+            Attendee: <strong>${checkedInMap[ticketId].attendeeName}</strong>
+          </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+        return;
+      }
+
+      // APPROVE ENTRY
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      
+      checkedInMap[ticketId] = {
+        attendeeName: data.attendeeName || 'Attendee',
+        college: data.college || 'Institution',
+        time: timeStr,
+        scannedAt: now.toISOString()
+      };
+      localStorage.setItem('eventhub_checkins', JSON.stringify(checkedInMap));
+
+      // Add to log
+      checkinRecords.unshift({
+        ticketId: ticketId,
+        attendeeName: data.attendeeName || 'Verified Attendee',
+        college: data.college || 'Campus',
+        time: timeStr
+      });
+      localStorage.setItem('eventhub_checkin_history', JSON.stringify(checkinRecords));
+
+      playBeep('success');
+      banner.className = 'scan-feedback-banner success';
+      banner.innerHTML = `
+        <div style="font-weight:800; font-size:1.15rem; display:flex; align-items:center; gap:8px;">
+          <i data-lucide="check-circle-2"></i> ENTRY APPROVED!
+        </div>
+        <div style="font-size:0.9rem; line-height:1.5;">
+          Attendee: <strong>${data.attendeeName || 'Registered Student'}</strong><br>
+          Institution: <strong>${data.college || 'Institution'}</strong> &nbsp;•&nbsp; Pass: <code>${ticketId}</code>
+        </div>
+      `;
+      
+      renderCheckinLog();
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    // Manual Verify
+    window.handleManualVerify = function() {
+      const input = document.getElementById('manual-ticket-input');
+      const val = input.value.trim();
+      if (!val) return;
+      processScannedCode(JSON.stringify({
+        ticketId: val,
+        attendeeName: 'Student Attendee',
+        college: 'Verified Campus ID'
+      }));
+      input.value = '';
+    };
+
+    // Camera Lifecycle
+    window.startScanner = function() {
+      document.getElementById('camera-placeholder').style.display = 'none';
+      document.getElementById('viewfinder-box').classList.add('active');
+      document.getElementById('btn-start-camera').style.display = 'none';
+      document.getElementById('btn-stop-camera').style.display = 'inline-flex';
+
+      html5QrCode = new Html5Qrcode("camera-reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        {
+          fps: 15,
+          qrbox: { width: 250, height: 250 }
+        },
+        (decodedText) => {
+          processScannedCode(decodedText);
+          // Pause briefly to prevent rapid duplicate multi-reads
+          html5QrCode.pause();
+          setTimeout(() => {
+            try { html5QrCode.resume(); } catch(_) {}
+          }, 2000);
+        },
+        (errorMessage) => {
+          // ignore frame decode noise
+        }
+      ).catch(err => {
+        console.warn("Camera access error:", err);
+        alert("Camera permission denied or camera not found. You can still use manual pass code verification.");
+        stopScanner();
+      });
+      isScanning = true;
+    };
+
+    window.stopScanner = function() {
+      if (html5QrCode && isScanning) {
+        html5QrCode.stop().then(() => {
+          document.getElementById('camera-placeholder').style.display = 'block';
+          document.getElementById('viewfinder-box').classList.remove('active');
+          document.getElementById('btn-start-camera').style.display = 'inline-flex';
+          document.getElementById('btn-stop-camera').style.display = 'none';
+          isScanning = false;
+        }).catch(err => console.error(err));
+      }
+    };
+
+    window.clearCheckinHistory = function() {
+      if (confirm('Clear all local gate scan records for this session?')) {
+        localStorage.removeItem('eventhub_checkins');
+        localStorage.removeItem('eventhub_checkin_history');
+        checkinRecords = [];
+        document.getElementById('scan-feedback').style.display = 'none';
+        renderCheckinLog();
+      }
+    };
+
+    loadCheckinHistory();
+    if (window.lucide) window.lucide.createIcons();
+  </script>
+</body>
+</html>
