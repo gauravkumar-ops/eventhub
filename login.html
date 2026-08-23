@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Log In — EventHub</title>
-  <meta name="description" content="Sign in to your EventHub account to manage campus events, registrations, and QR tickets." />
+  <title>Sign In — EventHub</title>
+  <meta name="description" content="Sign in with your Google account to manage campus events, registrations, and QR passes with EventHub." />
   
   <!-- Fonts & Material Symbols -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -285,158 +285,122 @@
       background-color: var(--md-sys-color-surface-container-low);
       border: 1px solid var(--md-sys-color-outline-variant);
       border-radius: var(--md-sys-shape-corner-extra-large);
-      padding: 36px 32px;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+      padding: 44px 36px;
+      box-shadow: 0 16px 44px rgba(0, 0, 0, 0.28);
+      text-align: center;
+    }
+
+    .auth-icon-hero {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--md-sys-shape-corner-large);
+      background: linear-gradient(135deg, var(--md-sys-color-primary-container) 0%, var(--md-sys-color-secondary-container) 100%);
+      color: var(--md-sys-color-on-primary-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    }
+    .auth-icon-hero svg {
+      width: 32px;
+      height: 32px;
+      color: var(--md-sys-color-primary);
     }
 
     .form-header {
-      margin-bottom: 24px;
+      margin-bottom: 28px;
     }
     .form-title {
       font-family: var(--md-sys-typescale-brand-font);
-      font-size: 1.85rem;
+      font-size: 2rem;
       font-weight: 800;
       letter-spacing: -0.02em;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       color: var(--md-sys-color-on-surface);
     }
     .form-subtitle {
       font-size: 0.9375rem;
       color: var(--md-sys-color-on-surface-variant);
-      line-height: 1.5;
+      line-height: 1.55;
+      max-width: 340px;
+      margin: 0 auto;
     }
 
-    /* M3 Outlined Google Button */
+    /* Google Sign-In Hero Button */
     .google-btn {
       width: 100%;
-      padding: 12px 20px;
+      padding: 15px 24px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 14px;
       background-color: #ffffff;
       color: #1f1f1f;
-      font-size: 0.9375rem;
-      font-weight: 600;
+      font-size: 1.05rem;
+      font-weight: 700;
       font-family: var(--md-sys-typescale-plain-font);
       border-radius: var(--md-sys-shape-corner-full);
       cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
       transition: all var(--md-sys-motion-duration-short) ease;
       border: none;
     }
     .google-btn:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38);
+      transform: translateY(-2px);
+      background-color: #f8f9fa;
     }
     .google-btn:active {
       transform: translateY(0);
     }
 
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin: 22px 0;
-    }
-    .divider-line {
-      flex: 1;
-      height: 1px;
-      background-color: var(--md-sys-color-outline-variant);
-    }
-    .divider-text {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--md-sys-color-on-surface-variant);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    /* M3 Outlined Form Controls matching Dashboard/Create-Event */
-    .form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .field-label {
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--md-sys-color-on-surface-variant);
-    }
-
-    .field-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .field-icon {
-      position: absolute;
-      left: 16px;
-      color: var(--md-sys-color-outline);
+    .google-btn.loading {
       pointer-events: none;
-      width: 18px;
-      height: 18px;
-      transition: color var(--md-sys-motion-duration-short) ease;
+      opacity: 0.8;
     }
 
-    .field-input {
-      width: 100%;
-      padding: 13px 16px 13px 46px;
-      border-radius: var(--md-sys-shape-corner-medium);
-      border: 1.5px solid var(--md-sys-color-outline-variant);
-      background-color: var(--md-sys-color-surface-container);
-      color: var(--md-sys-color-on-surface);
-      font-size: 0.9375rem;
-      font-family: inherit;
-      outline: none;
-      transition: all var(--md-sys-motion-duration-short) ease;
-    }
-    .field-input:focus {
-      border-color: var(--md-sys-color-primary);
-      background-color: var(--md-sys-color-surface-container-high);
-      box-shadow: 0 0 0 1px var(--md-sys-color-primary);
-    }
-    .field-wrap:focus-within .field-icon {
-      color: var(--md-sys-color-primary);
-    }
-
-    .pass-toggle {
-      position: absolute;
-      right: 14px;
-      color: var(--md-sys-color-outline);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      padding: 4px;
+    .btn-spinner {
+      display: none;
+      width: 22px;
+      height: 22px;
+      border: 3px solid rgba(0, 0, 0, 0.18);
+      border-top-color: #1f1f1f;
       border-radius: 50%;
-      background: none;
-      border: none;
+      animation: spin 0.7s linear infinite;
     }
-    .pass-toggle:hover {
-      color: var(--md-sys-color-on-surface);
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .google-btn.loading .btn-text { display: none; }
+    .google-btn.loading .google-icon-svg { display: none; }
+    .google-btn.loading .btn-spinner { display: block; }
+
+    /* Trust & Security Badges */
+    .auth-trust-box {
+      margin-top: 32px;
+      padding: 16px;
+      border-radius: var(--md-sys-shape-corner-medium);
+      background-color: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
     }
 
-    .form-row {
+    .trust-item {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
-    }
-    .forgot-link {
+      gap: 10px;
       font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--md-sys-color-primary);
-      text-decoration: none;
-      transition: color var(--md-sys-motion-duration-short) ease;
+      color: var(--md-sys-color-on-surface-variant);
     }
-    .forgot-link:hover {
-      text-decoration: underline;
+    .trust-item svg {
+      width: 16px;
+      height: 16px;
+      color: var(--md-sys-color-success);
+      flex-shrink: 0;
     }
 
     .error-msg {
@@ -449,65 +413,11 @@
       color: var(--md-sys-color-on-error-container);
       font-size: 0.875rem;
       font-weight: 500;
+      margin-top: 18px;
+      text-align: left;
     }
     .error-msg.visible {
       display: flex;
-    }
-
-    /* M3 Filled Action Button */
-    .submit-btn {
-      width: 100%;
-      padding: 14px;
-      border-radius: var(--md-sys-shape-corner-full);
-      background-color: var(--md-sys-color-primary);
-      color: var(--md-sys-color-on-primary);
-      font-size: 0.9375rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-      transition: all var(--md-sys-motion-duration-short) ease;
-      border: none;
-    }
-    .submit-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-      background-color: var(--md-sys-color-primary-fixed);
-      color: var(--md-sys-color-on-primary-fixed);
-    }
-    .submit-btn.loading {
-      pointer-events: none;
-      opacity: 0.75;
-    }
-    .btn-spinner {
-      display: none;
-      width: 20px;
-      height: 20px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-top-color: var(--md-sys-color-on-primary);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .submit-btn.loading .btn-text { display: none; }
-    .submit-btn.loading .btn-spinner { display: block; }
-
-    .signup-row {
-      text-align: center;
-      margin-top: 8px;
-      font-size: 0.875rem;
-      color: var(--md-sys-color-on-surface-variant);
-    }
-    .signup-row a {
-      color: var(--md-sys-color-primary);
-      font-weight: 600;
-      text-decoration: none;
-    }
-    .signup-row a:hover {
-      text-decoration: underline;
     }
 
     /* M3 Snackbar Toast */
@@ -539,7 +449,7 @@
       .left-panel { display: none; }
       .right-panel { padding: 32px 20px; min-height: calc(100vh - 65px); }
       .login-topbar { padding: 12px 20px; }
-      .auth-card-wrapper { padding: 28px 20px; }
+      .auth-card-wrapper { padding: 32px 22px; }
     }
   </style>
 </head>
@@ -555,9 +465,6 @@
     <div class="topbar-chipset">
       <a href="index.html" class="m3-chip">
         <i data-lucide="home"></i> Home
-      </a>
-      <a href="signup.html" class="m3-chip">
-        <i data-lucide="user-plus"></i> Register
       </a>
       <button class="theme-toggle-btn" id="theme-btn" aria-label="Toggle dark/light theme" title="Toggle Theme">
         <i data-lucide="sun" id="theme-icon"></i>
@@ -608,72 +515,56 @@
 
       <div class="panel-footer">
         <span>© 2026 EventHub · All rights reserved</span>
-        <span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="shield-check" style="width:14px;height:14px;color:var(--md-sys-color-success);"></i> Google Auth Protected</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="shield-check" style="width:14px;height:14px;color:var(--md-sys-color-success);"></i> Google Security Verified</span>
       </div>
     </div>
 
     <!-- RIGHT AUTH FORM PANEL -->
     <div class="right-panel">
       <div class="auth-card-wrapper">
-        <div class="form-header">
-          <h2 class="form-title">Welcome back 👋</h2>
-          <p class="form-subtitle">Sign in to manage your events and registrations.</p>
+        
+        <div class="auth-icon-hero">
+          <i data-lucide="user-check"></i>
         </div>
 
-        <!-- Google Sign-In Button -->
+        <div class="form-header">
+          <h2 class="form-title">Welcome to EventHub</h2>
+          <p class="form-subtitle">One-click authentication with your university or personal Google account.</p>
+        </div>
+
+        <!-- Single Primary Google Sign-In Action -->
         <button class="google-btn" id="btn-google" aria-label="Sign in with Google">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+          <svg class="google-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
           </svg>
-          Continue with Google
+          <span class="btn-text">Continue with Google</span>
+          <div class="btn-spinner"></div>
         </button>
 
-        <div class="divider">
-          <div class="divider-line"></div>
-          <span class="divider-text">or continue with email</span>
-          <div class="divider-line"></div>
+        <div class="error-msg" id="error-msg">
+          <i data-lucide="alert-circle"></i>
+          <span id="error-text">Google sign-in failed.</span>
         </div>
 
-        <!-- Email / Password Form -->
-        <form class="form" id="login-form" novalidate>
-          <div class="field">
-            <label class="field-label" for="email">Email address</label>
-            <div class="field-wrap">
-              <span class="field-icon"><i data-lucide="mail"></i></span>
-              <input class="field-input" type="email" id="email" placeholder="organizer@university.edu" autocomplete="email" required />
-            </div>
+        <!-- Trust Highlights -->
+        <div class="auth-trust-box">
+          <div class="trust-item">
+            <i data-lucide="check-circle-2"></i>
+            <span>Instant sign-in without remembering passwords</span>
           </div>
-
-          <div class="field">
-            <label class="field-label" for="password">Password</label>
-            <div class="field-wrap">
-              <span class="field-icon"><i data-lucide="lock"></i></span>
-              <input class="field-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password" required />
-              <button type="button" class="pass-toggle" id="pass-toggle" aria-label="Toggle password visibility">
-                <i data-lucide="eye" id="eye-icon"></i>
-              </button>
-            </div>
+          <div class="trust-item">
+            <i data-lucide="shield-check"></i>
+            <span>Official Google OAuth 2.0 secure authorization</span>
           </div>
-
-          <div class="form-row">
-            <a href="#" class="forgot-link" id="forgot-link">Forgot password?</a>
+          <div class="trust-item">
+            <i data-lucide="sparkles"></i>
+            <span>Direct access to event organizers and QR tickets</span>
           </div>
+        </div>
 
-          <div class="error-msg" id="error-msg">
-            <i data-lucide="alert-circle"></i>
-            <span id="error-text">Invalid email or password.</span>
-          </div>
-
-          <button type="submit" class="submit-btn" id="submit-btn">
-            <span class="btn-text">Log In to EventHub</span>
-            <div class="btn-spinner"></div>
-          </button>
-
-          <p class="signup-row">New organizer? <a href="signup.html" id="signup-link">Create a free account →</a></p>
-        </form>
       </div>
     </div>
   </div>
@@ -684,9 +575,8 @@
     <span id="toast-msg">Signing you in…</span>
   </div>
 
-  <!-- Theme Toggle & Firebase SDK Auth Script -->
+  <!-- Theme Toggle Script -->
   <script>
-    // Theme toggle handling
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
     const themeIcon = document.getElementById('theme-icon');
     if (themeIcon) {
@@ -706,11 +596,10 @@
     });
   </script>
 
+  <!-- Firebase SDK Auth Script -->
   <script type="module">
-    import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithPopup,
-             signInWithEmailAndPassword, sendPasswordResetEmail,
-             GoogleAuthProvider }                     from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { initializeApp }      from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey:            "",
@@ -771,83 +660,27 @@
       const btn = document.getElementById('btn-google');
       if (!btn) return;
       btn.classList.remove('loading');
-      btn.innerHTML = `
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
-          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-        </svg>
-        Continue with Google`;
     }
 
+    // Google Sign-In Handler
     document.getElementById('btn-google').addEventListener('click', async () => {
       clearError();
       const btn = document.getElementById('btn-google');
       btn.classList.add('loading');
-      btn.innerHTML = `<div class="btn-spinner" style="display:block; border-color: rgba(0,0,0,0.2); border-top-color: #1f1f1f;"></div>`;
 
       try {
         const result = await signInWithPopup(auth, googleProvider);
         if (result && result.user) {
+          showToast(`Welcome back, ${result.user.displayName || 'Organizer'}!`);
           persistSession(result.user);
-          window.location.replace('dashboard.html');
+          setTimeout(() => window.location.replace('dashboard.html'), 500);
         }
       } catch (err) {
         restoreGoogleBtn();
         if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
-          showError('Google sign-in failed: ' + err.message);
+          showError('Google sign-in failed: ' + (err.message || 'Please try again.'));
         }
       }
-    });
-
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      clearError();
-
-      const email = document.getElementById('email').value.trim();
-      const pass  = document.getElementById('password').value;
-      const btn   = document.getElementById('submit-btn');
-
-      if (!email || !pass) { showError('Please fill in all fields.'); return; }
-      if (pass.length < 6) { showError('Password must be at least 6 characters.'); return; }
-
-      btn.classList.add('loading');
-
-      try {
-        const result = await signInWithEmailAndPassword(auth, email, pass);
-        persistSession(result.user);
-        window.location.replace('dashboard.html');
-      } catch (err) {
-        btn.classList.remove('loading');
-        const code = err.code || '';
-        if (code.includes('user-not-found') || code.includes('wrong-password') || code.includes('invalid-credential')) {
-          showError('Incorrect email or password.');
-        } else {
-          showError(err.message);
-        }
-      }
-    });
-
-    document.getElementById('forgot-link').addEventListener('click', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      if (!email) { showError('Please enter your email above first.'); return; }
-      try {
-        await sendPasswordResetEmail(auth, email);
-        showToast('Password reset email sent to ' + email);
-      } catch (err) {
-        showError(err.message);
-      }
-    });
-
-    document.getElementById('pass-toggle').addEventListener('click', () => {
-      const inp  = document.getElementById('password');
-      const icon = document.getElementById('eye-icon');
-      const hide = inp.type === 'password';
-      inp.type = hide ? 'text' : 'password';
-      icon.setAttribute('data-lucide', hide ? 'eye-off' : 'eye');
-      if (window.lucide) window.lucide.createIcons();
     });
 
     if (window.lucide) window.lucide.createIcons();
