@@ -4,10 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Create Event — EventHub</title>
+  <meta name="description" content="Create and publish your campus event microsite with verified QR ticketing and real-time attendance syncing." />
+  
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
   <script>
     (function(){
       var saved = localStorage.getItem('eventhub_theme') || 'dark';
@@ -17,353 +21,553 @@
       document.documentElement.setAttribute('data-theme', pref);
     })();
   </script>
+
+  <link rel="stylesheet" href="style.css" />
+
   <style>
-    :root {
-      --bg-deep:#0a0818; --bg-card:rgba(255,255,255,0.04);
-      --border:rgba(255,255,255,0.08); --border-focus:rgba(167,139,250,0.6);
-      --purple-400:#a78bfa; --purple-500:#8b5cf6; --purple-600:#7c3aed;
-      --pink-400:#f472b6; --blue-400:#60a5fa; --green-400:#4ade80; --red-400:#f87171;
-      --grad-primary:linear-gradient(135deg,#7c3aed 0%,#a855f7 50%,#ec4899 100%);
-      --grad-text:linear-gradient(90deg,#a78bfa,#f472b6,#60a5fa);
-      --text-primary:#f8fafc; --text-secondary:#cbd5e1; --text-muted:#64748b;
-      --radius-sm:8px; --radius-md:14px; --radius-lg:20px; --radius-full:999px;
-      --transition:0.25s cubic-bezier(0.4,0,0.2,1); --sidebar-w:240px;
-      --sidebar-bg:rgba(15,12,41,0.95); --topbar-bg:rgba(10,8,24,.8);
+    body {
+      display: flex;
+      min-height: 100vh;
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
     }
-    [data-theme="light"] {
-      --bg-deep:#f0eefc; --bg-card:rgba(255,255,255,0.9);
-      --border:rgba(0,0,0,0.09); --border-focus:rgba(124,58,237,0.5);
-      --text-primary:#0f172a; --text-secondary:#334155; --text-muted:#6b7280;
-      --sidebar-bg:rgba(255,255,255,0.97); --topbar-bg:rgba(240,238,252,0.92);
+
+    /* M3 Navigation Drawer */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      flex-shrink: 0;
+      background-color: var(--md-sys-color-surface-container-low);
+      border-right: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
     }
-    [data-theme="light"] body        { background:var(--bg-deep); }
-    [data-theme="light"] .sidebar    { background:var(--sidebar-bg); border-right-color:var(--border); }
-    [data-theme="light"] .topbar     { background:var(--topbar-bg); }
-    [data-theme="light"] .form-card,
-    [data-theme="light"] .event-preview { background:var(--bg-card); border-color:var(--border); }
-    [data-theme="light"] .field-input { background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.1); color:var(--text-primary); }
-    [data-theme="light"] .field-input:focus { background:rgba(124,58,237,.05); }
-    [data-theme="light"] .category-btn { background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.08); color:var(--text-secondary); }
-    [data-theme="light"] .category-btn.active { background:rgba(124,58,237,.12); }
-    [data-theme="light"] .nav-item:hover { background:rgba(0,0,0,.05); }
-    [data-theme="light"] .nav-item.active { background:rgba(124,58,237,.12); }
-    [data-theme="light"] .sidebar-footer { border-top-color:rgba(0,0,0,.07); }
-    [data-theme="light"] .signout-btn { color:#ef4444; }
-    [data-theme="light"] .user-pill  { background:rgba(255,255,255,.8); }
-    [data-theme="light"] .back-btn   { background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.09); }
-    html { transition:background-color .3s ease, color .3s ease; }
-    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:'Inter',sans-serif; background:var(--bg-deep); color:var(--text-primary); min-height:100vh; display:flex; }
-    a { text-decoration:none; color:inherit; }
-    button { cursor:pointer; font-family:inherit; border:none; background:none; }
 
-    /* SIDEBAR */
-    .sidebar { width:var(--sidebar-w); min-height:100vh; flex-shrink:0; background:var(--sidebar-bg); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:24px 16px; position:sticky; top:0; height:100vh; overflow-y:auto; }
-    .sidebar-logo { display:flex; align-items:center; gap:9px; font-family:'Outfit',sans-serif; font-size:1.3rem; font-weight:800; margin-bottom:36px; padding:0 8px; }
-    .logo-accent { color:var(--purple-400); }
-    .nav-section-label { font-size:.68rem; font-weight:600; color:var(--text-muted); letter-spacing:.08em; text-transform:uppercase; padding:0 10px; margin:20px 0 8px; }
-    .nav-item { display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:var(--radius-md); font-size:.88rem; font-weight:500; color:var(--text-secondary); cursor:pointer; transition:var(--transition); margin-bottom:2px; }
-    .nav-item svg { width:18px; height:18px; flex-shrink:0; }
-    .nav-item:hover { background:rgba(255,255,255,.06); color:var(--text-primary); }
-    .nav-item.active { background:rgba(124,58,237,.18); color:var(--purple-400); }
-    .sidebar-footer { margin-top:auto; padding-top:20px; border-top:1px solid var(--border); }
-    .signout-btn { display:flex; align-items:center; gap:10px; padding:10px 12px; width:100%; border-radius:var(--radius-md); font-size:.86rem; color:#f87171; transition:var(--transition); }
-    .signout-btn:hover { background:rgba(248,113,113,.1); }
-    .signout-btn svg { width:17px; height:17px; }
-
-    /* MAIN */
-    .main { flex:1; display:flex; flex-direction:column; min-height:100vh; overflow-x:hidden; }
-    .topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 32px; border-bottom:1px solid var(--border); background:var(--topbar-bg); backdrop-filter:blur(12px); position:sticky; top:0; z-index:50; }
-    .topbar-title { font-family:'Outfit',sans-serif; font-size:1.1rem; font-weight:800; }
-    .user-pill { display:flex; align-items:center; gap:9px; background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:var(--radius-full); padding:5px 14px 5px 5px; font-size:.84rem; }
-    .user-avatar { width:32px; height:32px; border-radius:50%; background:var(--grad-primary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.75rem; flex-shrink:0; overflow:hidden; }
-    .user-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
-    .back-btn { display:inline-flex; align-items:center; gap:7px; padding:9px 16px; background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:var(--radius-full); font-size:.84rem; font-weight:500; color:var(--text-secondary); transition:var(--transition); }
-    .back-btn:hover { background:rgba(255,255,255,.1); color:var(--text-primary); }
-    .back-btn svg { width:15px; height:15px; }
-
-    /* CONTENT */
-    .content { padding:32px; flex:1; }
-    .page-header { margin-bottom:28px; }
-    .page-header h1 { font-family:'Outfit',sans-serif; font-size:1.9rem; font-weight:900; letter-spacing:-.02em; margin-bottom:6px; }
-    .page-header p { color:var(--text-secondary); font-size:.9rem; }
-    .grad-text { background:var(--grad-text); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-
-    /* FORM LAYOUT */
-    .form-grid { display:grid; grid-template-columns:1fr 300px; gap:24px; align-items:start; }
-    @media(max-width:960px){ .form-grid{ grid-template-columns:1fr; } }
-    .form-col { display:flex; flex-direction:column; gap:20px; }
-    .form-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; display:flex; flex-direction:column; gap:18px; }
-    .form-section-title { font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); padding-bottom:12px; border-bottom:1px solid var(--border); }
-    .field { display:flex; flex-direction:column; gap:7px; }
-    .field-label { font-size:.83rem; font-weight:600; color:var(--text-secondary); }
-    .req { color:var(--pink-400); }
-    .field-wrap { position:relative; display:flex; align-items:center; }
-    .field-icon { position:absolute; left:14px; color:var(--text-muted); pointer-events:none; transition:color var(--transition); }
-    .field-icon svg { width:17px; height:17px; }
-    .field-wrap:focus-within .field-icon { color:var(--purple-400); }
-    .field-input {
-      width:100%; padding:12px 14px 12px 44px; border-radius:var(--radius-md);
-      border:1.5px solid var(--border); background:var(--bg-card); color:var(--text-primary);
-      font-size:.9rem; font-family:'Inter',sans-serif; outline:none; transition:var(--transition);
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin-bottom: 32px;
+      padding: 0 10px;
     }
-    .field-input.no-icon { padding-left:14px; }
-    .field-input::placeholder { color:var(--text-muted); }
-    .field-input:focus { border-color:var(--border-focus); background:rgba(139,92,246,.06); box-shadow:0 0 0 3px rgba(139,92,246,.12); }
-    .field-hint { font-size:.73rem; color:var(--text-muted); }
-    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-    @media(max-width:600px){ .two-col{ grid-template-columns:1fr; } }
 
-    /* Category pills */
-    .cat-grid { display:flex; flex-wrap:wrap; gap:8px; }
-    .category-btn { padding:7px 14px; border-radius:var(--radius-full); background:rgba(255,255,255,.05); border:1.5px solid var(--border); font-size:.78rem; font-weight:600; color:var(--text-muted); cursor:pointer; transition:var(--transition); }
-    .category-btn:hover { border-color:rgba(167,139,250,.4); color:var(--text-secondary); transform:translateY(-1px); }
-    .category-btn.active { background:rgba(124,58,237,.2); border-color:var(--purple-400); color:var(--purple-400); }
+    .nav-section-label {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface-variant);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0 12px;
+      margin: 20px 0 8px;
+    }
 
-    /* Error */
-    .error-msg { display:none; align-items:center; gap:8px; padding:10px 14px; border-radius:var(--radius-sm); background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.25); color:var(--red-400); font-size:.82rem; }
-    .error-msg.visible { display:flex; }
-    .error-msg svg { width:15px; height:15px; flex-shrink:0; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 16px;
+      border-radius: var(--md-sys-shape-corner-full);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: pointer;
+      transition: all var(--md-sys-motion-duration-short) ease;
+      margin-bottom: 4px;
+    }
 
-    /* Submit */
-    .submit-btn { width:100%; padding:15px; border-radius:var(--radius-full); background:var(--grad-primary); color:#fff; font-size:.95rem; font-weight:700; border:none; box-shadow:0 4px 20px rgba(139,92,246,.4); transition:var(--transition); display:flex; align-items:center; justify-content:center; gap:9px; }
-    .submit-btn:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(139,92,246,.55); }
-    .submit-btn:active { transform:translateY(0); }
-    .submit-btn.loading { pointer-events:none; opacity:.8; }
-    .btn-text { display:flex; align-items:center; gap:8px; }
-    .btn-spinner { display:none; width:18px; height:18px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .submit-btn.loading .btn-text { display:none; }
-    .submit-btn.loading .btn-spinner { display:block; }
+    .nav-item:hover {
+      background-color: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+    }
 
-    /* LIVE PREVIEW */
-    .event-preview { background:rgba(124,58,237,.06); border:1px solid rgba(124,58,237,.2); border-radius:var(--radius-lg); padding:22px; position:sticky; top:84px; display:flex; flex-direction:column; gap:14px; }
-    .prev-label { font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); }
-    .prev-cat { display:inline-flex; align-items:center; padding:4px 12px; border-radius:var(--radius-full); font-size:.72rem; font-weight:700; background:rgba(124,58,237,.18); color:var(--purple-400); }
-    .prev-name { font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:800; word-break:break-word; }
-    .prev-row { display:flex; align-items:flex-start; gap:9px; font-size:.82rem; color:var(--text-secondary); }
-    .prev-row svg { width:14px; height:14px; flex-shrink:0; margin-top:2px; color:var(--purple-400); }
-    .prev-divider { height:1px; background:rgba(124,58,237,.15); }
-    .tip-row { display:flex; align-items:flex-start; gap:8px; font-size:.77rem; color:var(--text-secondary); }
-    .tip-dot { width:5px; height:5px; border-radius:50%; background:var(--purple-400); flex-shrink:0; margin-top:5px; }
+    .nav-item.active {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      font-weight: 700;
+    }
 
-    /* Toast */
-    .status-toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px); background:#1e1b4b; border:1px solid rgba(74,222,128,.3); color:#4ade80; padding:12px 24px; border-radius:var(--radius-full); font-size:.88rem; font-weight:600; display:flex; align-items:center; gap:10px; z-index:9999; box-shadow:0 8px 32px rgba(0,0,0,.5); opacity:0; transition:all .3s ease; pointer-events:none; }
-    .status-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+    }
 
-    /* Orbs */
-    .orb { position:fixed; border-radius:50%; filter:blur(100px); pointer-events:none; z-index:0; }
-    .orb1 { width:500px; height:500px; background:rgba(124,58,237,.07); top:-80px; right:80px; }
-    .orb2 { width:300px; height:300px; background:rgba(236,72,153,.05); bottom:0; left:300px; }
+    .signout-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      width: 100%;
+      border-radius: var(--md-sys-shape-corner-full);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--md-sys-color-error);
+      transition: background-color var(--md-sys-motion-duration-short) ease;
+    }
+    .signout-btn:hover {
+      background-color: var(--md-sys-color-error-container);
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 36px;
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      background-color: var(--md-sys-color-surface);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .content {
+      padding: 36px;
+      flex: 1;
+    }
+
+    .page-header {
+      margin-bottom: 28px;
+    }
+    .page-header h1 {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .page-header p {
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 0.95rem;
+    }
+
+    /* M3 Split Form + Live Card Preview */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 28px;
+      align-items: start;
+    }
+    @media (max-width: 1080px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+
+    .form-col {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .form-card {
+      background-color: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-extra-large);
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-section-title {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--md-sys-color-primary);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* M3 Category Chips */
+    .cat-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .category-btn {
+      padding: 8px 16px;
+      border-radius: var(--md-sys-shape-corner-full);
+      background-color: var(--md-sys-color-surface-container);
+      border: 1.5px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .category-btn:hover {
+      background-color: var(--md-sys-color-surface-container-high);
+      border-color: var(--md-sys-color-outline);
+    }
+    .category-btn.active {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      border-color: var(--md-sys-color-primary);
+      font-weight: 700;
+    }
+
+    .field-hint {
+      font-size: 0.75rem;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-top: 4px;
+    }
+
+    /* M3 Live Preview Card */
+    .event-preview {
+      background-color: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-extra-large);
+      padding: 24px;
+      position: sticky;
+      top: 96px;
+    }
+
+    .prev-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--md-sys-color-primary);
+      margin-bottom: 12px;
+    }
+
+    .prev-card {
+      background-color: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-large);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .prev-card-header {
+      padding: 16px;
+      background-color: var(--md-sys-color-surface-container-highest);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .prev-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .prev-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8125rem;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    .prev-row svg {
+      width: 15px;
+      height: 15px;
+      color: var(--md-sys-color-primary);
+      flex-shrink: 0;
+    }
+
+    .tip-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.8125rem;
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.5;
+    }
+    .tip-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--md-sys-color-primary);
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .error-msg {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: var(--md-sys-shape-corner-small);
+      background-color: var(--md-sys-color-error-container);
+      color: var(--md-sys-color-on-error-container);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .error-msg.visible { display: flex; }
+
+    .status-toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background-color: var(--md-sys-color-inverse-surface);
+      color: var(--md-sys-color-inverse-on-surface);
+      border-radius: var(--md-sys-shape-corner-extra-small);
+      padding: 14px 24px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 9999;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      transition: all 0.3s ease;
+    }
+    .status-toast.show { display: flex; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
-  <div class="orb orb1"></div>
-  <div class="orb orb2"></div>
 
-  <!-- SIDEBAR -->
+  <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="sidebar-logo"><span>⚡</span><span>Event<span class="logo-accent">Hub</span></span></div>
-    <div class="nav-section-label">Main</div>
-    <div class="nav-item" onclick="location.href='dashboard.html'"><i data-lucide="layout-dashboard"></i> Dashboard</div>
+    <div class="sidebar-logo">
+      <div class="logo-icon" style="width:28px;height:28px;font-size:.9rem;">⚡</div>
+      <span>Event<span class="logo-accent">Hub</span></span>
+    </div>
+
+    <div class="nav-section-label">Management</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'"><i data-lucide="layout-dashboard"></i> Dashboard</div>
     <div class="nav-item active"><i data-lucide="calendar-plus"></i> Create Event</div>
-    <div class="nav-item"><i data-lucide="calendar"></i> My Events</div>
-    <div class="nav-item"><i data-lucide="scan-line"></i> QR Check-In</div>
-    <div class="nav-section-label">Analytics</div>
-    <div class="nav-item"><i data-lucide="bar-chart-3"></i> Analytics</div>
-    <div class="nav-item"><i data-lucide="users"></i> Attendees</div>
-    <div class="nav-item"><i data-lucide="download"></i> Export Data</div>
+    <div class="nav-item" onclick="window.location.href='dashboard.html'"><i data-lucide="calendar"></i> My Events</div>
+    <div class="nav-item" onclick="window.location.href='index.html#qr-spotlight'"><i data-lucide="scan-line"></i> QR Check-In</div>
+
     <div class="nav-section-label">Account</div>
-    <div class="nav-item" onclick="location.href='register.html'"><i data-lucide="user"></i> My Profile</div>
-    <div class="nav-item" onclick="location.href='dashboard.html'"><i data-lucide="settings"></i> Settings</div>
+    <div class="nav-item" onclick="window.location.href='register.html'"><i data-lucide="user"></i> Organizer Profile</div>
+
     <div class="sidebar-footer">
-      <button class="signout-btn" id="signout-btn"><i data-lucide="log-out"></i> Sign Out</button>
+      <button class="signout-btn" id="signout-btn">
+        <i data-lucide="log-out"></i> Sign Out
+      </button>
     </div>
   </aside>
 
-  <!-- MAIN -->
+  <!-- Main Container -->
   <div class="main">
-    <div class="topbar">
-      <div style="display:flex;align-items:center;gap:14px;">
-        <a href="dashboard.html" class="back-btn"><i data-lucide="arrow-left"></i> Dashboard</a>
-        <div class="topbar-title">Create Event</div>
-      </div>
-      <div class="user-pill">
-        <div class="user-avatar" id="user-avatar-top">?</div>
-        <span id="user-name-top">Loading…</span>
-      </div>
-    </div>
 
-    <div class="content">
+    <!-- Top App Bar -->
+    <header class="topbar">
+      <a href="dashboard.html" class="btn btn-tonal btn-sm">
+        <i data-lucide="arrow-left"></i> Back to Dashboard
+      </a>
+      <div class="user-pill" onclick="window.location.href='dashboard.html'">
+        <div class="user-avatar" id="user-avatar-top">?</div>
+        <span id="user-name-top">Organizer</span>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
       <div class="page-header">
-        <h1>Create a <span class="grad-text">New Event</span> ✨</h1>
-        <p>Fill in the details — your event saves instantly and appears on your dashboard.</p>
+        <h1>Create Campus Event 🎯</h1>
+        <p>Configure event details, date, venue, and ticketing parameters. Your event saves instantly to your organizer console.</p>
       </div>
 
       <div class="form-grid">
 
-        <!-- LEFT: Form -->
+        <!-- Form Column -->
         <div class="form-col">
 
-          <!-- Basic Info -->
+          <!-- Basic Information Card -->
           <div class="form-card">
-            <div class="form-section-title">Basic Information</div>
+            <div class="form-section-title"><i data-lucide="sparkles"></i> Core Event Information</div>
 
             <div class="field">
-              <label class="field-label" for="ev-name">Event Name <span class="req">*</span></label>
-              <div class="field-wrap">
-                <span class="field-icon"><i data-lucide="zap"></i></span>
-                <input class="field-input" type="text" id="ev-name" placeholder="e.g. Annual Tech Fest 2026" maxlength="100" oninput="livePreview()" />
+              <label class="field-label" for="ev-name">Event Title <span class="req">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="zap" class="input-icon-prefix"></i>
+                <input class="field-input" type="text" id="ev-name" placeholder="e.g. Apex AI &amp; Robotics Hackathon 2026" maxlength="100" oninput="livePreview()" required />
               </div>
             </div>
 
             <div class="field">
-              <label class="field-label" for="ev-desc">Description</label>
-              <textarea class="field-input no-icon" id="ev-desc" rows="3" placeholder="Tell attendees what this event is about…" style="resize:vertical;padding:12px 14px;" oninput="livePreview()"></textarea>
+              <label class="field-label" for="ev-desc">Event Summary &amp; Agenda</label>
+              <textarea class="field-input" id="ev-desc" rows="3" placeholder="Describe the objectives, schedule, prerequisites, and prizes for attendees…" oninput="livePreview()"></textarea>
             </div>
 
             <div class="field">
-              <label class="field-label">Category <span class="req">*</span></label>
+              <label class="field-label">Category Filter <span class="req">*</span></label>
               <div class="cat-grid">
-                <button type="button" class="category-btn" data-cat="Tech">💻 Tech</button>
-                <button type="button" class="category-btn" data-cat="Cultural">🎭 Cultural</button>
-                <button type="button" class="category-btn" data-cat="Sports">⚽ Sports</button>
-                <button type="button" class="category-btn" data-cat="Workshop">🛠 Workshop</button>
                 <button type="button" class="category-btn" data-cat="Hackathon">🚀 Hackathon</button>
-                <button type="button" class="category-btn" data-cat="Music">🎵 Music</button>
-                <button type="button" class="category-btn" data-cat="Business">💼 Business</button>
-                <button type="button" class="category-btn" data-cat="Other">📌 Other</button>
+                <button type="button" class="category-btn" data-cat="Tech">💻 Tech Fest</button>
+                <button type="button" class="category-btn" data-cat="Cultural">🎭 Cultural</button>
+                <button type="button" class="category-btn" data-cat="Workshop">🛠 Workshop</button>
+                <button type="button" class="category-btn" data-cat="Sports">⚽ Sports</button>
+                <button type="button" class="category-btn" data-cat="Music">🎵 Music &amp; Concert</button>
+                <button type="button" class="category-btn" data-cat="Business">💼 E-Cell / Business</button>
+                <button type="button" class="category-btn" data-cat="Other">📌 Other Meetup</button>
               </div>
             </div>
           </div>
 
-          <!-- Date & Time -->
+          <!-- Timing & Capacity Card -->
           <div class="form-card">
-            <div class="form-section-title">Date &amp; Time</div>
+            <div class="form-section-title"><i data-lucide="clock"></i> Schedule &amp; Capacity</div>
+            
             <div class="two-col">
               <div class="field">
-                <label class="field-label" for="ev-date">Event Date <span class="req">*</span></label>
-                <div class="field-wrap">
-                  <span class="field-icon"><i data-lucide="calendar"></i></span>
-                  <input class="field-input" type="date" id="ev-date" oninput="livePreview()" />
+                <label class="field-label" for="ev-date">Date <span class="req">*</span></label>
+                <div class="input-with-icon">
+                  <i data-lucide="calendar" class="input-icon-prefix"></i>
+                  <input class="field-input" type="date" id="ev-date" oninput="livePreview()" required />
                 </div>
               </div>
               <div class="field">
                 <label class="field-label" for="ev-start">Start Time <span class="req">*</span></label>
-                <div class="field-wrap">
-                  <span class="field-icon"><i data-lucide="clock"></i></span>
-                  <input class="field-input" type="time" id="ev-start" oninput="livePreview()" />
+                <div class="input-with-icon">
+                  <i data-lucide="clock" class="input-icon-prefix"></i>
+                  <input class="field-input" type="time" id="ev-start" oninput="livePreview()" required />
                 </div>
               </div>
             </div>
+
             <div class="two-col">
               <div class="field">
                 <label class="field-label" for="ev-end">End Time</label>
-                <div class="field-wrap">
-                  <span class="field-icon"><i data-lucide="clock-4"></i></span>
+                <div class="input-with-icon">
+                  <i data-lucide="clock-4" class="input-icon-prefix"></i>
                   <input class="field-input" type="time" id="ev-end" oninput="livePreview()" />
                 </div>
-                <span class="field-hint">Optional — leave blank if open-ended</span>
+                <span class="field-hint">Optional closing time</span>
               </div>
               <div class="field">
-                <label class="field-label" for="ev-max">Max Attendees</label>
-                <div class="field-wrap">
-                  <span class="field-icon"><i data-lucide="users"></i></span>
-                  <input class="field-input" type="number" id="ev-max" placeholder="e.g. 200" min="1" />
+                <label class="field-label" for="ev-max">Attendee Limit</label>
+                <div class="input-with-icon">
+                  <i data-lucide="users" class="input-icon-prefix"></i>
+                  <input class="field-input" type="number" id="ev-max" placeholder="e.g. 500" min="1" />
                 </div>
-                <span class="field-hint">Leave blank for unlimited</span>
+                <span class="field-hint">Leave blank for unlimited passes</span>
               </div>
             </div>
           </div>
 
-          <!-- Venue -->
+          <!-- Location & Venue Card -->
           <div class="form-card">
-            <div class="form-section-title">Venue &amp; Location</div>
+            <div class="form-section-title"><i data-lucide="map-pin"></i> Venue &amp; Campus Location</div>
+            
             <div class="field">
-              <label class="field-label" for="ev-venue">Venue / Hall Name <span class="req">*</span></label>
-              <div class="field-wrap">
-                <span class="field-icon"><i data-lucide="map-pin"></i></span>
-                <input class="field-input" type="text" id="ev-venue" placeholder="e.g. Main Auditorium, Block A" oninput="livePreview()" />
+              <label class="field-label" for="ev-venue">Auditorium / Hall / Lab <span class="req">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="map-pin" class="input-icon-prefix"></i>
+                <input class="field-input" type="text" id="ev-venue" placeholder="e.g. Convocation Hall, Main Campus" oninput="livePreview()" required />
               </div>
             </div>
+
             <div class="two-col">
               <div class="field">
                 <label class="field-label" for="ev-city">City <span class="req">*</span></label>
-                <div class="field-wrap">
-                  <span class="field-icon"><i data-lucide="building-2"></i></span>
-                  <input class="field-input" type="text" id="ev-city" placeholder="e.g. Mumbai" oninput="livePreview()" />
+                <div class="input-with-icon">
+                  <i data-lucide="building-2" class="input-icon-prefix"></i>
+                  <input class="field-input" type="text" id="ev-city" placeholder="e.g. Mumbai" oninput="livePreview()" required />
                 </div>
               </div>
               <div class="field">
                 <label class="field-label" for="ev-state">State</label>
-                <div class="field-wrap">
-                  <span class="field-icon"><i data-lucide="map"></i></span>
+                <div class="input-with-icon">
+                  <i data-lucide="map" class="input-icon-prefix"></i>
                   <input class="field-input" type="text" id="ev-state" placeholder="e.g. Maharashtra" oninput="livePreview()" />
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Error -->
           <div class="error-msg" id="err-msg">
             <i data-lucide="alert-circle"></i>
-            <span id="err-text">Please fill in all required fields.</span>
+            <span id="err-text">Please complete all required fields.</span>
           </div>
 
-          <!-- Submit -->
-          <button class="submit-btn" id="submit-btn" onclick="submitEvent()">
-            <span class="btn-text"><i data-lucide="calendar-plus"></i> Create Event</span>
-            <div class="btn-spinner"></div>
+          <button class="btn btn-primary btn-lg" id="submit-btn" onclick="submitEvent()" style="width:100%;">
+            <i data-lucide="calendar-plus"></i> Publish Event &amp; Open Registrations
           </button>
 
         </div>
 
-        <!-- RIGHT: Live Preview -->
+        <!-- Live Preview Column -->
         <div class="event-preview">
-          <div class="prev-label">Live Preview</div>
-          <div class="prev-cat" id="pv-cat">📌 Category</div>
-          <div class="prev-name" id="pv-name" style="color:var(--text-muted);font-style:italic;font-size:1rem;font-weight:400">Event name appears here…</div>
-          <div class="prev-divider"></div>
-          <div id="pv-date-row" class="prev-row" style="display:none"><i data-lucide="calendar"></i><span id="pv-date"></span></div>
-          <div id="pv-time-row" class="prev-row" style="display:none"><i data-lucide="clock"></i><span id="pv-time"></span></div>
-          <div id="pv-venue-row" class="prev-row" style="display:none"><i data-lucide="map-pin"></i><span id="pv-venue"></span></div>
-          <div class="prev-divider"></div>
-          <div class="prev-label" style="margin-bottom:8px">💡 Tips</div>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div class="tip-row"><div class="tip-dot"></div>Pick a clear event name so attendees know exactly what to expect.</div>
-            <div class="tip-row"><div class="tip-dot"></div>The start time will appear on every attendee's QR ticket.</div>
-            <div class="tip-row"><div class="tip-dot"></div>Setting a max capacity helps you manage the venue better.</div>
+          <div class="prev-label">Live Pass Preview</div>
+          
+          <div class="prev-card">
+            <div class="prev-card-header">
+              <span class="tag" id="pv-cat">📌 Category</span>
+              <span style="font-size:0.75rem; color:var(--md-sys-color-success); font-weight:600;">● Active</span>
+            </div>
+            <div class="prev-body">
+              <div id="pv-name" style="font-family:var(--md-sys-typescale-brand-font); font-size:1.15rem; font-weight:700; color:var(--md-sys-color-on-surface);">Event Title Preview</div>
+              <div id="pv-date-row" class="prev-row" style="display:none;"><i data-lucide="calendar"></i><span id="pv-date"></span></div>
+              <div id="pv-time-row" class="prev-row" style="display:none;"><i data-lucide="clock"></i><span id="pv-time"></span></div>
+              <div id="pv-venue-row" class="prev-row" style="display:none;"><i data-lucide="map-pin"></i><span id="pv-venue"></span></div>
+            </div>
+          </div>
+
+          <div class="prev-label">Organizer Guidance</div>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div class="tip-row"><div class="tip-dot"></div><span>The schedule and location will embed automatically into attendee digital QR passes.</span></div>
+            <div class="tip-row"><div class="tip-dot"></div><span>Volunteers can scan and verify registrants using the browser scanner with instant live counts.</span></div>
+            <div class="tip-row"><div class="tip-dot"></div><span>Export complete registration records to CSV anytime from the dashboard.</span></div>
           </div>
         </div>
 
       </div>
-    </div>
+    </main>
   </div>
 
   <!-- Toast -->
-  <div class="status-toast" id="status-toast">
+  <div class="status-toast" id="status-toast" role="status">
     <i data-lucide="check-circle-2"></i>
-    <span id="toast-msg">Event created!</span>
+    <span id="toast-msg">Event published successfully!</span>
   </div>
 
-  <!-- Firebase Auth -->
   <script type="module">
     import { initializeApp }                        from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
     const cfg = { apiKey:"", authDomain:"event-hub-36864.firebaseapp.com", projectId:"event-hub-36864", storageBucket:"event-hub-36864.firebasestorage.app", messagingSenderId:"260968384601", appId:"1:260968384601:web:3d825f81f8f3d6351ec948" };
     const app = initializeApp(cfg);
     const auth = getAuth(app);
+
     function setUser(name, photoURL) {
       document.getElementById('user-name-top').textContent = name;
       const av = document.getElementById('user-avatar-top');
       if (photoURL) av.innerHTML = '<img src="'+photoURL+'" alt="'+name+'" />';
       else av.textContent = name.split(' ').filter(Boolean).map(w=>w[0].toUpperCase()).slice(0,2).join('');
     }
+
     onAuthStateChanged(auth, u => {
       if (!u && !localStorage.getItem('eventhub_user')) { location.replace('login.html'); return; }
-      if (u) setUser(u.displayName || u.email?.split('@')[0] || 'User', u.photoURL);
+      if (u) setUser(u.displayName || u.email?.split('@')[0] || 'Organizer', u.photoURL);
     });
-    try { const u=JSON.parse(localStorage.getItem('eventhub_user')||'null'); if(u) setUser(u.displayName||u.email?.split('@')[0]||'User', u.photoURL); } catch(_) {}
+
+    try {
+      const u = JSON.parse(localStorage.getItem('eventhub_user') || 'null');
+      if (u) setUser(u.displayName || u.email?.split('@')[0] || 'Organizer', u.photoURL);
+    } catch (_) {}
+
     document.getElementById('signout-btn').addEventListener('click', async () => {
       localStorage.removeItem('eventhub_user');
       try { await signOut(auth); } catch(e){}
@@ -371,14 +575,10 @@
     });
   </script>
 
-  <!-- Form Logic -->
   <script>
     var selCat = '';
-
-    // Set min date = today
     document.getElementById('ev-date').min = new Date().toISOString().split('T')[0];
 
-    // Category selection
     document.querySelectorAll('.category-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
         document.querySelectorAll('.category-btn').forEach(function(b){ b.classList.remove('active'); });
@@ -389,7 +589,6 @@
       });
     });
 
-    // Live preview
     function livePreview() {
       var name  = document.getElementById('ev-name').value.trim();
       var date  = document.getElementById('ev-date').value;
@@ -399,19 +598,7 @@
       var city  = document.getElementById('ev-city').value.trim();
 
       var nameEl = document.getElementById('pv-name');
-      if (name) {
-        nameEl.textContent = name;
-        nameEl.style.color = 'var(--text-primary)';
-        nameEl.style.fontStyle = 'normal';
-        nameEl.style.fontWeight = '800';
-        nameEl.style.fontSize = '1.25rem';
-      } else {
-        nameEl.textContent = 'Event name appears here…';
-        nameEl.style.color = 'var(--text-muted)';
-        nameEl.style.fontStyle = 'italic';
-        nameEl.style.fontWeight = '400';
-        nameEl.style.fontSize = '1rem';
-      }
+      nameEl.textContent = name || 'Event Title Preview';
 
       var dr = document.getElementById('pv-date-row');
       if (date) {
@@ -441,7 +628,7 @@
       var b = document.getElementById('err-msg');
       document.getElementById('err-text').textContent = msg;
       b.classList.add('visible');
-      b.scrollIntoView({behavior:'smooth',block:'nearest'});
+      b.scrollIntoView({behavior:'smooth', block:'nearest'});
       if (window.lucide) window.lucide.createIcons();
     }
     function clearErr() { document.getElementById('err-msg').classList.remove('visible'); }
@@ -467,14 +654,11 @@
       var maxA  = document.getElementById('ev-max').value.trim();
 
       if (!name)  { showErr('Event name is required.'); return; }
-      if (!selCat){ showErr('Please select a category for your event.'); return; }
+      if (!selCat){ showErr('Please select a category filter.'); return; }
       if (!date)  { showErr('Please select the event date.'); return; }
       if (!start) { showErr('Please set the start time.'); return; }
       if (!venue) { showErr('Venue / hall name is required.'); return; }
       if (!city)  { showErr('City is required.'); return; }
-
-      var btn = document.getElementById('submit-btn');
-      btn.classList.add('loading');
 
       var ev = {
         id:          'evt_' + Date.now(),
@@ -500,14 +684,11 @@
 
       showToast('🎉 Event created successfully!');
       setTimeout(function() {
-        btn.classList.remove('loading');
         window.location.href = 'dashboard.html';
-      }, 1500);
+      }, 1200);
     };
 
     if (window.lucide) window.lucide.createIcons();
-    document.addEventListener('DOMContentLoaded', function(){ if(window.lucide) window.lucide.createIcons(); });
   </script>
 </body>
 </html>
-

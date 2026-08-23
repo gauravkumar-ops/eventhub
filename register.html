@@ -4,217 +4,473 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Complete Your Profile — EventHub</title>
-  <meta name="description" content="Complete your EventHub profile to register for events and receive QR tickets." />
+  <meta name="description" content="Complete your EventHub academic profile to register for events, hackathons, and receive verified QR tickets." />
+  
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&family=Roboto+Flex:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <!-- Apply saved theme BEFORE render -->
+  <script>
+    (function(){
+      const saved = localStorage.getItem('eventhub_theme') || 'dark';
+      const pref  = saved === 'system'
+        ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+        : saved;
+      document.documentElement.setAttribute('data-theme', pref);
+    })();
+  </script>
+
+  <link rel="stylesheet" href="style.css" />
+
   <style>
-    :root {
-      --bg-deep:      #0d0b1f;
-      --bg-card:      #16122e;
-      --bg-field:     #1f1a3d;
-      --border:       rgba(255,255,255,0.08);
-      --border-focus: rgba(167,139,250,0.55);
-      --purple-400:   #a78bfa;
-      --gold:         #f59e0b;
-      --green-400:    #4ade80;
-      --text-primary: #f1f5f9;
-      --text-secondary:#cbd5e1;
-      --text-muted:   #64748b;
-      --radius-md:    14px;
-      --radius-lg:    20px;
-      --radius-full:  999px;
-      --transition:   0.25s cubic-bezier(0.4,0,0.2,1);
+    body {
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      min-height: 100vh;
+      padding-bottom: 120px;
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 16px; scroll-behavior: smooth; }
-    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-deep); color: var(--text-primary); min-height: 100vh; padding: 0 0 80px; }
-    a { text-decoration: none; color: inherit; }
 
-    .orb { position:fixed; border-radius:50%; filter:blur(90px); pointer-events:none; z-index:0; }
-    .orb1 { width:500px; height:500px; background:rgba(124,58,237,.12); top:-100px; left:-150px; }
-    .orb2 { width:400px; height:400px; background:rgba(236,72,153,.08); bottom:-80px; right:-100px; }
-
-    .navbar {
-      position:sticky; top:0; z-index:100;
-      background:rgba(13,11,31,.88); backdrop-filter:blur(20px);
-      border-bottom:1px solid var(--border);
-      padding:14px 28px; display:flex; align-items:center; justify-content:space-between;
+    /* M3 Top App Bar with Navigation Chipset */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: rgba(20, 18, 24, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      padding: 12px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
     }
-    .nav-logo { display:flex; align-items:center; gap:8px; font-family:'Outfit',sans-serif; font-size:1.35rem; font-weight:800; }
-    .logo-accent { color:var(--purple-400); }
-    .back-btn {
-      display:flex; align-items:center; gap:6px; font-size:.84rem; font-weight:500; color:var(--text-muted);
-      background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:var(--radius-full);
-      padding:7px 16px; transition:var(--transition); cursor:pointer;
+    [data-theme="light"] .top-nav {
+      background-color: rgba(253, 247, 255, 0.85);
     }
-    .back-btn:hover { color:var(--purple-400); border-color:rgba(167,139,250,.4); }
 
-    .page-header { text-align:center; padding:52px 24px 32px; position:relative; z-index:1; }
+    /* M3 Filter Chipset in Nav */
+    .nav-chipset {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 4px;
+    }
+
+    .m3-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 16px;
+      border-radius: var(--md-sys-shape-corner-small);
+      border: 1px solid var(--md-sys-color-outline);
+      background-color: var(--md-sys-color-surface-container-low);
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .m3-chip svg {
+      width: 16px;
+      height: 16px;
+    }
+    .m3-chip:hover {
+      background-color: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+      border-color: var(--md-sys-color-primary);
+    }
+    .m3-chip.active {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    .page-header {
+      text-align: center;
+      padding: 40px 24px 28px;
+      position: relative;
+      z-index: 1;
+    }
+
     .avatar-ring {
-      width:72px; height:72px; border-radius:50%;
-      background:linear-gradient(135deg,#7c3aed,#ec4899);
-      display:flex; align-items:center; justify-content:center;
-      margin:0 auto 20px; font-size:2rem;
-      box-shadow:0 0 0 6px rgba(124,58,237,.18), 0 8px 32px rgba(124,58,237,.3);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 2.2rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      border: 2px solid var(--md-sys-color-primary);
     }
+
     .page-title {
-      font-family:'Outfit',sans-serif; font-size:clamp(1.8rem,4vw,2.6rem);
-      font-weight:900; letter-spacing:-.025em;
-      background:linear-gradient(90deg,#f59e0b,#f472b6 50%,#a78bfa);
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-      margin-bottom:10px;
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: clamp(2rem, 4vw, 2.75rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
     }
-    .page-subtitle { font-size:.95rem; color:var(--text-secondary); max-width:500px; margin:0 auto; line-height:1.6; }
 
-    .progress-wrap { max-width:580px; margin:0 auto 40px; padding:0 24px; position:relative; z-index:1; }
-    .progress-labels { display:flex; justify-content:space-between; font-size:.72rem; color:var(--text-muted); margin-bottom:8px; }
-    .progress-bar { height:5px; background:rgba(255,255,255,.08); border-radius:var(--radius-full); overflow:hidden; }
-    .progress-fill { height:100%; border-radius:var(--radius-full); background:linear-gradient(90deg,#7c3aed,#ec4899); width:0%; transition:width .5s ease; }
+    .page-subtitle {
+      font-size: 1rem;
+      color: var(--md-sys-color-on-surface-variant);
+      max-width: 540px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
 
-    .form-wrap { max-width:880px; margin:0 auto; padding:0 20px; display:flex; flex-direction:column; gap:24px; position:relative; z-index:1; }
+    /* M3 Linear Progress Bar */
+    .progress-wrap {
+      max-width: 720px;
+      margin: 0 auto 36px;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--md-sys-color-primary);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .progress-bar {
+      height: 8px;
+      background-color: var(--md-sys-color-surface-container-highest);
+      border-radius: var(--md-sys-shape-corner-full);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: var(--md-sys-shape-corner-full);
+      background: linear-gradient(90deg, var(--md-sys-color-primary), var(--md-sys-color-tertiary));
+      width: 0%;
+      transition: width 0.4s var(--md-sys-motion-easing-emphasized);
+    }
+
+    .form-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      position: relative;
+      z-index: 1;
+    }
 
     .section-card {
-      background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg);
-      padding:28px 28px 24px; transition:border-color var(--transition);
+      background-color: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-extra-large);
+      padding: 32px 36px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      transition: border-color var(--transition), box-shadow var(--transition);
     }
-    .section-card:hover { border-color:rgba(167,139,250,.2); }
-
-    .card-heading { display:flex; align-items:center; gap:10px; font-size:1.05rem; font-weight:700; color:var(--gold); margin-bottom:24px; font-family:'Outfit',sans-serif; }
-    .card-heading .hicon { font-size:1.25rem; }
-
-    .field-grid { display:grid; gap:18px; }
-    .col-3  { grid-template-columns:repeat(3,1fr); }
-    .col-2  { grid-template-columns:repeat(2,1fr); }
-    .col-1  { grid-template-columns:1fr; }
-    @media(max-width:700px) { .col-3,.col-2 { grid-template-columns:1fr; } }
-
-    .field { display:flex; flex-direction:column; gap:8px; }
-    .field-label { font-size:.82rem; font-weight:600; color:var(--text-secondary); letter-spacing:.01em; display:flex; align-items:center; gap:5px; }
-    .req { color:#f87171; }
-
-    .select-wrap { position:relative; }
-    .select-wrap .chevron { position:absolute; right:14px; top:50%; transform:translateY(-50%); width:17px; height:17px; color:var(--text-muted); pointer-events:none; }
-
-    select {
-      width:100%; padding:13px 42px 13px 16px;
-      background:var(--bg-field); border:1.5px solid var(--border); border-radius:var(--radius-md);
-      color:var(--text-primary); font-size:.9rem; font-family:'Inter',sans-serif;
-      appearance:none; -webkit-appearance:none; outline:none; cursor:pointer; transition:var(--transition);
+    .section-card:hover {
+      border-color: var(--md-sys-color-outline);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
     }
-    select:focus { border-color:var(--border-focus); background:rgba(139,92,246,.07); box-shadow:0 0 0 3px rgba(139,92,246,.12); }
-    select:disabled { opacity:.4; cursor:not-allowed; }
-    select option { background:#1f1a3d; color:var(--text-primary); }
 
-    .phone-wrap { display:flex; }
+    .card-heading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--md-sys-color-primary);
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .field-grid { display: grid; gap: 20px; }
+    .col-3 { grid-template-columns: repeat(3, 1fr); }
+    .col-2 { grid-template-columns: repeat(2, 1fr); }
+    .col-1 { grid-template-columns: 1fr; }
+    @media(max-width:800px) { .col-3, .col-2 { grid-template-columns: 1fr; } }
+
+    .req { color: var(--md-sys-color-error); }
+
+    .select-wrap { position: relative; }
+    .select-wrap .chevron {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      color: var(--md-sys-color-outline);
+      pointer-events: none;
+    }
+
+    .phone-wrap {
+      display: flex;
+      align-items: center;
+      border-radius: var(--md-sys-shape-corner-small);
+      border: 1.5px solid var(--md-sys-color-outline);
+      background-color: var(--md-sys-color-surface-container-low);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .phone-wrap:focus-within {
+      border-color: var(--md-sys-color-primary);
+      box-shadow: 0 0 0 2px var(--md-sys-color-primary);
+    }
     .phone-prefix {
-      display:flex; align-items:center; background:var(--bg-field);
-      border:1.5px solid var(--border); border-right:none;
-      border-radius:var(--radius-md) 0 0 var(--radius-md);
-      padding:0 14px; font-size:.9rem; font-weight:600; color:var(--text-muted); white-space:nowrap;
+      padding: 14px 16px;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface-variant);
+      background-color: var(--md-sys-color-surface-container);
+      border-right: 1.5px solid var(--md-sys-color-outline);
+      flex-shrink: 0;
     }
     .phone-input {
-      flex:1; padding:13px 14px; background:var(--bg-field);
-      border:1.5px solid var(--border); border-radius:0 var(--radius-md) var(--radius-md) 0;
-      color:var(--text-primary); font-size:.9rem; font-family:'Inter',sans-serif;
-      outline:none; transition:var(--transition);
+      flex: 1;
+      padding: 14px 16px;
+      border: none;
+      background: transparent;
+      color: var(--md-sys-color-on-surface);
+      font-size: 0.9375rem;
+      font-family: inherit;
+      outline: none;
     }
-    .phone-input:focus { border-color:var(--border-focus); background:rgba(139,92,246,.07); box-shadow:0 0 0 3px rgba(139,92,246,.12); }
-    .phone-hint { font-size:.72rem; color:var(--text-muted); display:flex; align-items:center; gap:5px; }
-    .phone-hint svg { width:13px; height:13px; color:#25d366; flex-shrink:0; }
 
-    .field-error { font-size:.75rem; color:#f87171; display:none; }
-    .field.has-error select,
-    .field.has-error .phone-input { border-color:rgba(248,113,113,.6) !important; }
-    .field.has-error .field-error { display:block; }
-
-    .submit-wrap { max-width:880px; margin:16px auto 0; padding:0 20px; position:relative; z-index:1; }
-    .submit-btn {
-      width:100%; padding:16px 28px;
-      background:linear-gradient(135deg,#7c3aed,#a855f7,#ec4899);
-      color:#fff; font-size:1rem; font-weight:700; font-family:'Inter',sans-serif;
-      border:none; border-radius:var(--radius-lg); cursor:pointer;
-      display:flex; align-items:center; justify-content:center; gap:10px;
-      box-shadow:0 6px 28px rgba(139,92,246,.4); transition:var(--transition);
-      position:relative; overflow:hidden;
+    .phone-hint {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-top: 4px;
     }
-    .submit-btn:hover { transform:translateY(-2px); box-shadow:0 10px 40px rgba(139,92,246,.55); }
-    .submit-btn:active { transform:translateY(0); }
-    .submit-btn.loading { pointer-events:none; opacity:.75; }
-    .btn-spinner { width:20px; height:20px; border-radius:50%; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; animation:spin .7s linear infinite; display:none; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .submit-btn.loading .btn-text { display:none; }
-    .submit-btn.loading .btn-spinner { display:block; }
 
+    .field-error {
+      font-size: 0.75rem;
+      color: var(--md-sys-color-error);
+      display: none;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+    .field.has-error .field-error { display: block; }
+    .field.has-error .field-input, .field.has-error .phone-wrap {
+      border-color: var(--md-sys-color-error) !important;
+    }
+
+    .submit-wrap {
+      max-width: 900px;
+      margin: 36px auto 0;
+      padding: 0 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 16px;
+    }
+
+    /* M3 Floating Action Button (FAB) & FAB Menu */
+    .fab-container {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      z-index: 990;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    .fab-main {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--md-sys-shape-corner-large);
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 1px solid var(--md-sys-color-outline);
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .fab-main:hover {
+      transform: scale(1.06);
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.5);
+    }
+    .fab-main.active svg {
+      transform: rotate(45deg);
+    }
+
+    .fab-menu {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    .fab-menu.open { display: flex; }
+
+    .fab-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-full);
+      padding: 6px 14px 6px 8px;
+      color: var(--md-sys-color-on-surface);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .fab-item:hover {
+      background-color: var(--md-sys-color-surface-container-highest);
+      transform: translateX(-4px);
+    }
+    .fab-item-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* M3 Success Dialog Modal */
     .success-overlay {
-      display:none; position:fixed; inset:0; z-index:500;
-      background:rgba(13,11,31,.96); backdrop-filter:blur(16px);
-      align-items:center; justify-content:center; flex-direction:column;
-      gap:18px; text-align:center; padding:32px;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
     }
-    .success-overlay.show { display:flex; }
-    .success-icon { width:84px; height:84px; border-radius:50%; background:rgba(74,222,128,.12); border:2px solid rgba(74,222,128,.35); display:flex; align-items:center; justify-content:center; font-size:2.8rem; animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
-    @keyframes popIn { from{opacity:0;transform:scale(.5)} to{opacity:1;transform:scale(1)} }
-    .success-title { font-family:'Outfit',sans-serif; font-size:1.9rem; font-weight:800; color:var(--green-400); }
-    .success-sub { color:var(--text-secondary); font-size:.95rem; max-width:400px; line-height:1.65; }
-    .success-meta { background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:var(--radius-md); padding:14px 24px; font-size:.82rem; color:var(--text-muted); max-width:380px; text-align:left; }
-    .success-meta strong { color:var(--text-primary); }
-    .success-btn { margin-top:8px; padding:13px 32px; background:linear-gradient(135deg,#7c3aed,#ec4899); color:#fff; font-size:.95rem; font-weight:700; border:none; border-radius:var(--radius-full); cursor:pointer; font-family:'Inter',sans-serif; box-shadow:0 6px 24px rgba(124,58,237,.4); transition:var(--transition); }
-    .success-btn:hover { transform:translateY(-2px); }
+    .success-overlay.show { display: flex; }
+    .success-box {
+      background-color: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: var(--md-sys-shape-corner-extra-large-increased);
+      padding: 40px 36px;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    }
   </style>
 </head>
 <body>
 
-  <div class="orb orb1"></div>
-  <div class="orb orb2"></div>
-
-  <nav class="navbar">
-    <a href="index.html" class="nav-logo">
-      <span>⚡</span><span>Event<span class="logo-accent">Hub</span></span>
+  <!-- Top App Bar with M3 Chipset -->
+  <header class="top-nav">
+    <a href="index.html" class="logo" aria-label="EventHub Home">
+      <div class="logo-icon" style="width:30px;height:30px;font-size:1rem;">⚡</div>
+      <span>Event<span class="logo-accent">Hub</span></span>
     </a>
-    <a href="index.html" class="back-btn">
-      <i data-lucide="arrow-left"></i> Back to Home
-    </a>
-  </nav>
 
+    <!-- Navigation Chipsets -->
+    <div class="nav-chipset">
+      <a href="dashboard.html" class="m3-chip">
+        <i data-lucide="layout-dashboard"></i> Dashboard
+      </a>
+      <a href="create-event.html" class="m3-chip">
+        <i data-lucide="calendar-plus"></i> Create Event
+      </a>
+      <a href="register.html" class="m3-chip active">
+        <i data-lucide="user-check"></i> Academic Profile
+      </a>
+      <a href="index.html#qr-spotlight" class="m3-chip">
+        <i data-lucide="scan-line"></i> QR Tickets
+      </a>
+    </div>
+  </header>
+
+  <!-- Page Header -->
   <div class="page-header">
-    <div class="avatar-ring">👤</div>
-    <h1 class="page-title">Complete Your Profile</h1>
-    <p class="page-subtitle">Please provide your academic information to complete your EventHub profile and receive your event QR ticket.</p>
+    <div class="avatar-ring">🎓</div>
+    <h1 class="page-title">Complete Your Academic Profile</h1>
+    <p class="page-subtitle">Verify your student credentials to register for campus fests, enter hackathons, and receive authorized QR tickets.</p>
   </div>
 
+  <!-- Progress Bar -->
   <div class="progress-wrap">
     <div class="progress-labels">
-      <span>Profile Completion</span>
-      <span id="progress-pct">0%</span>
+      <span>Profile Progress</span>
+      <span id="progress-pct">0% Completed</span>
     </div>
-    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
   </div>
 
+  <!-- Form -->
   <form class="form-wrap" id="profile-form" novalidate>
 
-    <!-- LOCATION -->
+    <!-- LOCATION & CAMPUS SECTION -->
     <div class="section-card">
-      <div class="card-heading"><span class="hicon">📍</span> Location Information</div>
+      <div class="card-heading"><i data-lucide="map-pin"></i> 1. Institution &amp; Campus Location</div>
       <div class="field-grid col-3">
-
+        
         <div class="field" id="field-state">
           <label class="field-label" for="state">State <span class="req">*</span></label>
           <div class="select-wrap">
-            <select id="state" name="state">
-              <option value="">Select a State</option>
-              <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option>
-              <option>Bihar</option><option>Chhattisgarh</option><option>Goa</option>
-              <option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option>
-              <option>Jharkhand</option><option>Karnataka</option><option>Kerala</option>
-              <option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option>
-              <option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option>
-              <option>Odisha</option><option>Punjab</option><option>Rajasthan</option>
-              <option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
-              <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option>
-              <option>West Bengal</option><option>Delhi</option><option>Chandigarh</option>
-              <option>Puducherry</option><option>Ladakh</option><option>Jammu &amp; Kashmir</option>
+            <select class="field-input" id="state" name="state" required>
+              <option value="">Select State</option>
+              <option value="Andhra Pradesh">Andhra Pradesh</option>
+              <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+              <option value="Assam">Assam</option>
+              <option value="Bihar">Bihar</option>
+              <option value="Chandigarh">Chandigarh</option>
+              <option value="Chhattisgarh">Chhattisgarh</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Goa">Goa</option>
+              <option value="Gujarat">Gujarat</option>
+              <option value="Haryana">Haryana</option>
+              <option value="Himachal Pradesh">Himachal Pradesh</option>
+              <option value="Jammu &amp; Kashmir">Jammu &amp; Kashmir</option>
+              <option value="Jharkhand">Jharkhand</option>
+              <option value="Karnataka">Karnataka</option>
+              <option value="Kerala">Kerala</option>
+              <option value="Ladakh">Ladakh</option>
+              <option value="Madhya Pradesh">Madhya Pradesh</option>
+              <option value="Maharashtra">Maharashtra</option>
+              <option value="Manipur">Manipur</option>
+              <option value="Meghalaya">Meghalaya</option>
+              <option value="Mizoram">Mizoram</option>
+              <option value="Nagaland">Nagaland</option>
+              <option value="Odisha">Odisha</option>
+              <option value="Puducherry">Puducherry</option>
+              <option value="Punjab">Punjab</option>
+              <option value="Rajasthan">Rajasthan</option>
+              <option value="Sikkim">Sikkim</option>
+              <option value="Tamil Nadu">Tamil Nadu</option>
+              <option value="Telangana">Telangana</option>
+              <option value="Tripura">Tripura</option>
+              <option value="Uttar Pradesh">Uttar Pradesh</option>
+              <option value="Uttarakhand">Uttarakhand</option>
+              <option value="West Bengal">West Bengal</option>
             </select>
             <i data-lucide="chevron-down" class="chevron"></i>
           </div>
@@ -224,8 +480,8 @@
         <div class="field" id="field-district">
           <label class="field-label" for="district">District <span class="req">*</span></label>
           <div class="select-wrap">
-            <select id="district" name="district" disabled>
-              <option value="">Select a District</option>
+            <select class="field-input" id="district" name="district" disabled required>
+              <option value="">Select District</option>
             </select>
             <i data-lucide="chevron-down" class="chevron"></i>
           </div>
@@ -233,36 +489,36 @@
         </div>
 
         <div class="field" id="field-college">
-          <label class="field-label" for="college">College <span class="req">*</span></label>
+          <label class="field-label" for="college">College / University <span class="req">*</span></label>
           <div class="select-wrap">
-            <select id="college" name="college" disabled>
-              <option value="">Select a College</option>
+            <select class="field-input" id="college" name="college" disabled required>
+              <option value="">Select College</option>
             </select>
             <i data-lucide="chevron-down" class="chevron"></i>
           </div>
-          <span class="field-error">Please select your college.</span>
+          <span class="field-error">Please select your institution.</span>
         </div>
 
       </div>
     </div>
 
-    <!-- ACADEMIC -->
+    <!-- ACADEMIC PROGRAM SECTION -->
     <div class="section-card">
-      <div class="card-heading"><span class="hicon">🎓</span> Academic Information</div>
+      <div class="card-heading"><i data-lucide="book-open"></i> 2. Academic Program &amp; Branch</div>
+      <div class="field-grid col-3">
 
-      <div class="field-grid col-2" style="margin-bottom:18px;">
         <div class="field" id="field-degree">
-          <label class="field-label" for="degree">Degree Program <span class="req">*</span></label>
+          <label class="field-label" for="degree">Degree <span class="req">*</span></label>
           <div class="select-wrap">
-            <select id="degree" name="degree">
-              <option value="">Select your Degree Program</option>
+            <select class="field-input" id="degree" name="degree" required>
+              <option value="">Select Degree</option>
               <option value="btech">B.Tech / B.E.</option>
               <option value="bsc">B.Sc</option>
               <option value="bca">BCA</option>
               <option value="bcom">B.Com</option>
               <option value="ba">B.A.</option>
               <option value="bba">BBA</option>
-              <option value="mtech">M.Tech / M.E.</option>
+              <option value="mtech">M.Tech</option>
               <option value="msc">M.Sc</option>
               <option value="mca">MCA</option>
               <option value="mba">MBA</option>
@@ -278,60 +534,53 @@
         <div class="field" id="field-specialization">
           <label class="field-label" for="specialization">Specialization <span class="req">*</span></label>
           <div class="select-wrap">
-            <select id="specialization" name="specialization" disabled>
-              <option value="">Please select a degree first</option>
+            <select class="field-input" id="specialization" name="specialization" disabled required>
+              <option value="">Select degree first</option>
             </select>
             <i data-lucide="chevron-down" class="chevron"></i>
           </div>
           <span class="field-error">Please select your specialization.</span>
         </div>
-      </div>
 
-      <div class="field-grid col-1">
         <div class="field" id="field-department">
           <label class="field-label" for="department">Department <span class="req">*</span></label>
           <div class="select-wrap">
-            <select id="department" name="department">
-              <option value="">Select your Department</option>
+            <select class="field-input" id="department" name="department" required>
+              <option value="">Select Department</option>
               <option>Computer Science &amp; Engineering</option>
               <option>Electronics &amp; Communication Engineering</option>
               <option>Mechanical Engineering</option>
               <option>Civil Engineering</option>
               <option>Electrical Engineering</option>
               <option>Information Technology</option>
-              <option>Chemical Engineering</option>
-              <option>Biotechnology</option>
-              <option>Artificial Intelligence &amp; Machine Learning</option>
-              <option>Data Science</option>
-              <option>Cyber Security</option>
-              <option>Business Administration</option>
-              <option>Commerce &amp; Finance</option>
-              <option>Arts &amp; Humanities</option>
-              <option>Science (General)</option>
-              <option>Law</option>
-              <option>Medicine &amp; Health Sciences</option>
-              <option>Architecture</option>
+              <option>Artificial Intelligence &amp; Data Science</option>
+              <option>Business Administration &amp; Management</option>
+              <option>Sciences &amp; Mathematics</option>
+              <option>Humanities &amp; Social Sciences</option>
               <option>Other</option>
             </select>
             <i data-lucide="chevron-down" class="chevron"></i>
           </div>
           <span class="field-error">Please select your department.</span>
         </div>
+
       </div>
     </div>
 
-    <!-- ADDITIONAL -->
+    <!-- CONTACT & PROFILE SECTION -->
     <div class="section-card">
-      <div class="card-heading"><span class="hicon">👤</span> Additional Information</div>
+      <div class="card-heading"><i data-lucide="user"></i> 3. Attendee Identity &amp; WhatsApp Ticket Pass</div>
       <div class="field-grid col-3">
 
         <div class="field" id="field-gender">
           <label class="field-label" for="gender">Gender <span class="req">*</span></label>
           <div class="select-wrap">
-            <select id="gender" name="gender">
-              <option value="">Select your gender</option>
-              <option>Male</option><option>Female</option>
-              <option>Non-binary</option><option>Prefer not to say</option>
+            <select class="field-input" id="gender" name="gender" required>
+              <option value="">Select gender</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Non-binary</option>
+              <option>Prefer not to say</option>
             </select>
             <i data-lucide="chevron-down" class="chevron"></i>
           </div>
@@ -339,32 +588,34 @@
         </div>
 
         <div class="field" id="field-whatsapp">
-          <label class="field-label" for="whatsapp">
-            <i data-lucide="message-circle" style="width:15px;height:15px;color:#25d366;"></i>
-            WhatsApp Number <span class="req">*</span>
-          </label>
+          <label class="field-label" for="whatsapp">WhatsApp Number <span class="req">*</span></label>
           <div class="phone-wrap">
             <div class="phone-prefix">+91</div>
-            <input class="phone-input" type="tel" id="whatsapp" name="whatsapp" placeholder="9876543210" maxlength="10" inputmode="numeric" />
+            <input class="phone-input" type="tel" id="whatsapp" name="whatsapp" placeholder="9876543210" maxlength="10" inputmode="numeric" required />
           </div>
           <div class="phone-hint">
-            <i data-lucide="message-circle"></i>
-            We'll send your QR code &amp; event updates on WhatsApp
+            <i data-lucide="message-circle" style="width:14px;height:14px;color:var(--md-sys-color-success);"></i>
+            QR passes &amp; gate updates sent here
           </div>
-          <span class="field-error">Please enter a valid 10-digit WhatsApp number.</span>
+          <span class="field-error">Enter a valid 10-digit mobile number.</span>
         </div>
 
         <div class="field" id="field-gradyear">
-          <label class="field-label" for="gradyear">Expected Graduation Year <span class="req">*</span></label>
+          <label class="field-label" for="gradyear">Graduation Year <span class="req">*</span></label>
           <div class="select-wrap">
-            <select id="gradyear" name="gradyear">
-              <option value="">Select graduation year</option>
-              <option>2024</option><option>2025</option><option>2026</option>
-              <option>2027</option><option>2028</option><option>2029</option><option>2030</option>
+            <select class="field-input" id="gradyear" name="gradyear" required>
+              <option value="">Select Year</option>
+              <option>2024</option>
+              <option>2025</option>
+              <option>2026</option>
+              <option>2027</option>
+              <option>2028</option>
+              <option>2029</option>
+              <option>2030</option>
             </select>
             <i data-lucide="chevron-down" class="chevron"></i>
           </div>
-          <span class="field-error">Please select your expected graduation year.</span>
+          <span class="field-error">Select your expected graduation year.</span>
         </div>
 
       </div>
@@ -373,23 +624,45 @@
   </form>
 
   <div class="submit-wrap">
-    <button class="submit-btn" id="submit-btn" type="button">
-      <span class="btn-text"><i data-lucide="check-square"></i>&nbsp; Complete Profile</span>
-      <div class="btn-spinner"></div>
+    <a href="dashboard.html" class="btn btn-outline btn-lg">Discard &amp; Return</a>
+    <button class="btn btn-primary btn-lg" id="submit-btn" type="button">
+      <i data-lucide="check-circle-2"></i> Save &amp; Verify Academic Profile
     </button>
   </div>
 
-  <!-- SUCCESS -->
-  <div class="success-overlay" id="success-overlay">
-    <div class="success-icon">✅</div>
-    <div class="success-title">Profile Saved!</div>
-    <p class="success-sub">Your profile has been saved to this device. You're all set to explore events and receive your QR ticket.</p>
-    <div class="success-meta" id="success-meta"></div>
-    <button class="success-btn" id="success-go-home">Go to Home →</button>
+  <!-- M3 Floating Action Button Menu -->
+  <div class="fab-container">
+    <div class="fab-main" id="fab-main" onclick="toggleFabMenu()" aria-label="Quick Actions">
+      <i data-lucide="plus" style="transition:transform 0.25s ease;"></i>
+    </div>
+    <div class="fab-menu" id="fab-menu">
+      <div class="fab-item" onclick="window.location.href='create-event.html'">
+        <div class="fab-item-icon"><i data-lucide="calendar-plus" style="width:16px;height:16px;"></i></div>
+        <span>Create Event</span>
+      </div>
+      <div class="fab-item" onclick="window.location.href='dashboard.html'">
+        <div class="fab-item-icon"><i data-lucide="layout-dashboard" style="width:16px;height:16px;"></i></div>
+        <span>Dashboard</span>
+      </div>
+      <div class="fab-item" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+        <div class="fab-item-icon"><i data-lucide="arrow-up" style="width:16px;height:16px;"></i></div>
+        <span>Top of Page</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal Sheet -->
+  <div class="success-overlay" id="success-overlay" role="dialog" aria-label="Profile saved">
+    <div class="success-box">
+      <div style="font-size:3rem; margin-bottom:12px;">🎉</div>
+      <h2 style="font-family:var(--md-sys-typescale-brand-font); font-size:1.8rem; margin-bottom:8px;">Profile Verified &amp; Saved!</h2>
+      <p style="color:var(--md-sys-color-on-surface-variant); font-size:0.95rem; margin-bottom:24px;">Your profile is registered on EventHub. You are ready to explore campus events and generate QR gate passes.</p>
+      <div id="success-meta" style="background-color:var(--md-sys-color-surface-container); border:1px solid var(--md-sys-color-outline-variant); border-radius:var(--md-sys-shape-corner-medium); padding:16px; font-size:0.875rem; text-align:left; margin-bottom:24px; line-height:1.6;"></div>
+      <button class="btn btn-primary btn-lg" id="success-go-home" style="width:100%;">Return to Dashboard</button>
+    </div>
   </div>
 
   <script>
-    // ── Data ──────────────────────────────────────────────────────
     const stateDistricts = {
       "Maharashtra":["Mumbai","Pune","Nagpur","Nashik","Aurangabad","Solapur","Kolhapur","Thane","Amravati","Navi Mumbai"],
       "Delhi":["Central Delhi","East Delhi","New Delhi","North Delhi","North East Delhi","North West Delhi","South Delhi","South East Delhi","South West Delhi","West Delhi","Shahdara"],
@@ -471,12 +744,11 @@
       other: ["General","Other"]
     };
 
-    // ── Cascading State → District ────────────────────────────────
     document.getElementById('state').addEventListener('change', function() {
       const distSel = document.getElementById('district');
       const colSel  = document.getElementById('college');
-      distSel.innerHTML = '<option value="">Select a District</option>';
-      colSel.innerHTML  = '<option value="">Select a College</option>';
+      distSel.innerHTML = '<option value="">Select District</option>';
+      colSel.innerHTML  = '<option value="">Select College</option>';
       colSel.disabled = true;
       if (this.value && stateDistricts[this.value]) {
         stateDistricts[this.value].forEach(d => {
@@ -488,10 +760,9 @@
       updateProgress();
     });
 
-    // ── Cascading District → College ─────────────────────────────
     document.getElementById('district').addEventListener('change', function() {
       const colSel = document.getElementById('college');
-      colSel.innerHTML = '<option value="">Select a College</option>';
+      colSel.innerHTML = '<option value="">Select College</option>';
       const list = districtColleges[this.value] || ["Other"];
       list.forEach(c => {
         const o = document.createElement('option'); o.value = c; o.textContent = c;
@@ -505,10 +776,9 @@
       updateProgress();
     });
 
-    // ── Degree → Specialization ───────────────────────────────────
     document.getElementById('degree').addEventListener('change', function() {
       const specSel = document.getElementById('specialization');
-      specSel.innerHTML = '<option value="">Select your specialization</option>';
+      specSel.innerHTML = '<option value="">Select specialization</option>';
       if (this.value && specializationMap[this.value]) {
         specializationMap[this.value].forEach(s => {
           const o = document.createElement('option'); o.value = s; o.textContent = s;
@@ -522,7 +792,6 @@
       updateProgress();
     });
 
-    // ── Progress bar ─────────────────────────────────────────────
     const allFieldIds = ['state','district','college','degree','specialization','department','gender','whatsapp','gradyear'];
 
     function updateProgress() {
@@ -536,7 +805,7 @@
       });
       const pct = Math.round((filled / allFieldIds.length) * 100);
       document.getElementById('progress-fill').style.width = pct + '%';
-      document.getElementById('progress-pct').textContent = pct + '%';
+      document.getElementById('progress-pct').textContent = pct + '% Completed';
     }
 
     allFieldIds.forEach(id => {
@@ -548,7 +817,6 @@
       updateProgress();
     });
 
-    // ── Validation ────────────────────────────────────────────────
     function validate() {
       let ok = true;
       allFieldIds.forEach(id => {
@@ -563,41 +831,79 @@
       return ok;
     }
 
-    // ── Submit ────────────────────────────────────────────────────
     document.getElementById('submit-btn').addEventListener('click', function() {
       if (!validate()) {
         document.querySelector('.field.has-error')?.scrollIntoView({ behavior:'smooth', block:'center' });
         return;
       }
-      this.classList.add('loading');
-      setTimeout(() => {
-        const data = {};
-        allFieldIds.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) data[id] = el.value.trim();
-        });
-        data.savedAt = new Date().toISOString();
-        localStorage.setItem('eventhub_profile', JSON.stringify(data));
+      const data = {};
+      allFieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value.trim();
+      });
+      data.savedAt = new Date().toISOString();
+      localStorage.setItem('eventhub_profile', JSON.stringify(data));
 
-        // Show success meta
-        document.getElementById('success-meta').innerHTML =
-          `<strong>State:</strong> ${data.state} &nbsp;|&nbsp; <strong>District:</strong> ${data.district}<br>
-           <strong>College:</strong> ${data.college}<br>
-           <strong>Degree:</strong> ${data.degree.toUpperCase()} — ${data.specialization}<br>
-           <strong>WhatsApp:</strong> +91 ${data.whatsapp} &nbsp;|&nbsp; <strong>Graduation:</strong> ${data.gradyear}`;
+      document.getElementById('success-meta').innerHTML = `
+        <strong>Institution:</strong> ${data.college} (${data.district}, ${data.state})<br>
+        <strong>Program:</strong> ${data.degree.toUpperCase()} in ${data.specialization}<br>
+        <strong>Department:</strong> ${data.department}<br>
+        <strong>Contact:</strong> +91 ${data.whatsapp} &nbsp;|&nbsp; <strong>Graduation:</strong> ${data.gradyear}
+      `;
 
-        this.classList.remove('loading');
-        document.getElementById('success-overlay').classList.add('show');
-      }, 900);
+      document.getElementById('success-overlay').classList.add('show');
     });
 
     document.getElementById('success-go-home').addEventListener('click', () => {
-      window.location.href = 'index.html';
+      window.location.href = 'dashboard.html';
     });
 
-    // ── Icons ─────────────────────────────────────────────────────
+    // M3 FAB Menu Toggle
+    window.toggleFabMenu = function() {
+      const menu = document.getElementById('fab-menu');
+      const fab  = document.getElementById('fab-main');
+      const isOpen = menu.classList.contains('open');
+      menu.classList.toggle('open', !isOpen);
+      fab.classList.toggle('active', !isOpen);
+    };
+
+    document.addEventListener('click', (e) => {
+      const container = document.querySelector('.fab-container');
+      if (container && !container.contains(e.target)) {
+        document.getElementById('fab-menu')?.classList.remove('open');
+        document.getElementById('fab-main')?.classList.remove('active');
+      }
+    });
+
+    // Prepopulate existing profile if saved
+    (function loadExisting() {
+      const raw = localStorage.getItem('eventhub_profile');
+      if (!raw) return;
+      try {
+        const p = JSON.parse(raw);
+        if (p.state) {
+          document.getElementById('state').value = p.state;
+          document.getElementById('state').dispatchEvent(new Event('change'));
+        }
+        if (p.district) {
+          document.getElementById('district').value = p.district;
+          document.getElementById('district').dispatchEvent(new Event('change'));
+        }
+        if (p.college) document.getElementById('college').value = p.college;
+        if (p.degree) {
+          document.getElementById('degree').value = p.degree;
+          document.getElementById('degree').dispatchEvent(new Event('change'));
+        }
+        if (p.specialization) document.getElementById('specialization').value = p.specialization;
+        if (p.department) document.getElementById('department').value = p.department;
+        if (p.gender) document.getElementById('gender').value = p.gender;
+        if (p.whatsapp) document.getElementById('whatsapp').value = p.whatsapp;
+        if (p.gradyear) document.getElementById('gradyear').value = p.gradyear;
+        updateProgress();
+      } catch(_) {}
+    })();
+
     if (window.lucide) window.lucide.createIcons();
-    document.addEventListener('DOMContentLoaded', () => { if (window.lucide) window.lucide.createIcons(); });
   </script>
 </body>
 </html>

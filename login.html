@@ -4,176 +4,526 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Log In — EventHub</title>
-  <meta name="description" content="Log in to your EventHub account." />
+  <meta name="description" content="Sign in to your EventHub account to manage campus events, registrations, and QR tickets." />
+  
+  <!-- Fonts & Material Symbols -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&family=Roboto+Flex:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
   <style>
     :root {
-      --bg-deep: #0a0818; --bg-dark: #0f0c29;
-      --bg-card: rgba(255,255,255,0.05); --border: rgba(255,255,255,0.09);
-      --border-focus: rgba(167,139,250,0.6);
-      --purple-400: #a78bfa; --purple-500: #8b5cf6; --purple-600: #7c3aed;
-      --pink-400: #f472b6; --blue-400: #60a5fa; --green-400: #4ade80; --red-400: #f87171;
-      --grad-primary: linear-gradient(135deg,#7c3aed 0%,#a855f7 50%,#ec4899 100%);
-      --grad-text: linear-gradient(90deg,#a78bfa,#f472b6,#60a5fa);
-      --text-primary: #f8fafc; --text-secondary: #cbd5e1; --text-muted: #64748b;
-      --radius-sm: 8px; --radius-md: 14px; --radius-lg: 20px; --radius-full: 999px;
-      --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+      --md-sys-color-primary: #d0bcff;
+      --md-sys-color-on-primary: #381e72;
+      --md-sys-color-primary-container: #4f378b;
+      --md-sys-color-on-primary-container: #eaddff;
+      --md-sys-color-secondary-container: #4a4458;
+      --md-sys-color-on-secondary-container: #e8def8;
+      --md-sys-color-tertiary-container: #633b48;
+      --md-sys-color-on-tertiary-container: #ffd8e4;
+      --md-sys-color-surface: #141218;
+      --md-sys-color-surface-container-lowest: #0f0d13;
+      --md-sys-color-surface-container-low: #1d1b20;
+      --md-sys-color-surface-container: #211f26;
+      --md-sys-color-surface-container-high: #2b2930;
+      --md-sys-color-surface-container-highest: #36343b;
+      --md-sys-color-on-surface: #e6e0e9;
+      --md-sys-color-on-surface-variant: #cac4d0;
+      --md-sys-color-outline: #938f99;
+      --md-sys-color-outline-variant: #49454f;
+      --md-sys-color-error: #f2b8b5;
+      --md-sys-color-error-container: #8c1d18;
+      --md-sys-color-on-error-container: #f9dedc;
+      --md-sys-color-success-container: #005322;
+      --md-sys-color-success: #6dd58c;
+
+      --md-sys-shape-corner-small: 8px;
+      --md-sys-shape-corner-medium: 12px;
+      --md-sys-shape-corner-large: 16px;
+      --md-sys-shape-corner-extra-large: 28px;
+      --md-sys-shape-corner-full: 9999px;
+
+      --md-sys-typescale-brand-font: 'Outfit', sans-serif;
+      --md-sys-typescale-plain-font: 'Inter', 'Roboto Flex', sans-serif;
+      --transition: 0.25s cubic-bezier(0.2, 0, 0, 1);
     }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 16px; }
+    html { font-size: 16px; color-scheme: dark; }
     body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: var(--bg-deep); color: var(--text-primary);
-      min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden;
+      font-family: var(--md-sys-typescale-plain-font);
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      overflow-x: hidden;
     }
     a { text-decoration: none; color: inherit; }
     button { cursor: pointer; font-family: inherit; border: none; background: none; }
 
-    /* LEFT PANEL */
+    /* LEFT BRANDING PANEL */
     .left-panel {
       position: relative;
-      background: linear-gradient(135deg,#0f0c29 0%,#1a0e3d 50%,#0d1b3e 100%);
-      display: flex; flex-direction: column; justify-content: space-between;
-      padding: 40px 48px; overflow: hidden;
+      background-color: var(--md-sys-color-surface-container-low);
+      border-right: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px 56px;
+      overflow: hidden;
     }
-    .panel-orb { position:absolute; border-radius:50%; filter:blur(70px); pointer-events:none; animation:orbFloat 7s ease-in-out infinite; }
-    .porb1{width:420px;height:420px;background:rgba(124,58,237,.22);top:-80px;left:-80px;animation-delay:0s}
-    .porb2{width:320px;height:320px;background:rgba(236,72,153,.15);bottom:60px;right:-60px;animation-delay:2.5s}
-    .porb3{width:200px;height:200px;background:rgba(59,130,246,.12);bottom:200px;left:100px;animation-delay:5s}
-    @keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-20px) scale(1.04)}}
-    .panel-particles{position:absolute;inset:0;pointer-events:none}
-    .p-dot{position:absolute;border-radius:50%;animation:pdrift linear infinite;opacity:.5}
-    @keyframes pdrift{0%{transform:translateY(100%) rotate(0);opacity:0}10%{opacity:.5}90%{opacity:.5}100%{transform:translateY(-120px) rotate(360deg);opacity:0}}
-    .panel-logo{position:relative;z-index:2;display:flex;align-items:center;gap:10px;font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:800}
-    .panel-logo-accent{color:var(--purple-400)}
-    .panel-body{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:center}
-    .panel-headline{font-family:'Outfit',sans-serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:900;line-height:1.15;letter-spacing:-.025em;margin-bottom:16px}
-    .grad-text{background:var(--grad-text);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .panel-sub{font-size:1rem;color:var(--text-secondary);line-height:1.65;max-width:360px;margin-bottom:40px}
-    .feature-pills{display:flex;flex-direction:column;gap:14px}
-    .pill{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-md);padding:14px 18px;animation:pillSlideIn .5s ease both}
-    .pill:nth-child(1){animation-delay:.1s}.pill:nth-child(2){animation-delay:.2s}.pill:nth-child(3){animation-delay:.3s}
-    @keyframes pillSlideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
-    .pill-icon{width:38px;height:38px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .pill-icon svg{width:18px;height:18px}
-    .pill-icon.purple{background:rgba(124,58,237,.2);color:var(--purple-400)}
-    .pill-icon.green{background:rgba(74,222,128,.15);color:var(--green-400)}
-    .pill-icon.blue{background:rgba(96,165,250,.15);color:var(--blue-400)}
-    .pill-text strong{display:block;font-size:.88rem;font-weight:600;color:var(--text-primary)}
-    .pill-text span{font-size:.78rem;color:var(--text-muted)}
-    .panel-footer{position:relative;z-index:2;font-size:.78rem;color:var(--text-muted)}
 
-    /* RIGHT PANEL */
-    .right-panel{display:flex;align-items:center;justify-content:center;padding:40px 48px;background:var(--bg-deep);position:relative;overflow-y:auto}
-    .form-container{width:100%;max-width:400px;animation:fadeInRight .6s ease both}
-    @keyframes fadeInRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
-    .form-header{margin-bottom:32px}
-    .form-title{font-family:'Outfit',sans-serif;font-size:1.9rem;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
-    .form-subtitle{font-size:.9rem;color:var(--text-secondary)}
-    .back-link{position:absolute;top:28px;left:28px;display:flex;align-items:center;gap:6px;font-size:.83rem;font-weight:500;color:var(--text-muted);transition:var(--transition)}
-    .back-link svg{width:15px;height:15px}
-    .back-link:hover{color:var(--purple-400)}
+    .ambient-glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      opacity: 0.35;
+    }
+    .glow-1 { width: 440px; height: 440px; background: radial-gradient(circle, var(--md-sys-color-primary-container) 0%, transparent 70%); top: -60px; left: -60px; }
+    .glow-2 { width: 360px; height: 360px; background: radial-gradient(circle, var(--md-sys-color-tertiary-container) 0%, transparent 70%); bottom: 40px; right: -40px; }
 
-    /* Google button */
+    .panel-logo {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+    .panel-logo-icon {
+      width: 34px; height: 34px;
+      border-radius: var(--md-sys-shape-corner-small);
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .panel-logo-accent { color: var(--md-sys-color-primary); }
+
+    .panel-body {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin: 40px 0;
+    }
+
+    .panel-headline {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: clamp(2rem, 3.5vw, 2.75rem);
+      font-weight: 800;
+      line-height: 1.18;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .grad-text {
+      background: linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-tertiary-container) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .panel-sub {
+      font-size: 1.05rem;
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.65;
+      max-width: 440px;
+      margin-bottom: 36px;
+    }
+
+    /* M3 Feature Containers */
+    .feature-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 460px;
+    }
+
+    .m3-feature-tile {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background-color: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-medium);
+      padding: 16px 20px;
+      transition: border-color var(--transition);
+    }
+    .m3-feature-tile:hover {
+      border-color: var(--md-sys-color-outline);
+    }
+
+    .feature-tile-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--md-sys-shape-corner-small);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .feature-tile-icon.primary { background-color: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+    .feature-tile-icon.success { background-color: var(--md-sys-color-success-container); color: var(--md-sys-color-success); }
+    .feature-tile-icon.secondary { background-color: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+
+    .feature-tile-text strong {
+      display: block;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface);
+    }
+    .feature-tile-text span {
+      font-size: 0.8125rem;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .panel-footer {
+      position: relative;
+      z-index: 2;
+      font-size: 0.8125rem;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    /* RIGHT AUTH FORM PANEL */
+    .right-panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      background-color: var(--md-sys-color-surface);
+      position: relative;
+      overflow-y: auto;
+    }
+
+    .back-link {
+      position: absolute;
+      top: 32px;
+      left: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface-variant);
+      padding: 6px 14px;
+      border-radius: var(--md-sys-shape-corner-full);
+      transition: var(--transition);
+    }
+    .back-link:hover {
+      color: var(--md-sys-color-on-surface);
+      background-color: var(--md-sys-color-surface-container-high);
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 410px;
+    }
+
+    .form-header {
+      margin-bottom: 28px;
+    }
+    .form-title {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+      color: var(--md-sys-color-on-surface);
+    }
+    .form-subtitle {
+      font-size: 0.9375rem;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    /* Google Button conforming to Google Identity specs */
     .google-btn {
-      width:100%; padding:14px 20px; display:flex; align-items:center; justify-content:center; gap:12px;
-      background: #fff; color: #3c4043; font-size:.95rem; font-weight:600; font-family:'Inter',sans-serif;
-      border:none; border-radius:var(--radius-full); cursor:pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition:var(--transition);
+      width: 100%;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background-color: #ffffff;
+      color: #1f1f1f;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      font-family: var(--md-sys-typescale-plain-font);
+      border-radius: var(--md-sys-shape-corner-full);
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      transition: var(--transition);
     }
-    .google-btn:hover { box-shadow:0 6px 24px rgba(0,0,0,0.4); transform:translateY(-2px); }
-    .google-btn:active { transform:translateY(0); }
-    .google-btn.loading { pointer-events:none; opacity:0.75; }
-    .google-btn svg { width:22px; height:22px; flex-shrink:0; }
+    .google-btn:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transform: translateY(-1px);
+    }
+    .google-btn:active {
+      transform: translateY(0);
+    }
 
-    /* Divider */
-    .divider{display:flex;align-items:center;gap:14px;margin:24px 0}
-    .divider-line{flex:1;height:1px;background:var(--border)}
-    .divider-text{font-size:.78rem;color:var(--text-muted);white-space:nowrap}
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 24px 0;
+    }
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background-color: var(--md-sys-color-outline-variant);
+    }
+    .divider-text {
+      font-size: 0.8125rem;
+      color: var(--md-sys-color-on-surface-variant);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
 
-    /* Email form */
-    .form{display:flex;flex-direction:column;gap:16px}
-    .field{display:flex;flex-direction:column;gap:7px}
-    .field-label{font-size:.83rem;font-weight:600;color:var(--text-secondary);letter-spacing:.01em}
-    .field-wrap{position:relative;display:flex;align-items:center}
-    .field-icon{position:absolute;left:14px;color:var(--text-muted);pointer-events:none;transition:var(--transition)}
-    .field-icon svg{width:17px;height:17px}
-    .field-input{width:100%;padding:12px 14px 12px 42px;border-radius:var(--radius-md);border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-size:.9rem;font-family:'Inter',sans-serif;outline:none;transition:var(--transition)}
-    .field-input::placeholder{color:var(--text-muted)}
-    .field-input:focus{border-color:var(--border-focus);background:rgba(139,92,246,.06);box-shadow:0 0 0 3px rgba(139,92,246,.12)}
-    .field-wrap:focus-within .field-icon{color:var(--purple-400)}
-    .pass-toggle{position:absolute;right:14px;color:var(--text-muted);cursor:pointer;transition:var(--transition);display:flex;align-items:center}
-    .pass-toggle svg{width:17px;height:17px}
-    .pass-toggle:hover{color:var(--purple-400)}
-    .form-row{display:flex;align-items:center;justify-content:space-between}
-    .forgot-link{font-size:.83rem;color:var(--purple-400);font-weight:500;transition:var(--transition)}
-    .forgot-link:hover{color:#fff}
+    /* M3 Outlined Form Controls */
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
 
-    /* Error */
-    .error-msg{display:none;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--radius-sm);background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);color:var(--red-400);font-size:.82rem}
-    .error-msg.visible{display:flex}
-    .error-msg svg{width:15px;height:15px;flex-shrink:0}
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface-variant);
+    }
 
-    /* Submit */
-    .submit-btn{width:100%;padding:14px;border-radius:var(--radius-full);background:var(--grad-primary);color:#fff;font-size:.95rem;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;border:none;box-shadow:0 4px 20px rgba(139,92,246,.4);transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden}
-    .submit-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(139,92,246,.55)}
-    .submit-btn:active{transform:translateY(0)}
-    .submit-btn.loading{pointer-events:none;opacity:.8}
-    .btn-spinner{display:none;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .submit-btn.loading .btn-text{display:none}
-    .submit-btn.loading .btn-spinner{display:block}
-    .signup-row{text-align:center;margin-top:4px;font-size:.85rem;color:var(--text-muted)}
-    .signup-row a{color:var(--purple-400);font-weight:600;transition:var(--transition)}
-    .signup-row a:hover{color:#fff}
+    .field-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
 
-    /* Status toast */
-    .status-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e1b4b;border:1px solid rgba(167,139,250,.3);border-radius:var(--radius-full);padding:12px 24px;font-size:.88rem;color:var(--text-primary);display:none;align-items:center;gap:10px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.5);transition:all .3s ease}
-    .status-toast.show{display:flex;transform:translateX(-50%) translateY(0)}
+    .field-icon {
+      position: absolute;
+      left: 16px;
+      color: var(--md-sys-color-outline);
+      pointer-events: none;
+      width: 18px;
+      height: 18px;
+      transition: color var(--transition);
+    }
 
-    @media(max-width:900px){body{grid-template-columns:1fr;overflow:auto}.left-panel{display:none}.right-panel{padding:60px 28px 40px;min-height:100vh}}
+    .field-input {
+      width: 100%;
+      padding: 13px 16px 13px 46px;
+      border-radius: var(--md-sys-shape-corner-small);
+      border: 1.5px solid var(--md-sys-color-outline);
+      background-color: var(--md-sys-color-surface-container-low);
+      color: var(--md-sys-color-on-surface);
+      font-size: 0.9375rem;
+      font-family: inherit;
+      outline: none;
+      transition: var(--transition);
+    }
+    .field-input:focus {
+      border-color: var(--md-sys-color-primary);
+      background-color: var(--md-sys-color-surface-container);
+      box-shadow: 0 0 0 1px var(--md-sys-color-primary);
+    }
+    .field-wrap:focus-within .field-icon {
+      color: var(--md-sys-color-primary);
+    }
+
+    .pass-toggle {
+      position: absolute;
+      right: 14px;
+      color: var(--md-sys-color-outline);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 4px;
+      border-radius: 50%;
+    }
+    .pass-toggle:hover {
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .forgot-link {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--md-sys-color-primary);
+      transition: color var(--transition);
+    }
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+
+    .error-msg {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: var(--md-sys-shape-corner-small);
+      background-color: var(--md-sys-color-error-container);
+      color: var(--md-sys-color-on-error-container);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .error-msg.visible {
+      display: flex;
+    }
+
+    /* M3 Filled Action Button */
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--md-sys-shape-corner-full);
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      font-size: 0.9375rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      transition: var(--transition);
+    }
+    .submit-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    }
+    .submit-btn.loading {
+      pointer-events: none;
+      opacity: 0.75;
+    }
+    .btn-spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: var(--md-sys-color-on-primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .submit-btn.loading .btn-text { display: none; }
+    .submit-btn.loading .btn-spinner { display: block; }
+
+    .signup-row {
+      text-align: center;
+      margin-top: 6px;
+      font-size: 0.875rem;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    .signup-row a {
+      color: var(--md-sys-color-primary);
+      font-weight: 600;
+    }
+    .signup-row a:hover {
+      text-decoration: underline;
+    }
+
+    /* M3 Snackbar Toast */
+    .status-toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background-color: var(--md-sys-color-inverse-surface);
+      color: var(--md-sys-color-inverse-on-surface);
+      border-radius: var(--md-sys-shape-corner-extra-small);
+      padding: 14px 24px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 9999;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      transition: all 0.3s ease;
+    }
+    .status-toast.show {
+      display: flex;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 900px) {
+      body { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+      .right-panel { padding: 64px 24px 40px; min-height: 100vh; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- LEFT PANEL -->
+  <!-- LEFT BRANDING PANEL -->
   <div class="left-panel">
-    <div class="panel-particles" id="panel-particles"></div>
-    <div class="porb1 panel-orb"></div>
-    <div class="porb2 panel-orb"></div>
-    <div class="porb3 panel-orb"></div>
+    <div class="glow-1 ambient-glow"></div>
+    <div class="glow-2 ambient-glow"></div>
+
     <a href="index.html" class="panel-logo">
-      <span>⚡</span>
+      <div class="panel-logo-icon">⚡</div>
       <span>Event<span class="panel-logo-accent">Hub</span></span>
     </a>
+
     <div class="panel-body">
-      <h2 class="panel-headline">Your events,<br/><span class="grad-text">perfectly managed.</span></h2>
-      <p class="panel-sub">Thousands of student organisers trust EventHub to run seamless registrations, QR check‑ins, and live analytics — all in one place.</p>
-      <div class="feature-pills">
-        <div class="pill"><div class="pill-icon purple"><i data-lucide="zap"></i></div><div class="pill-text"><strong>Instant QR Tickets</strong><span>Auto-sent to every registrant</span></div></div>
-        <div class="pill"><div class="pill-icon green"><i data-lucide="scan-line"></i></div><div class="pill-text"><strong>Lightning Check-In</strong><span>Scan 500+ attendees in minutes</span></div></div>
-        <div class="pill"><div class="pill-icon blue"><i data-lucide="bar-chart-3"></i></div><div class="pill-text"><strong>Real-Time Analytics</strong><span>Live dashboards &amp; CSV exports</span></div></div>
+      <h2 class="panel-headline">Your campus events,<br/><span class="grad-text">seamlessly delivered.</span></h2>
+      <p class="panel-sub">Trusted by college organizing committees to streamline registrations, generate verified QR passes, and track check‑ins live.</p>
+      
+      <div class="feature-stack">
+        <div class="m3-feature-tile">
+          <div class="feature-tile-icon primary"><i data-lucide="zap"></i></div>
+          <div class="feature-tile-text">
+            <strong>Instant QR Gate Passes</strong>
+            <span>Delivered immediately to attendees</span>
+          </div>
+        </div>
+        <div class="m3-feature-tile">
+          <div class="feature-tile-icon success"><i data-lucide="scan-line"></i></div>
+          <div class="feature-tile-text">
+            <strong>Sub-Second Scanner</strong>
+            <span>Verify 500+ attendees in minutes</span>
+          </div>
+        </div>
+        <div class="m3-feature-tile">
+          <div class="feature-tile-icon secondary"><i data-lucide="bar-chart-3"></i></div>
+          <div class="feature-tile-text">
+            <strong>Real-Time Analytics</strong>
+            <span>Live attendance feeds &amp; CSV reporting</span>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="panel-footer">© 2025 EventHub · Made for student organisers</div>
+
+    <div class="panel-footer">© 2026 EventHub · Material Design 3 Expressive</div>
   </div>
 
-  <!-- RIGHT PANEL -->
+  <!-- RIGHT AUTH FORM PANEL -->
   <div class="right-panel">
     <a href="index.html" class="back-link"><i data-lucide="arrow-left"></i> Back to home</a>
 
     <div class="form-container">
       <div class="form-header">
         <h1 class="form-title">Welcome back 👋</h1>
-        <p class="form-subtitle">Sign in to manage your events.</p>
+        <p class="form-subtitle">Sign in to manage your events and registrations.</p>
       </div>
 
-      <!-- ✅ Google Sign-In Button -->
-      <button class="google-btn" id="btn-google">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <!-- Google Sign-In Button -->
+      <button class="google-btn" id="btn-google" aria-label="Sign in with Google">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -188,56 +538,59 @@
         <div class="divider-line"></div>
       </div>
 
-      <!-- Email / Password form -->
+      <!-- Email / Password Form -->
       <form class="form" id="login-form" novalidate>
         <div class="field">
           <label class="field-label" for="email">Email address</label>
           <div class="field-wrap">
             <span class="field-icon"><i data-lucide="mail"></i></span>
-            <input class="field-input" type="email" id="email" placeholder="you@college.edu" autocomplete="email" required />
+            <input class="field-input" type="email" id="email" placeholder="organizer@university.edu" autocomplete="email" required />
           </div>
         </div>
+
         <div class="field">
           <label class="field-label" for="password">Password</label>
           <div class="field-wrap">
             <span class="field-icon"><i data-lucide="lock"></i></span>
             <input class="field-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password" required />
-            <button type="button" class="pass-toggle" id="pass-toggle" aria-label="Toggle password">
+            <button type="button" class="pass-toggle" id="pass-toggle" aria-label="Toggle password visibility">
               <i data-lucide="eye" id="eye-icon"></i>
             </button>
           </div>
         </div>
+
         <div class="form-row">
-          <span></span>
           <a href="#" class="forgot-link" id="forgot-link">Forgot password?</a>
         </div>
+
         <div class="error-msg" id="error-msg">
           <i data-lucide="alert-circle"></i>
           <span id="error-text">Invalid email or password.</span>
         </div>
+
         <button type="submit" class="submit-btn" id="submit-btn">
           <span class="btn-text">Log In to EventHub</span>
           <div class="btn-spinner"></div>
         </button>
-        <p class="signup-row">New here? <a href="#" id="signup-link">Create a free account →</a></p>
+
+        <p class="signup-row">New organizer? <a href="signup.html" id="signup-link">Create a free account →</a></p>
       </form>
     </div>
   </div>
 
   <!-- Status Toast -->
-  <div class="status-toast" id="status-toast">
+  <div class="status-toast" id="status-toast" role="status">
     <i data-lucide="check-circle-2"></i>
     <span id="toast-msg">Signing you in…</span>
   </div>
 
-  <!-- Firebase SDK (modular, loaded via CDN) -->
+  <!-- Firebase SDK Auth Script -->
   <script type="module">
     import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithPopup,
              signInWithEmailAndPassword, sendPasswordResetEmail,
              GoogleAuthProvider }                     from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
-    /* ── Config ── */
     const firebaseConfig = {
       apiKey:            "",
       authDomain:        "event-hub-36864.firebaseapp.com",
@@ -251,16 +604,13 @@
     const auth           = getAuth(app);
     const googleProvider = new GoogleAuthProvider();
 
-    /* ── Auto-redirect if already signed in (onAuthStateChanged is authoritative) ── */
     const params    = new URLSearchParams(window.location.search);
     const forceShow = params.get('action') === 'login';
 
-    // Quick pre-check: if we have a cached local session and user didn't force login, redirect
     if (!forceShow && localStorage.getItem('eventhub_user')) {
       window.location.replace('dashboard.html');
     }
 
-    // Firebase auth state — fires once Firebase resolves the session
     onAuthStateChanged(auth, (user) => {
       if (user) {
         persistSession(user);
@@ -268,7 +618,6 @@
       }
     });
 
-    /* ── Helpers ── */
     function persistSession(user) {
       localStorage.setItem('eventhub_user', JSON.stringify({
         uid:         user.uid,
@@ -283,6 +632,7 @@
       document.getElementById('toast-msg').textContent = msg;
       t.classList.add('show');
       if (window.lucide) window.lucide.createIcons();
+      setTimeout(() => t.classList.remove('show'), 3500);
     }
 
     function showError(msg) {
@@ -301,7 +651,7 @@
       if (!btn) return;
       btn.classList.remove('loading');
       btn.innerHTML = `
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -310,12 +660,11 @@
         Continue with Google`;
     }
 
-    /* ── Google Sign-In (popup flow — works on localhost & all origins) ── */
     document.getElementById('btn-google').addEventListener('click', async () => {
       clearError();
       const btn = document.getElementById('btn-google');
       btn.classList.add('loading');
-      btn.innerHTML = `<div class="btn-spinner" style="display:block;border:2px solid rgba(0,0,0,.2);border-top-color:#3c4043;"></div>`;
+      btn.innerHTML = `<div class="btn-spinner" style="display:block; border-color: rgba(0,0,0,0.2); border-top-color: #1f1f1f;"></div>`;
 
       try {
         const result = await signInWithPopup(auth, googleProvider);
@@ -328,11 +677,9 @@
         if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
           showError('Google sign-in failed: ' + err.message);
         }
-        console.error(err);
       }
     });
 
-    /* ── Email / Password Sign-In ── */
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       clearError();
@@ -349,7 +696,6 @@
       try {
         const result = await signInWithEmailAndPassword(auth, email, pass);
         persistSession(result.user);
-        // Redirect immediately after successful sign-in
         window.location.replace('dashboard.html');
       } catch (err) {
         btn.classList.remove('loading');
@@ -362,11 +708,10 @@
       }
     });
 
-    /* ── Forgot Password ── */
     document.getElementById('forgot-link').addEventListener('click', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value.trim();
-      if (!email) { showError('Enter your email above first.'); return; }
+      if (!email) { showError('Please enter your email above first.'); return; }
       try {
         await sendPasswordResetEmail(auth, email);
         showToast('Password reset email sent to ' + email);
@@ -375,7 +720,6 @@
       }
     });
 
-    /* ── Password visibility toggle ── */
     document.getElementById('pass-toggle').addEventListener('click', () => {
       const inp  = document.getElementById('password');
       const icon = document.getElementById('eye-icon');
@@ -385,28 +729,7 @@
       if (window.lucide) window.lucide.createIcons();
     });
 
-    /* ── Particles & Icons ── */
-    // Module scripts are deferred — DOM is ready, DOMContentLoaded may have
-    // already fired. Run init directly instead of waiting for the event.
-    function initPage() {
-      if (window.lucide) window.lucide.createIcons();
-      const c = document.getElementById('panel-particles');
-      if (!c) return;
-      const colors = ['#7c3aed','#a855f7','#ec4899','#3b82f6'];
-      for (let i = 0; i < 18; i++) {
-        const d = document.createElement('div');
-        d.className = 'p-dot';
-        const sz = Math.random() * 4 + 2;
-        d.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${Math.random()*12+8}s;animation-delay:${Math.random()*8}s;`;
-        c.appendChild(d);
-      }
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initPage);
-    } else {
-      initPage();
-    }
+    if (window.lucide) window.lucide.createIcons();
   </script>
 </body>
 </html>

@@ -4,11 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard — EventHub</title>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&family=Roboto+Flex:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-  <!-- Apply saved theme BEFORE render to avoid flash -->
+
+  <!-- Apply saved theme BEFORE render -->
   <script>
     (function(){
       const saved = localStorage.getItem('eventhub_theme') || 'dark';
@@ -18,447 +21,806 @@
       document.documentElement.setAttribute('data-theme', pref);
     })();
   </script>
+
+  <link rel="stylesheet" href="style.css" />
+
   <style>
-    :root {
-      --bg-deep: #0a0818; --bg-card: rgba(255,255,255,0.04);
-      --border: rgba(255,255,255,0.08); --border-hover: rgba(167,139,250,0.25);
-      --purple-400: #a78bfa; --purple-500: #8b5cf6; --purple-600: #7c3aed;
-      --pink-400: #f472b6; --blue-400: #60a5fa; --green-400: #4ade80;
-      --yellow-400: #facc15; --orange-400: #fb923c;
-      --grad-primary: linear-gradient(135deg,#7c3aed,#a855f7,#ec4899);
-      --text-primary: #f8fafc; --text-secondary: #cbd5e1; --text-muted: #64748b;
-      --radius-md: 14px; --radius-lg: 20px; --radius-full: 999px;
-      --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
-      --sidebar-w: 240px;
-      /* extra surface tokens */
-      --sidebar-bg: rgba(15,12,41,0.95);
-      --topbar-bg: rgba(10,8,24,.8);
-      --orb1-bg: rgba(124,58,237,.08);
-      --orb2-bg: rgba(236,72,153,.06);
+    body {
+      display: flex;
+      min-height: 100vh;
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      padding-bottom: 96px;
     }
 
-    /* ── LIGHT THEME OVERRIDES ── */
-    [data-theme="light"] {
-      --bg-deep:    #f0eefc;
-      --bg-card:    rgba(255,255,255,0.85);
-      --border:     rgba(0,0,0,0.09);
-      --border-hover: rgba(124,58,237,0.35);
-      --text-primary:   #0f172a;
-      --text-secondary: #334155;
-      --text-muted:     #6b7280;
-      --sidebar-bg: rgba(255,255,255,0.96);
-      --topbar-bg:  rgba(240,238,252,0.9);
-      --orb1-bg: rgba(124,58,237,.06);
-      --orb2-bg: rgba(236,72,153,.04);
-    }
-    [data-theme="light"] body        { background: var(--bg-deep); }
-    [data-theme="light"] .sidebar    { background: var(--sidebar-bg); border-right-color: var(--border); }
-    [data-theme="light"] .topbar     { background: var(--topbar-bg); }
-    [data-theme="light"] .orb1       { background: var(--orb1-bg); }
-    [data-theme="light"] .orb2       { background: var(--orb2-bg); }
-    [data-theme="light"] .stat-card,
-    [data-theme="light"] .card,
-    [data-theme="light"] .welcome-banner { background: var(--bg-card); border-color: var(--border); }
-    [data-theme="light"] .welcome-banner { background: linear-gradient(135deg,rgba(124,58,237,.1),rgba(236,72,153,.06)); }
-    [data-theme="light"] .user-pill  { background: rgba(255,255,255,.8); }
-    [data-theme="light"] .quick-action { background: rgba(255,255,255,.5); }
-    [data-theme="light"] .quick-action:hover { background: rgba(255,255,255,.9); }
-    [data-theme="light"] .nav-item:hover { background: rgba(0,0,0,.05); }
-    [data-theme="light"] .nav-item.active { background: rgba(124,58,237,.12); }
-    [data-theme="light"] .profile-dropdown,
-    [data-theme="light"] .settings-panel { background: #ffffff; border-color: rgba(124,58,237,.2); }
-    [data-theme="light"] .pd-header,
-    [data-theme="light"] .sp-header  { background: linear-gradient(135deg,rgba(124,58,237,.1),rgba(236,72,153,.06)); border-bottom-color: rgba(0,0,0,.06); }
-    [data-theme="light"] .sp-input   { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.1); color: var(--text-primary); }
-    [data-theme="light"] .sp-input:focus { background: rgba(124,58,237,.05); }
-    [data-theme="light"] .sp-select option { background: #fff; color: #0f172a; }
-    [data-theme="light"] .sp-info-row { background: rgba(0,0,0,.03); border-color: rgba(0,0,0,.06); }
-    [data-theme="light"] .sp-cancel-btn { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.1); }
-    [data-theme="light"] .sp-footer,
-    [data-theme="light"] .pd-footer,
-    [data-theme="light"] .sp-tabs   { border-color: rgba(0,0,0,.07); }
-    [data-theme="light"] .sidebar-footer { border-top-color: rgba(0,0,0,.07); }
-    [data-theme="light"] .profile-row { border-bottom-color: rgba(0,0,0,.06); }
-    [data-theme="light"] .pd-row    { border-bottom-color: rgba(0,0,0,.04); }
-    [data-theme="light"] .signout-btn { color: #ef4444; }
-    /* transition for smooth switch */
-    html { transition: background-color .3s ease, color .3s ease; }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 16px; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg-deep); color: var(--text-primary); min-height: 100vh; display: flex; }
-    a { text-decoration: none; color: inherit; }
-    button { cursor: pointer; font-family: inherit; border: none; background: none; }
-
-    /* ── SIDEBAR ── */
+    /* M3 Navigation Drawer / Sidebar */
     .sidebar {
-      width: var(--sidebar-w); min-height: 100vh; flex-shrink: 0;
-      background: rgba(15,12,41,0.95); border-right: 1px solid var(--border);
-      display: flex; flex-direction: column;
-      padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      flex-shrink: 0;
+      background-color: var(--md-sys-color-surface-container-low);
+      border-right: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
     }
-    .sidebar-logo { display:flex; align-items:center; gap:9px; font-family:'Outfit',sans-serif; font-size:1.3rem; font-weight:800; margin-bottom:36px; padding:0 8px; }
-    .logo-accent { color:var(--purple-400); }
 
-    .nav-section-label { font-size:.68rem; font-weight:600; color:var(--text-muted); letter-spacing:.08em; text-transform:uppercase; padding:0 10px; margin:20px 0 8px; }
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin-bottom: 32px;
+      padding: 0 10px;
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .nav-section-label {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface-variant);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0 12px;
+      margin: 20px 0 8px;
+    }
 
     .nav-item {
-      display:flex; align-items:center; gap:11px;
-      padding:10px 12px; border-radius:var(--radius-md);
-      font-size:.88rem; font-weight:500; color:var(--text-secondary);
-      cursor:pointer; transition:var(--transition); margin-bottom:2px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 16px;
+      border-radius: var(--md-sys-shape-corner-full);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: pointer;
+      transition: all var(--md-sys-motion-duration-short) ease;
+      margin-bottom: 4px;
     }
-    .nav-item svg { width:18px; height:18px; flex-shrink:0; }
-    .nav-item:hover { background:rgba(255,255,255,.06); color:var(--text-primary); }
-    .nav-item.active { background:rgba(124,58,237,.18); color:var(--purple-400); }
-    .nav-item.active svg { color:var(--purple-400); }
 
-    .sidebar-footer { margin-top:auto; padding-top:20px; border-top:1px solid var(--border); }
-    .signout-btn { display:flex; align-items:center; gap:10px; padding:10px 12px; width:100%; border-radius:var(--radius-md); font-size:.86rem; color:#f87171; transition:var(--transition); }
-    .signout-btn:hover { background:rgba(248,113,113,.1); }
-    .signout-btn svg { width:17px; height:17px; }
+    .nav-item svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
 
-    /* ── MAIN ── */
-    .main { flex:1; display:flex; flex-direction:column; min-height:100vh; overflow-x:hidden; }
+    .nav-item:hover {
+      background-color: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+    }
 
-    /* ── TOPBAR ── */
+    .nav-item.active {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      font-weight: 700;
+    }
+    .nav-item.active svg {
+      color: var(--md-sys-color-on-secondary-container);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .signout-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      width: 100%;
+      border-radius: var(--md-sys-shape-corner-full);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--md-sys-color-error);
+      transition: background-color var(--md-sys-motion-duration-short) ease;
+    }
+    .signout-btn:hover {
+      background-color: var(--md-sys-color-error-container);
+      color: var(--md-sys-color-on-error-container);
+    }
+
+    /* Main Content Region */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Top App Bar */
     .topbar {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:20px 32px; border-bottom:1px solid var(--border);
-      background:rgba(10,8,24,.8); backdrop-filter:blur(12px);
-      position:sticky; top:0; z-index:50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 36px;
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      background-color: var(--md-sys-color-surface);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      gap: 20px;
     }
-    .topbar-title { font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:800; }
-    .topbar-right { display:flex; align-items:center; gap:14px; position:relative; }
-    .user-pill {
-      display:flex; align-items:center; gap:9px;
-      background:rgba(255,255,255,.06); border:1px solid var(--border);
-      border-radius:var(--radius-full); padding:5px 14px 5px 5px; font-size:.84rem;
-      cursor:pointer; user-select:none; transition:var(--transition);
-    }
-    .user-pill:hover { background:rgba(255,255,255,.10); border-color:rgba(167,139,250,.3); }
-    .user-pill .chevron { width:14px; height:14px; color:var(--text-muted); transition:transform var(--transition); margin-left:2px; }
-    .user-pill.open .chevron { transform:rotate(180deg); }
-    .user-avatar {
-      width:32px; height:32px; border-radius:50%;
-      background:var(--grad-primary); display:flex; align-items:center; justify-content:center;
-      font-weight:700; font-size:.75rem; flex-shrink:0; overflow:hidden;
-    }
-    .user-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
 
-    /* ── PROFILE DROPDOWN ── */
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .topbar-title {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+
+    /* M3 Filter Chipsets in Dashboard Topbar */
+    .topbar-chipset {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .m3-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 14px;
+      border-radius: var(--md-sys-shape-corner-small);
+      border: 1px solid var(--md-sys-color-outline);
+      background-color: var(--md-sys-color-surface-container-low);
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .m3-chip svg { width: 14px; height: 14px; }
+    .m3-chip:hover {
+      background-color: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+      border-color: var(--md-sys-color-primary);
+    }
+    .m3-chip.active {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+
+    /* M3 User Pill */
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-full);
+      padding: 5px 16px 5px 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .user-pill:hover {
+      background-color: var(--md-sys-color-surface-container-highest);
+      border-color: var(--md-sys-color-outline);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8125rem;
+      overflow: hidden;
+    }
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Profile Dropdown Dialog */
     .profile-dropdown {
-      position:absolute; top:calc(100% + 12px); right:0;
-      width:320px; background:#13102b;
-      border:1px solid rgba(167,139,250,.2);
-      border-radius:var(--radius-lg);
-      box-shadow:0 24px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(167,139,250,.08);
-      z-index:200; overflow:hidden;
-      opacity:0; transform:translateY(-8px) scale(0.97);
-      pointer-events:none;
-      transition: opacity .22s ease, transform .22s ease;
+      position: absolute;
+      top: calc(100% + 12px);
+      right: 0;
+      width: 340px;
+      background-color: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: var(--md-sys-shape-corner-extra-large);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+      z-index: 200;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-8px) scale(0.98);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
     }
     .profile-dropdown.open {
-      opacity:1; transform:translateY(0) scale(1);
-      pointer-events:auto;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
     }
+
     .pd-header {
-      padding:20px 20px 16px;
-      background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(236,72,153,.1));
-      border-bottom:1px solid rgba(255,255,255,.07);
-      display:flex; align-items:center; gap:14px;
+      padding: 24px 20px 18px;
+      background-color: var(--md-sys-color-surface-container-highest);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      align-items: center;
+      gap: 14px;
     }
     .pd-avatar {
-      width:52px; height:52px; border-radius:50%; flex-shrink:0;
-      background:var(--grad-primary); display:flex; align-items:center; justify-content:center;
-      font-weight:800; font-size:1.1rem; overflow:hidden;
-      border:2px solid rgba(167,139,250,.4);
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 800;
+      overflow: hidden;
     }
-    .pd-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
-    .pd-info { flex:1; min-width:0; }
-    .pd-name { font-family:'Outfit',sans-serif; font-weight:700; font-size:1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .pd-email { font-size:.75rem; color:var(--text-muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .pd-badge { margin-top:6px; display:inline-flex; align-items:center; gap:5px; background:rgba(74,222,128,.12); color:#4ade80; font-size:.68rem; font-weight:600; padding:3px 8px; border-radius:var(--radius-full); }
-    .pd-close {
-      position:absolute; top:12px; right:12px;
-      width:26px; height:26px; border-radius:50%;
-      background:rgba(255,255,255,.07); border:none; color:var(--text-muted);
-      display:flex; align-items:center; justify-content:center; cursor:pointer;
-      transition:var(--transition);
+    .pd-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
-    .pd-close:hover { background:rgba(255,255,255,.14); color:var(--text-primary); }
-    .pd-close svg { width:14px; height:14px; }
-    .pd-body { padding:14px 20px 18px; display:flex; flex-direction:column; gap:0; }
-    .pd-section-label { font-size:.65rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); padding:10px 0 6px; border-top:1px solid rgba(255,255,255,.06); margin-top:6px; }
-    .pd-section-label:first-child { border-top:none; margin-top:0; padding-top:0; }
+
+    .pd-name {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    .pd-email {
+      font-size: 0.8125rem;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-top: 2px;
+    }
+    .pd-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: var(--md-sys-shape-corner-full);
+      background-color: var(--md-sys-color-success-container);
+      color: var(--md-sys-color-success);
+      margin-top: 6px;
+    }
+
+    .pd-body {
+      padding: 16px 20px;
+    }
+    .pd-section-label {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--md-sys-color-primary);
+      margin-bottom: 8px;
+    }
     .pd-row {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:7px 0; border-bottom:1px solid rgba(255,255,255,.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 0.8125rem;
     }
-    .pd-row:last-child { border-bottom:none; }
-    .pd-key { font-size:.75rem; color:var(--text-muted); }
-    .pd-val { font-size:.78rem; font-weight:500; color:var(--text-primary); text-align:right; max-width:175px; word-break:break-word; }
-    .pd-footer { padding:12px 20px; border-top:1px solid rgba(255,255,255,.07); display:flex; gap:8px; }
-    .pd-btn {
-      flex:1; padding:9px; border-radius:var(--radius-md); font-size:.78rem; font-weight:600;
-      text-align:center; cursor:pointer; transition:var(--transition); border:none; font-family:'Inter',sans-serif;
+    .pd-key {
+      color: var(--md-sys-color-on-surface-variant);
     }
-    .pd-btn.outline { background:rgba(255,255,255,.05); color:var(--text-secondary); border:1px solid var(--border); }
-    .pd-btn.outline:hover { background:rgba(255,255,255,.1); }
-    .pd-btn.danger { background:rgba(248,113,113,.1); color:#f87171; border:1px solid rgba(248,113,113,.2); }
-    .pd-btn.danger:hover { background:rgba(248,113,113,.2); }
+    .pd-val {
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface);
+      text-align: right;
+    }
 
-    /* ── CONTENT ── */
-    .content { padding:32px; flex:1; }
+    .pd-footer {
+      padding: 14px 20px;
+      background-color: var(--md-sys-color-surface-container);
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      gap: 10px;
+    }
 
-    /* ── WELCOME BANNER ── */
+    .content {
+      padding: 36px;
+      flex: 1;
+    }
+
+    /* M3 Welcome Banner */
     .welcome-banner {
-      background: linear-gradient(135deg,rgba(124,58,237,.25),rgba(236,72,153,.12));
-      border:1px solid rgba(124,58,237,.3); border-radius:var(--radius-lg);
-      padding:28px 32px; margin-bottom:32px;
-      display:flex; align-items:center; justify-content:space-between; gap:20px;
-      position:relative; overflow:hidden;
+      background-color: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-extra-large);
+      padding: 32px 36px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
     }
-    .welcome-banner::before { content:''; position:absolute; right:-40px; top:-40px; width:200px; height:200px; border-radius:50%; background:rgba(124,58,237,.1); }
-    .welcome-text h2 { font-family:'Outfit',sans-serif; font-size:1.5rem; font-weight:800; margin-bottom:6px; }
-    .welcome-text p { color:var(--text-secondary); font-size:.9rem; }
-    .welcome-actions { display:flex; gap:10px; flex-shrink:0; }
-    .btn-primary-sm {
-      padding:10px 20px; background:var(--grad-primary); color:#fff;
-      border-radius:var(--radius-full); font-size:.85rem; font-weight:700;
-      box-shadow:0 4px 16px rgba(124,58,237,.4); transition:var(--transition);
-      display:flex; align-items:center; gap:7px;
-    }
-    .btn-primary-sm:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(124,58,237,.5); }
-    .btn-primary-sm svg { width:15px; height:15px; }
 
-    /* ── STAT CARDS ── */
-    .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:32px; }
-    @media(max-width:1100px) { .stats-grid { grid-template-columns:repeat(2,1fr); } }
-    @media(max-width:600px)  { .stats-grid { grid-template-columns:1fr; } }
+    .welcome-text h2 {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .welcome-text p {
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 0.95rem;
+    }
+
+    /* M3 Metric Stat Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 36px;
+    }
+    @media (max-width: 1150px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 650px)  { .stats-grid { grid-template-columns: 1fr; } }
 
     .stat-card {
-      background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg);
-      padding:22px 24px; transition:var(--transition); position:relative; overflow:hidden;
+      background-color: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-extra-large);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      transition: all var(--md-sys-motion-duration-short) ease;
     }
-    .stat-card:hover { border-color:var(--border-hover); transform:translateY(-2px); }
-    .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:3px 3px 0 0; }
-    .stat-card.purple::before { background:var(--purple-500); }
-    .stat-card.blue::before   { background:var(--blue-400); }
-    .stat-card.green::before  { background:var(--green-400); }
-    .stat-card.pink::before   { background:var(--pink-400); }
+    .stat-card:hover {
+      background-color: var(--md-sys-color-surface-container);
+      border-color: var(--md-sys-color-outline);
+      transform: translateY(-2px);
+    }
 
-    .stat-icon-wrap { width:40px; height:40px; border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
-    .stat-icon-wrap svg { width:20px; height:20px; }
-    .stat-icon-wrap.purple { background:rgba(124,58,237,.15); color:var(--purple-400); }
-    .stat-icon-wrap.blue   { background:rgba(96,165,250,.15);  color:var(--blue-400); }
-    .stat-icon-wrap.green  { background:rgba(74,222,128,.12);  color:var(--green-400); }
-    .stat-icon-wrap.pink   { background:rgba(244,114,182,.12); color:var(--pink-400); }
+    .stat-icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--md-sys-shape-corner-medium);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .stat-icon-wrap.primary { background-color: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); }
+    .stat-icon-wrap.secondary { background-color: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
+    .stat-icon-wrap.tertiary { background-color: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+    .stat-icon-wrap.success { background-color: var(--md-sys-color-success-container); color: var(--md-sys-color-success); }
 
-    .stat-value { font-family:'Outfit',sans-serif; font-size:2rem; font-weight:800; line-height:1.1; }
-    .stat-label { font-size:.8rem; color:var(--text-muted); margin-top:4px; }
-    .stat-trend { font-size:.75rem; margin-top:8px; display:flex; align-items:center; gap:4px; }
-    .stat-trend.up { color:var(--green-400); }
-    .stat-trend svg { width:13px; height:13px; }
+    .stat-value {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--md-sys-color-on-surface);
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface-variant);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .stat-trend {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
 
-    /* ── BOTTOM GRID ── */
-    .bottom-grid { display:grid; grid-template-columns:1fr 340px; gap:20px; }
-    @media(max-width:1000px) { .bottom-grid { grid-template-columns:1fr; } }
+    /* Bottom Grid: Events list & Sidebar Cards */
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 1000px) { .bottom-grid { grid-template-columns: 1fr; } }
 
     .card {
-      background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg);
-      padding:24px;
+      background-color: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-extra-large);
+      padding: 24px;
     }
-    .card-title { font-family:'Outfit',sans-serif; font-size:1rem; font-weight:700; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; }
-    .card-title span { color:var(--text-muted); font-size:.78rem; font-family:'Inter',sans-serif; font-weight:500; }
 
-    /* empty state */
-    .empty-state { text-align:center; padding:40px 20px; color:var(--text-muted); }
-    .empty-state .empty-icon { font-size:2.5rem; margin-bottom:12px; }
-    .empty-state p { font-size:.88rem; }
-    .empty-state .create-btn {
-      display:inline-flex; align-items:center; gap:7px; margin-top:16px;
-      padding:10px 20px; background:var(--grad-primary); color:#fff;
-      border-radius:var(--radius-full); font-size:.84rem; font-weight:700;
-      cursor:pointer; transition:var(--transition); border:none; font-family:'Inter',sans-serif;
+    .card-title {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    .empty-state .create-btn:hover { transform:translateY(-2px); }
-    .empty-state .create-btn svg { width:15px; height:15px; }
 
-    /* quick actions */
-    .quick-actions { display:flex; flex-direction:column; gap:10px; }
+    /* Quick Actions List */
+    .quick-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
     .quick-action {
-      display:flex; align-items:center; gap:12px;
-      padding:12px 14px; background:rgba(255,255,255,.03); border:1px solid var(--border);
-      border-radius:var(--radius-md); cursor:pointer; transition:var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      border-radius: var(--md-sys-shape-corner-medium);
+      background-color: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      cursor: pointer;
+      transition: all var(--md-sys-motion-duration-short) ease;
     }
-    .quick-action:hover { background:rgba(255,255,255,.06); border-color:var(--border-hover); }
-    .qa-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-    .qa-icon svg { width:17px; height:17px; }
-    .qa-icon.purple { background:rgba(124,58,237,.15); color:var(--purple-400); }
-    .qa-icon.blue   { background:rgba(96,165,250,.15);  color:var(--blue-400); }
-    .qa-icon.green  { background:rgba(74,222,128,.12);  color:var(--green-400); }
-    .qa-icon.pink   { background:rgba(244,114,182,.12); color:var(--pink-400); }
-    .qa-text strong { display:block; font-size:.85rem; font-weight:600; }
-    .qa-text span   { font-size:.75rem; color:var(--text-muted); }
+    .quick-action:hover {
+      background-color: var(--md-sys-color-surface-container-high);
+      border-color: var(--md-sys-color-primary);
+      transform: translateX(3px);
+    }
+    .quick-action strong {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    .quick-action span {
+      font-size: 0.75rem;
+      color: var(--md-sys-color-on-surface-variant);
+    }
 
-    /* profile card */
-    .profile-info { display:flex; flex-direction:column; gap:10px; }
-    .profile-row { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); }
-    .profile-row:last-child { border-bottom:none; }
-    .profile-row .key { font-size:.78rem; color:var(--text-muted); }
-    .profile-row .val { font-size:.82rem; font-weight:500; color:var(--text-primary); text-align:right; max-width:180px; word-break:break-word; }
-    .no-profile { text-align:center; padding:20px; color:var(--text-muted); font-size:.84rem; }
-    .no-profile a { color:var(--purple-400); font-weight:600; }
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+    }
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+    .empty-state p {
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 0.9375rem;
+      margin-bottom: 20px;
+    }
 
-    /* orbs */
-    .orb { position:fixed; border-radius:50%; filter:blur(100px); pointer-events:none; z-index:0; }
-    .orb1 { width:500px; height:500px; background:rgba(124,58,237,.08); top:-80px; right:100px; }
-    .orb2 { width:350px; height:350px; background:rgba(236,72,153,.06); bottom:0; left:200px; }
+    /* M3 Event Cards in List */
+    .ev-card {
+      background-color: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-large);
+      overflow: hidden;
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .ev-card:hover {
+      border-color: var(--md-sys-color-primary);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    }
+    .ev-card-inner {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 20px;
+    }
+    .ev-date-box {
+      width: 50px;
+      height: 56px;
+      border-radius: var(--md-sys-shape-corner-medium);
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ev-month { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
+    .ev-day { font-size: 1.35rem; font-weight: 800; line-height: 1; }
 
-    /* ── SETTINGS PANEL ── */
+    .ev-body { flex: 1; min-width: 0; }
+    .ev-name { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+    .ev-row { font-size: 0.8125rem; color: var(--md-sys-color-on-surface-variant); display: flex; align-items: center; gap: 6px; }
+
+    .ev-cat-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: var(--md-sys-shape-corner-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+    }
+
+    .ev-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background-color: var(--md-sys-color-surface-container-high);
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+      font-size: 0.75rem;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    /* M3 Settings Modal Sheet */
     .settings-overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:300;
-      opacity:0; pointer-events:none; transition:opacity .3s ease;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
     }
-    .settings-overlay.open { opacity:1; pointer-events:auto; }
-    .settings-panel {
-      position:fixed; top:0; right:0; height:100vh; width:480px; max-width:100vw;
-      background:#0f0c29; border-left:1px solid rgba(167,139,250,.2);
-      z-index:400; display:flex; flex-direction:column;
-      transform:translateX(100%); transition:transform .35s cubic-bezier(.4,0,.2,1);
-      overflow:hidden;
-    }
-    .settings-panel.open { transform:translateX(0); }
-    .sp-header {
-      padding:24px 28px 20px;
-      background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(236,72,153,.08));
-      border-bottom:1px solid rgba(255,255,255,.07);
-      display:flex; align-items:center; justify-content:space-between;
-      flex-shrink:0;
-    }
-    .sp-title { font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:800; }
-    .sp-subtitle { font-size:.78rem; color:var(--text-muted); margin-top:3px; }
-    .sp-close {
-      width:34px; height:34px; border-radius:50%;
-      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1);
-      color:var(--text-muted); display:flex; align-items:center; justify-content:center;
-      cursor:pointer; transition:var(--transition);
-    }
-    .sp-close:hover { background:rgba(255,255,255,.14); color:var(--text-primary); }
-    .sp-close svg { width:16px; height:16px; }
-    .sp-tabs { display:flex; gap:0; border-bottom:1px solid rgba(255,255,255,.07); flex-shrink:0; }
-    .sp-tab {
-      flex:1; padding:12px 8px; text-align:center; font-size:.8rem; font-weight:600;
-      color:var(--text-muted); cursor:pointer; transition:var(--transition);
-      border-bottom:2px solid transparent; margin-bottom:-1px;
-    }
-    .sp-tab:hover { color:var(--text-secondary); }
-    .sp-tab.active { color:var(--purple-400); border-bottom-color:var(--purple-400); }
-    .sp-body { flex:1; overflow-y:auto; padding:24px 28px; display:flex; flex-direction:column; gap:20px; }
-    .sp-section { display:none; flex-direction:column; gap:16px; }
-    .sp-section.active { display:flex; }
-    .sp-section-title {
-      font-size:.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-      color:var(--text-muted); padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,.06);
-    }
-    /* read-only info rows */
-    .sp-info-row {
-      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
-      padding:10px 14px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.05);
-      border-radius:var(--radius-md);
-    }
-    .sp-info-label { font-size:.75rem; color:var(--text-muted); margin-top:1px; }
-    .sp-info-val { font-size:.84rem; font-weight:500; color:var(--text-primary); text-align:right; word-break:break-word; max-width:260px; }
-    .sp-badge-val {
-      font-size:.72rem; font-weight:600; padding:3px 10px; border-radius:var(--radius-full);
-      background:rgba(74,222,128,.12); color:#4ade80;
-    }
-    /* editable fields */
-    .sp-field { display:flex; flex-direction:column; gap:7px; }
-    .sp-label { font-size:.82rem; font-weight:600; color:var(--text-secondary); }
-    .sp-input {
-      width:100%; padding:11px 14px; background:rgba(255,255,255,.05);
-      border:1.5px solid rgba(255,255,255,.09); border-radius:var(--radius-md);
-      color:var(--text-primary); font-size:.88rem; font-family:'Inter',sans-serif;
-      outline:none; transition:var(--transition);
-    }
-    .sp-input:focus { border-color:rgba(167,139,250,.6); background:rgba(139,92,246,.07); box-shadow:0 0 0 3px rgba(139,92,246,.12); }
-    .sp-input::placeholder { color:var(--text-muted); }
-    .sp-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; }
-    .sp-select option { background:#0f0c29; }
-    .sp-footer {
-      padding:16px 28px; border-top:1px solid rgba(255,255,255,.07); flex-shrink:0;
-      display:flex; gap:10px;
-    }
-    .sp-save-btn {
-      flex:1; padding:12px; background:var(--grad-primary); color:#fff;
-      border:none; border-radius:var(--radius-full); font-size:.88rem; font-weight:700;
-      font-family:'Inter',sans-serif; cursor:pointer; transition:var(--transition);
-      display:flex; align-items:center; justify-content:center; gap:8px;
-    }
-    .sp-save-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(124,58,237,.4); }
-    .sp-cancel-btn {
-      padding:12px 20px; background:rgba(255,255,255,.05); color:var(--text-secondary);
-      border:1px solid rgba(255,255,255,.09); border-radius:var(--radius-full);
-      font-size:.88rem; font-weight:600; font-family:'Inter',sans-serif;
-      cursor:pointer; transition:var(--transition);
-    }
-    .sp-cancel-btn:hover { background:rgba(255,255,255,.1); }
-    .sp-saved-toast {
-      position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
-      background:#1e1b4b; border:1px solid rgba(74,222,128,.3); color:#4ade80;
-      padding:10px 22px; border-radius:var(--radius-full); font-size:.85rem; font-weight:600;
-      display:flex; align-items:center; gap:8px;
-      opacity:0; transition:all .3s ease; z-index:999; pointer-events:none;
-    }
-    .sp-saved-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    .settings-overlay.open { opacity: 1; pointer-events: auto; }
 
-    /* ── THEME TOGGLE BUTTONS ── */
-    .theme-toggle-group { display:flex; gap:8px; }
+    .settings-panel {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.95);
+      width: 90%;
+      max-width: 580px;
+      max-height: 85vh;
+      background-color: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: var(--md-sys-shape-corner-extra-large-increased);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s var(--md-sys-motion-easing-emphasized);
+    }
+    .settings-panel.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .sp-header {
+      padding: 24px 28px 18px;
+      background-color: var(--md-sys-color-surface-container-highest);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sp-title { font-family: var(--md-sys-typescale-brand-font); font-size: 1.25rem; font-weight: 800; }
+    .sp-subtitle { font-size: 0.8125rem; color: var(--md-sys-color-on-surface-variant); }
+
+    .sp-tabs {
+      display: flex;
+      background-color: var(--md-sys-color-surface-container);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    }
+    .sp-tab {
+      flex: 1;
+      padding: 14px;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .sp-tab.active {
+      color: var(--md-sys-color-primary);
+      border-bottom-color: var(--md-sys-color-primary);
+    }
+
+    .sp-body {
+      padding: 24px 28px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .sp-section { display: none; flex-direction: column; gap: 16px; }
+    .sp-section.active { display: flex; }
+
+    .sp-info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background-color: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-medium);
+      font-size: 0.875rem;
+    }
+
+    /* M3 Segmented Button for Themes */
+    .theme-toggle-group {
+      display: flex;
+      gap: 8px;
+    }
     .theme-opt {
-      flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
-      padding:14px 8px; border-radius:var(--radius-md);
-      background:rgba(255,255,255,.05); border:1.5px solid rgba(255,255,255,.08);
-      color:var(--text-secondary); cursor:pointer;
-      transition:var(--transition); font-family:'Inter',sans-serif;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 14px;
+      border-radius: var(--md-sys-shape-corner-medium);
+      background-color: var(--md-sys-color-surface-container);
+      border: 1.5px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8125rem;
+      transition: all var(--md-sys-motion-duration-short) ease;
     }
-    .theme-opt:hover { background:rgba(255,255,255,.09); border-color:rgba(167,139,250,.3); transform:translateY(-1px); }
+    .theme-opt:hover {
+      background-color: var(--md-sys-color-surface-container-highest);
+      border-color: var(--md-sys-color-outline);
+    }
     .theme-opt.active {
-      background:rgba(124,58,237,.18); border-color:var(--purple-400);
-      color:var(--purple-400); box-shadow:0 0 0 3px rgba(124,58,237,.12);
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      border-color: var(--md-sys-color-primary);
     }
-    .theme-opt-icon { font-size:1.5rem; line-height:1; }
-    .theme-opt-label { font-size:.72rem; font-weight:700; letter-spacing:.02em; }
-    [data-theme="light"] .theme-opt { background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.09); color:var(--text-secondary); }
-    [data-theme="light"] .theme-opt:hover { background:rgba(0,0,0,.07); }
-    [data-theme="light"] .theme-opt.active { background:rgba(124,58,237,.1); border-color:#7c3aed; color:#5b21b6; box-shadow:0 0 0 3px rgba(124,58,237,.1); }
+
+    .sp-footer {
+      padding: 16px 28px;
+      background-color: var(--md-sys-color-surface-container-highest);
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      gap: 12px;
+    }
+
+    .sp-saved-toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background-color: var(--md-sys-color-inverse-surface);
+      color: var(--md-sys-color-inverse-on-surface);
+      border-radius: var(--md-sys-shape-corner-extra-small);
+      padding: 12px 24px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      z-index: 9999;
+    }
+    .sp-saved-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* M3 Floating Action Button (FAB) & FAB Menu */
+    .fab-container {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      z-index: 990;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    .fab-main {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--md-sys-shape-corner-large);
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 1px solid var(--md-sys-color-outline);
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .fab-main:hover {
+      transform: scale(1.06);
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.5);
+    }
+    .fab-main.active svg {
+      transform: rotate(45deg);
+    }
+
+    .fab-menu {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    .fab-menu.open { display: flex; }
+
+    .fab-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-full);
+      padding: 6px 14px 6px 8px;
+      color: var(--md-sys-color-on-surface);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .fab-item:hover {
+      background-color: var(--md-sys-color-surface-container-highest);
+      transform: translateX(-4px);
+    }
+    .fab-item-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 </head>
 <body>
 
-  <div class="orb orb1"></div>
-  <div class="orb orb2"></div>
-
-  <!-- ── SIDEBAR ── -->
+  <!-- ── SIDEBAR NAVIGATION DRAWER ── -->
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <span>⚡</span><span>Event<span class="logo-accent">Hub</span></span>
+      <div class="logo-icon" style="width:28px;height:28px;font-size:.9rem;">⚡</div>
+      <span>Event<span class="logo-accent">Hub</span></span>
     </div>
 
-    <div class="nav-section-label">Main</div>
+    <div class="nav-section-label">Management</div>
     <div class="nav-item active"><i data-lucide="layout-dashboard"></i> Dashboard</div>
-    <div class="nav-item"><i data-lucide="calendar-plus"></i> Create Event</div>
-    <div class="nav-item"><i data-lucide="calendar"></i> My Events</div>
-    <div class="nav-item"><i data-lucide="scan-line"></i> QR Check-In</div>
+    <div class="nav-item" onclick="window.location.href='create-event.html'"><i data-lucide="calendar-plus"></i> Create Event</div>
+    <div class="nav-item" onclick="document.getElementById('my-events-card').scrollIntoView({behavior:'smooth'})"><i data-lucide="calendar"></i> My Events</div>
+    <div class="nav-item" onclick="window.location.href='index.html#qr-spotlight'"><i data-lucide="scan-line"></i> QR Check-In</div>
 
-    <div class="nav-section-label">Analytics</div>
-    <div class="nav-item"><i data-lucide="bar-chart-3"></i> Analytics</div>
-    <div class="nav-item"><i data-lucide="users"></i> Attendees</div>
-    <div class="nav-item"><i data-lucide="download"></i> Export Data</div>
-
-    <div class="nav-section-label">Account</div>
-    <div class="nav-item" onclick="window.location.href='register.html'"><i data-lucide="user"></i> My Profile</div>
-    <div class="nav-item" id="settings-nav" onclick="openSettings()"><i data-lucide="settings"></i> Settings</div>
+    <div class="nav-section-label">Configuration</div>
+    <div class="nav-item" onclick="window.location.href='register.html'"><i data-lucide="user"></i> Academic Profile</div>
+    <div class="nav-item" id="settings-nav" onclick="openSettings()"><i data-lucide="settings"></i> System Settings</div>
 
     <div class="sidebar-footer">
       <button class="signout-btn" id="signout-btn">
@@ -467,71 +829,63 @@
     </div>
   </aside>
 
-  <!-- ── SETTINGS PANEL ── -->
+  <!-- ── SETTINGS MODAL ── -->
   <div class="settings-overlay" id="settings-overlay" onclick="closeSettings()"></div>
   <div class="settings-panel" id="settings-panel" role="dialog" aria-label="Settings">
     <div class="sp-header">
       <div>
-        <div class="sp-title">⚙️ Settings</div>
-        <div class="sp-subtitle">Manage your account & preferences</div>
+        <div class="sp-title">⚙️ System Settings</div>
+        <div class="sp-subtitle">Manage preferences and profile details</div>
       </div>
-      <button class="sp-close" onclick="closeSettings()" aria-label="Close settings">
+      <button class="btn btn-ghost btn-sm" onclick="closeSettings()" aria-label="Close settings" style="padding:6px;">
         <i data-lucide="x"></i>
       </button>
     </div>
     <div class="sp-tabs">
       <div class="sp-tab active" id="tab-account" onclick="switchTab('account')">Account</div>
       <div class="sp-tab" id="tab-profile" onclick="switchTab('profile')">Profile</div>
-      <div class="sp-tab" id="tab-prefs" onclick="switchTab('prefs')">Preferences</div>
+      <div class="sp-tab" id="tab-prefs" onclick="switchTab('prefs')">Theme &amp; Style</div>
     </div>
     <div class="sp-body">
 
       <!-- ACCOUNT TAB -->
       <div class="sp-section active" id="section-account">
-        <div class="sp-section-title">Account Information</div>
-        <!-- read-only info from signup -->
         <div class="sp-info-row">
-          <span class="sp-info-label">Full Name</span>
-          <span class="sp-info-val" id="si-name">—</span>
+          <span class="pd-key">Full Name</span>
+          <span class="pd-val" id="si-name">—</span>
         </div>
         <div class="sp-info-row">
-          <span class="sp-info-label">Email Address</span>
-          <span class="sp-info-val" id="si-email">—</span>
+          <span class="pd-key">Email Address</span>
+          <span class="pd-val" id="si-email">—</span>
         </div>
         <div class="sp-info-row">
-          <span class="sp-info-label">Sign-Up Method</span>
-          <span class="sp-info-val" id="si-method">—</span>
+          <span class="pd-key">Authentication</span>
+          <span class="pd-val" id="si-method">—</span>
         </div>
         <div class="sp-info-row">
-          <span class="sp-info-label">Member Since</span>
-          <span class="sp-info-val" id="si-date">—</span>
+          <span class="pd-key">Member Since</span>
+          <span class="pd-val" id="si-date">—</span>
         </div>
         <div class="sp-info-row">
-          <span class="sp-info-label">User ID</span>
-          <span class="sp-info-val" id="si-uid" style="font-size:.72rem;color:var(--text-muted)">—</span>
-        </div>
-        <div class="sp-info-row">
-          <span class="sp-info-label">Status</span>
-          <span class="sp-badge-val">✓ Active</span>
+          <span class="pd-key">User ID</span>
+          <span class="pd-val" id="si-uid" style="font-size:0.75rem;">—</span>
         </div>
 
-        <div class="sp-section-title" style="margin-top:4px">Update Display Name</div>
-        <div class="sp-field">
-          <label class="sp-label" for="sp-displayname">Display Name</label>
-          <input class="sp-input" type="text" id="sp-displayname" placeholder="Your name" />
+        <div class="field" style="margin-top:8px;">
+          <label class="field-label" for="sp-displayname">Update Display Name</label>
+          <input class="field-input" type="text" id="sp-displayname" placeholder="Your name" />
         </div>
       </div>
 
       <!-- PROFILE TAB -->
       <div class="sp-section" id="section-profile">
-        <div class="sp-section-title">Academic Details</div>
-        <div class="sp-field">
-          <label class="sp-label" for="sp-college">College / University</label>
-          <input class="sp-input" type="text" id="sp-college" placeholder="e.g. IIT Bombay" />
+        <div class="field">
+          <label class="field-label" for="sp-college">College / University</label>
+          <input class="field-input" type="text" id="sp-college" placeholder="e.g. IIT Bombay" />
         </div>
-        <div class="sp-field">
-          <label class="sp-label" for="sp-degree">Degree</label>
-          <select class="sp-input sp-select" id="sp-degree">
+        <div class="field">
+          <label class="field-label" for="sp-degree">Degree Program</label>
+          <select class="field-input" id="sp-degree">
             <option value="">Select degree</option>
             <option value="btech">B.Tech / B.E.</option>
             <option value="bsc">B.Sc</option>
@@ -548,231 +902,245 @@
             <option value="other">Other</option>
           </select>
         </div>
-        <div class="sp-field">
-          <label class="sp-label" for="sp-specialization">Specialization / Branch</label>
-          <input class="sp-input" type="text" id="sp-specialization" placeholder="e.g. Computer Science" />
+        <div class="field">
+          <label class="field-label" for="sp-specialization">Specialization / Department</label>
+          <input class="field-input" type="text" id="sp-specialization" placeholder="e.g. Computer Science" />
         </div>
-        <div class="sp-field">
-          <label class="sp-label" for="sp-gradyear">Graduation Year</label>
-          <input class="sp-input" type="number" id="sp-gradyear" placeholder="e.g. 2026" min="2020" max="2035" />
+        <div class="field">
+          <label class="field-label" for="sp-gradyear">Graduation Year</label>
+          <input class="field-input" type="number" id="sp-gradyear" placeholder="e.g. 2026" min="2020" max="2035" />
         </div>
-        <div class="sp-field">
-          <label class="sp-label" for="sp-state">State</label>
-          <input class="sp-input" type="text" id="sp-state" placeholder="e.g. Maharashtra" />
+        <div class="field">
+          <label class="field-label" for="sp-state">State</label>
+          <input class="field-input" type="text" id="sp-state" placeholder="e.g. Maharashtra" />
         </div>
-        <div class="sp-field">
-          <label class="sp-label" for="sp-district">District</label>
-          <input class="sp-input" type="text" id="sp-district" placeholder="e.g. Pune" />
+        <div class="field">
+          <label class="field-label" for="sp-district">District</label>
+          <input class="field-input" type="text" id="sp-district" placeholder="e.g. Pune" />
         </div>
-        <div class="sp-field">
-          <label class="sp-label" for="sp-whatsapp">WhatsApp Number</label>
-          <input class="sp-input" type="tel" id="sp-whatsapp" placeholder="10-digit number" maxlength="10" />
+        <div class="field">
+          <label class="field-label" for="sp-whatsapp">WhatsApp Contact</label>
+          <input class="field-input" type="tel" id="sp-whatsapp" placeholder="10-digit number" maxlength="10" />
         </div>
       </div>
 
       <!-- PREFERENCES TAB -->
       <div class="sp-section" id="section-prefs">
-        <div class="sp-section-title">Appearance</div>
-
-        <!-- Theme toggle -->
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <span class="sp-label" style="margin-bottom:2px">App Theme</span>
+        <div class="field">
+          <label class="field-label">Material Design Theme</label>
           <div class="theme-toggle-group" id="theme-toggle-group">
             <button class="theme-opt" id="theme-dark" onclick="applyTheme('dark')">
-              <span class="theme-opt-icon">🌙</span>
-              <span class="theme-opt-label">Dark</span>
+              <span style="font-size:1.4rem;">🌙</span>
+              <span>Dark M3</span>
             </button>
             <button class="theme-opt" id="theme-light" onclick="applyTheme('light')">
-              <span class="theme-opt-icon">☀️</span>
-              <span class="theme-opt-label">Light</span>
+              <span style="font-size:1.4rem;">☀️</span>
+              <span>Light M3</span>
             </button>
             <button class="theme-opt" id="theme-system" onclick="applyTheme('system')">
-              <span class="theme-opt-icon">🖥</span>
-              <span class="theme-opt-label">System</span>
+              <span style="font-size:1.4rem;">🖥️</span>
+              <span>System</span>
             </button>
           </div>
-          <p style="font-size:.72rem;color:var(--text-muted);margin-top:2px">Your preference is saved and applied across all pages.</p>
         </div>
 
-        <div class="sp-section-title" style="margin-top:4px">Other</div>
-        <div class="sp-info-row">
-          <span class="sp-info-label">Data Storage</span>
-          <span class="sp-info-val" style="font-size:.78rem">Local Device</span>
-        </div>
-        <div class="sp-info-row">
-          <span class="sp-info-label">Notifications</span>
-          <span class="sp-info-val" style="font-size:.78rem">Browser (coming soon)</span>
-        </div>
-        <div class="sp-section-title" style="margin-top:4px">Danger Zone</div>
-        <div class="sp-info-row" style="border-color:rgba(248,113,113,.2);background:rgba(248,113,113,.04)">
-          <span class="sp-info-label" style="color:#f87171">Clear all local data</span>
-          <button onclick="clearAllData()" style="font-size:.75rem;font-weight:600;color:#f87171;background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);padding:5px 12px;border-radius:var(--radius-full);cursor:pointer;font-family:inherit;transition:var(--transition)" onmouseover="this.style.background='rgba(248,113,113,.25)'" onmouseout="this.style.background='rgba(248,113,113,.15)'">Clear Data</button>
+        <div class="sp-info-row" style="border-color: var(--md-sys-color-error-container); margin-top: 12px;">
+          <div>
+            <div style="color: var(--md-sys-color-error); font-weight: 600;">Clear Local Cache</div>
+            <div style="font-size:0.75rem; color: var(--md-sys-color-on-surface-variant);">Removes locally saved offline events</div>
+          </div>
+          <button onclick="clearAllData()" class="btn btn-outline btn-sm" style="color: var(--md-sys-color-error); border-color: var(--md-sys-color-error);">Reset</button>
         </div>
       </div>
 
     </div>
     <div class="sp-footer">
-      <button class="sp-cancel-btn" onclick="closeSettings()">Cancel</button>
-      <button class="sp-save-btn" onclick="saveSettings()">
+      <button class="btn btn-ghost" onclick="closeSettings()" style="flex:1;">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSettings()" style="flex:1;">
         <i data-lucide="save"></i> Save Changes
       </button>
     </div>
   </div>
-  <div class="sp-saved-toast" id="sp-saved-toast">✓ Settings saved!</div>
+  <div class="sp-saved-toast" id="sp-saved-toast">✓ Settings updated successfully</div>
 
   <!-- ── MAIN CONTENT ── -->
   <div class="main">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
-      <div class="topbar-title">Dashboard</div>
+    <!-- Top App Bar with Chipset Navigation -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title">Organizer Console</div>
+        <div class="topbar-chipset">
+          <button class="m3-chip active" onclick="document.getElementById('my-events-card').scrollIntoView({behavior:'smooth'})">
+            <i data-lucide="calendar"></i> Events (<span id="chip-events-cnt">0</span>)
+          </button>
+          <a href="create-event.html" class="m3-chip">
+            <i data-lucide="plus"></i> New Event
+          </a>
+          <a href="register.html" class="m3-chip">
+            <i data-lucide="user-check"></i> Profile
+          </a>
+        </div>
+      </div>
+
       <div class="topbar-right">
         <div class="user-pill" id="user-pill" onclick="toggleProfileDropdown()" role="button" aria-expanded="false" aria-haspopup="true">
           <div class="user-avatar" id="user-avatar-top">?</div>
           <span id="user-name-top">Loading…</span>
-          <i data-lucide="chevron-down" class="chevron" id="pill-chevron"></i>
+          <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
         </div>
 
-        <!-- Profile Dropdown -->
+        <!-- Profile Dropdown Dialog -->
         <div class="profile-dropdown" id="profile-dropdown" role="dialog" aria-label="User profile">
           <div class="pd-header">
             <div class="pd-avatar" id="pd-avatar">?</div>
-            <div class="pd-info">
+            <div>
               <div class="pd-name" id="pd-name">—</div>
               <div class="pd-email" id="pd-email">—</div>
-              <div class="pd-badge">✓ Signed In</div>
+              <div class="pd-badge">✓ Active Session</div>
             </div>
           </div>
-          <button class="pd-close" onclick="toggleProfileDropdown()" aria-label="Close profile">
-            <i data-lucide="x"></i>
-          </button>
           <div class="pd-body" id="pd-body">
             <!-- populated by JS -->
           </div>
           <div class="pd-footer">
-            <button class="pd-btn outline" onclick="window.location.href='register.html'">Edit Profile</button>
-            <button class="pd-btn danger" id="pd-signout-btn">Sign Out</button>
+            <button class="btn btn-tonal btn-sm" onclick="window.location.href='register.html'" style="flex:1;">Edit Profile</button>
+            <button class="btn btn-outline btn-sm" id="pd-signout-btn" style="flex:1; color:var(--md-sys-color-error); border-color:var(--md-sys-color-error);">Sign Out</button>
           </div>
         </div>
       </div>
-    </div>
+    </header>
 
-    <!-- CONTENT -->
-    <div class="content">
+    <!-- CONTENT BODY -->
+    <main class="content">
 
-      <!-- WELCOME BANNER -->
+      <!-- Welcome Banner -->
       <div class="welcome-banner">
         <div class="welcome-text">
-          <h2>Welcome back, <span id="greeting-name" style="background:linear-gradient(90deg,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">there</span>! 👋</h2>
-          <p>Ready to create your next amazing event? Your dashboard is all set.</p>
+          <h2>Welcome back, <span id="greeting-name" class="m3-gradient-text">Organizer</span>! 👋</h2>
+          <p>Your campus event workspace is active. Manage registrations, inspect QR ticket flows, and review attendance metrics.</p>
         </div>
-        <div class="welcome-actions">
-          <a href="create-event.html" class="btn-primary-sm">
-              <i data-lucide="plus"></i> Create Event
-            </a>
-        </div>
+        <a href="create-event.html" class="btn btn-primary">
+          <i data-lucide="plus"></i> Create New Event
+        </a>
       </div>
 
-      <!-- STAT CARDS -->
+      <!-- Stat Metric Cards -->
       <div class="stats-grid">
-        <div class="stat-card purple">
-          <div class="stat-icon-wrap purple"><i data-lucide="calendar"></i></div>
-          <div class="stat-value">0</div>
-          <div class="stat-label">Total Events</div>
-          <div class="stat-trend up"><i data-lucide="trending-up"></i> Just getting started</div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap primary"><i data-lucide="calendar"></i></div>
+          <div class="stat-value" id="stat-events-val">0</div>
+          <div class="stat-label">Published Events</div>
+          <div class="stat-trend"><i data-lucide="trending-up" style="width:14px;height:14px;color:var(--md-sys-color-success);"></i> Active on EventHub</div>
         </div>
-        <div class="stat-card blue">
-          <div class="stat-icon-wrap blue"><i data-lucide="users"></i></div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap secondary"><i data-lucide="users"></i></div>
           <div class="stat-value">0</div>
           <div class="stat-label">Total Registrations</div>
-          <div class="stat-trend up"><i data-lucide="trending-up"></i> Create an event first</div>
+          <div class="stat-trend"><i data-lucide="trending-up" style="width:14px;height:14px;color:var(--md-sys-color-success);"></i> Live attendee count</div>
         </div>
-        <div class="stat-card green">
-          <div class="stat-icon-wrap green"><i data-lucide="scan-line"></i></div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap success"><i data-lucide="scan-line"></i></div>
           <div class="stat-value">0</div>
-          <div class="stat-label">Check-Ins Done</div>
-          <div class="stat-trend up"><i data-lucide="trending-up"></i> No events yet</div>
+          <div class="stat-label">Check-Ins Completed</div>
+          <div class="stat-trend"><i data-lucide="check" style="width:14px;height:14px;color:var(--md-sys-color-success);"></i> Sub-second verified</div>
         </div>
-        <div class="stat-card pink">
-          <div class="stat-icon-wrap pink"><i data-lucide="qr-code"></i></div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap tertiary"><i data-lucide="qr-code"></i></div>
           <div class="stat-value">0</div>
-          <div class="stat-label">QR Tickets Issued</div>
-          <div class="stat-trend up"><i data-lucide="trending-up"></i> Tickets auto-generated</div>
+          <div class="stat-label">QR Passes Issued</div>
+          <div class="stat-trend"><i data-lucide="mail" style="width:14px;height:14px;color:var(--md-sys-color-tertiary);"></i> Auto-dispatched</div>
         </div>
       </div>
 
-      <!-- BOTTOM GRID -->
+      <!-- Bottom Layout: Events List + Quick Actions -->
       <div class="bottom-grid">
 
-        <!-- My Events -->
-        <div class="card" id="my-events-card" style="overflow:hidden;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-            <div class="card-title" style="margin-bottom:0">My Events <span class="ev-count-badge" id="events-count">0</span></div>
-            <a href="create-event.html" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;font-size:.78rem;font-weight:700;text-decoration:none;transition:.25s">
-              <i data-lucide="plus" style="width:14px;height:14px;"></i> New Event
+        <!-- My Events Section -->
+        <div class="card" id="my-events-card">
+          <div class="card-title">
+            <span>My Events <span class="tag" id="events-count">0</span></span>
+            <a href="create-event.html" class="btn btn-tonal btn-sm">
+              <i data-lucide="plus"></i> Add Event
             </a>
           </div>
+
           <!-- Empty state -->
           <div class="empty-state" id="events-empty">
             <div class="empty-icon">📅</div>
-            <p>You haven't created any events yet.<br>Start by creating your first event!</p>
-            <button class="create-btn" onclick="window.location.href='create-event.html'">
-              <i data-lucide="plus"></i> Create Your First Event
-            </button>
+            <p>No active events created yet. Build your first event page in minutes!</p>
+            <a href="create-event.html" class="btn btn-primary">
+              <i data-lucide="plus"></i> Launch Your First Event
+            </a>
           </div>
-          <!-- Events list rendered by loadEvents() -->
-          <div id="events-list" style="display:none;flex-direction:column;gap:14px;"></div>
+
+          <!-- Events dynamic list -->
+          <div id="events-list" style="display:none; flex-direction:column; gap:14px;"></div>
         </div>
 
-        <!-- Sidebar: Quick Actions + Profile -->
-        <div style="display:flex;flex-direction:column;gap:20px;">
+        <!-- Sidebar Actions & Profile Card -->
+        <div style="display:flex; flex-direction:column; gap:20px;">
 
           <!-- Quick Actions -->
           <div class="card">
-            <div class="card-title">Quick Actions</div>
+            <div class="card-title">Quick Operations</div>
             <div class="quick-actions">
               <div class="quick-action" onclick="window.location.href='create-event.html'">
-                <div class="qa-icon purple"><i data-lucide="calendar-plus"></i></div>
-                <div class="qa-text">
+                <div class="feature-icon-wrap primary" style="width:36px;height:36px;margin:0;"><i data-lucide="calendar-plus"></i></div>
+                <div>
                   <strong>Create Event</strong>
-                  <span>Set up a new event page</span>
+                  <span>Publish new registration page</span>
                 </div>
               </div>
-              <div class="quick-action">
-                <div class="qa-icon blue"><i data-lucide="scan-line"></i></div>
-                <div class="qa-text">
-                  <strong>Start QR Scanner</strong>
-                  <span>Scan attendees at the gate</span>
-                </div>
-              </div>
-              <div class="quick-action">
-                <div class="qa-icon green"><i data-lucide="download"></i></div>
-                <div class="qa-text">
-                  <strong>Export Attendees</strong>
-                  <span>Download CSV report</span>
+              <div class="quick-action" onclick="window.location.href='index.html#qr-spotlight'">
+                <div class="feature-icon-wrap success" style="width:36px;height:36px;margin:0;"><i data-lucide="scan-line"></i></div>
+                <div>
+                  <strong>Mobile QR Scanner</strong>
+                  <span>Verify gate tickets instantly</span>
                 </div>
               </div>
               <div class="quick-action" onclick="window.location.href='register.html'">
-                <div class="qa-icon pink"><i data-lucide="user-check"></i></div>
-                <div class="qa-text">
-                  <strong>Complete Profile</strong>
-                  <span>Fill in your academic details</span>
+                <div class="feature-icon-wrap secondary" style="width:36px;height:36px;margin:0;"><i data-lucide="user-check"></i></div>
+                <div>
+                  <strong>Academic Profile</strong>
+                  <span>Update college &amp; contact info</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Saved Profile -->
+          <!-- Profile Snapshot Card -->
           <div class="card">
-            <div class="card-title">Your Profile</div>
+            <div class="card-title">Profile Overview</div>
             <div id="profile-display"></div>
           </div>
 
         </div>
       </div>
 
-    </div><!-- /content -->
-  </div><!-- /main -->
+    </main>
+  </div>
+
+  <!-- M3 Floating Action Button (FAB) Menu -->
+  <div class="fab-container">
+    <div class="fab-main" id="fab-main" onclick="toggleFabMenu()" aria-label="Quick Actions">
+      <i data-lucide="plus" style="transition:transform 0.25s ease;"></i>
+    </div>
+    <div class="fab-menu" id="fab-menu">
+      <div class="fab-item" onclick="window.location.href='create-event.html'">
+        <div class="fab-item-icon"><i data-lucide="calendar-plus" style="width:16px;height:16px;"></i></div>
+        <span>Create Event</span>
+      </div>
+      <div class="fab-item" onclick="window.location.href='register.html'">
+        <div class="fab-item-icon"><i data-lucide="user" style="width:16px;height:16px;"></i></div>
+        <span>Edit Profile</span>
+      </div>
+      <div class="fab-item" onclick="openSettings()">
+        <div class="fab-item-icon"><i data-lucide="settings" style="width:16px;height:16px;"></i></div>
+        <span>Settings</span>
+      </div>
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp }                         from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
@@ -790,17 +1158,14 @@
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // ── Guard: redirect to login if not signed in ─────────────────
     onAuthStateChanged(auth, (user) => {
       if (!user) {
-        // Check localStorage fallback first (fast pre-render)
         const cached = localStorage.getItem('eventhub_user');
         if (!cached) {
           window.location.replace('login.html');
           return;
         }
       } else {
-        // Update UI with real Firebase user
         const name = user.displayName || user.email?.split('@')[0] || 'Organizer';
         renderUser(name, user.photoURL, user.email);
         localStorage.setItem('eventhub_user', JSON.stringify({
@@ -810,7 +1175,6 @@
       }
     });
 
-    // ── Pre-render from cache (instant) ──────────────────────────
     try {
       const u = JSON.parse(localStorage.getItem('eventhub_user') || 'null');
       if (u) renderUser(u.displayName || u.email?.split('@')[0] || 'Organizer', u.photoURL, u.email);
@@ -828,53 +1192,46 @@
       }
     }
 
-    // ── Sign out (sidebar) ────────────────────────────────────────
     document.getElementById('signout-btn').addEventListener('click', async () => {
       localStorage.removeItem('eventhub_user');
-      sessionStorage.removeItem('eventhub_google_redirect');
       try { await signOut(auth); } catch(e) {}
       window.location.replace('login.html');
     });
 
-    // ── Sign out (dropdown) ───────────────────────────────────────
     document.getElementById('pd-signout-btn').addEventListener('click', async () => {
       localStorage.removeItem('eventhub_user');
-      sessionStorage.removeItem('eventhub_google_redirect');
       try { await signOut(auth); } catch(e) {}
       window.location.replace('login.html');
     });
 
-    // ── Load saved profile from localStorage (sidebar card) ───────
     function loadProfile() {
       const raw = localStorage.getItem('eventhub_profile');
       const el  = document.getElementById('profile-display');
       if (!raw) {
-        el.innerHTML = `<div class="no-profile">No profile yet. <a href="register.html">Complete your profile →</a></div>`;
+        el.innerHTML = `<div style="font-size:0.875rem; color:var(--md-sys-color-on-surface-variant);">No profile recorded yet. <a href="register.html" style="color:var(--md-sys-color-primary); font-weight:600;">Complete now →</a></div>`;
         return;
       }
       const p = JSON.parse(raw);
       const degreeMap = { btech:'B.Tech/B.E.', bsc:'B.Sc', bca:'BCA', bcom:'B.Com', ba:'B.A.', bba:'BBA', mtech:'M.Tech', msc:'M.Sc', mca:'MCA', mba:'MBA', phd:'Ph.D.', diploma:'Diploma', other:'Other' };
       el.innerHTML = `
-        <div class="profile-info">
-          <div class="profile-row"><span class="key">State</span><span class="val">${p.state || '—'}</span></div>
-          <div class="profile-row"><span class="key">District</span><span class="val">${p.district || '—'}</span></div>
-          <div class="profile-row"><span class="key">College</span><span class="val">${p.college || '—'}</span></div>
-          <div class="profile-row"><span class="key">Degree</span><span class="val">${degreeMap[p.degree] || p.degree || '—'}</span></div>
-          <div class="profile-row"><span class="key">Specialization</span><span class="val">${p.specialization || '—'}</span></div>
-          <div class="profile-row"><span class="key">Graduation</span><span class="val">${p.gradyear || '—'}</span></div>
-          <div class="profile-row"><span class="key">WhatsApp</span><span class="val">+91 ${p.whatsapp || '—'}</span></div>
+        <div style="display:flex; flex-direction:column; gap:8px; font-size:0.8125rem;">
+          <div class="pd-row"><span class="pd-key">College</span><span class="pd-val">${p.college || '—'}</span></div>
+          <div class="pd-row"><span class="pd-key">Degree</span><span class="pd-val">${degreeMap[p.degree] || p.degree || '—'}</span></div>
+          <div class="pd-row"><span class="pd-key">Branch</span><span class="pd-val">${p.specialization || '—'}</span></div>
+          <div class="pd-row"><span class="pd-key">Location</span><span class="pd-val">${[p.district, p.state].filter(Boolean).join(', ') || '—'}</span></div>
+          <div class="pd-row"><span class="pd-key">WhatsApp</span><span class="pd-val">+91 ${p.whatsapp || '—'}</span></div>
         </div>`;
     }
+    window.loadProfile = loadProfile;
     loadProfile();
 
-    // ── Profile Dropdown ──────────────────────────────────────────
     function buildDropdown() {
       const u = JSON.parse(localStorage.getItem('eventhub_user') || 'null');
       const p = JSON.parse(localStorage.getItem('eventhub_profile') || 'null');
       const degreeMap = { btech:'B.Tech/B.E.', bsc:'B.Sc', bca:'BCA', bcom:'B.Com', ba:'B.A.', bba:'BBA', mtech:'M.Tech', msc:'M.Sc', mca:'MCA', mba:'MBA', phd:'Ph.D.', diploma:'Diploma', other:'Other' };
 
       if (u) {
-        document.getElementById('pd-name').textContent  = u.displayName || u.email?.split('@')[0] || 'User';
+        document.getElementById('pd-name').textContent  = u.displayName || u.email?.split('@')[0] || 'Organizer';
         document.getElementById('pd-email').textContent = u.email || '—';
         const pdAv = document.getElementById('pd-avatar');
         if (u.photoURL) {
@@ -886,25 +1243,14 @@
       }
 
       let html = '';
-      // Account section (always shown)
-      html += `<div class="pd-section-label">Account</div>`;
+      html += `<div class="pd-section-label">Account Details</div>`;
       html += `<div class="pd-row"><span class="pd-key">Display Name</span><span class="pd-val">${u?.displayName || '—'}</span></div>`;
       html += `<div class="pd-row"><span class="pd-key">Email</span><span class="pd-val">${u?.email || '—'}</span></div>`;
-      html += `<div class="pd-row"><span class="pd-key">User ID</span><span class="pd-val" style="font-size:.68rem;color:var(--text-muted)">${u?.uid ? u.uid.slice(0,16)+'…' : '—'}</span></div>`;
 
-      // Academic profile section
       if (p) {
-        html += `<div class="pd-section-label">Academic Profile</div>`;
-        html += `<div class="pd-row"><span class="pd-key">College</span><span class="pd-val">${p.college || '—'}</span></div>`;
-        html += `<div class="pd-row"><span class="pd-key">Degree</span><span class="pd-val">${degreeMap[p.degree] || p.degree || '—'}</span></div>`;
-        if (p.specialization) html += `<div class="pd-row"><span class="pd-key">Specialization</span><span class="pd-val">${p.specialization}</span></div>`;
-        if (p.gradyear)       html += `<div class="pd-row"><span class="pd-key">Grad Year</span><span class="pd-val">${p.gradyear}</span></div>`;
-        if (p.state)          html += `<div class="pd-row"><span class="pd-key">State</span><span class="pd-val">${p.state}</span></div>`;
-        if (p.district)       html += `<div class="pd-row"><span class="pd-key">District</span><span class="pd-val">${p.district}</span></div>`;
-        if (p.whatsapp)       html += `<div class="pd-row"><span class="pd-key">WhatsApp</span><span class="pd-val">+91 ${p.whatsapp}</span></div>`;
-      } else {
-        html += `<div class="pd-section-label">Academic Profile</div>`;
-        html += `<div class="pd-row" style="justify-content:center"><span class="pd-key" style="font-style:italic">Not completed — <a href="register.html" style="color:var(--purple-400);font-weight:600">fill now →</a></span></div>`;
+        html += `<div class="pd-section-label" style="margin-top:12px;">Academic Context</div>`;
+        html += `<div class="pd-row"><span class="pd-key">Institution</span><span class="pd-val">${p.college || '—'}</span></div>`;
+        html += `<div class="pd-row"><span class="pd-key">Program</span><span class="pd-val">${degreeMap[p.degree] || p.degree || '—'}</span></div>`;
       }
 
       document.getElementById('pd-body').innerHTML = html;
@@ -917,58 +1263,63 @@
       const isOpen = dd.classList.contains('open');
       if (isOpen) {
         dd.classList.remove('open');
-        pill.classList.remove('open');
         pill.setAttribute('aria-expanded', 'false');
       } else {
         buildDropdown();
         dd.classList.add('open');
-        pill.classList.add('open');
         pill.setAttribute('aria-expanded', 'true');
       }
     };
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
       const pill = document.getElementById('user-pill');
       const dd   = document.getElementById('profile-dropdown');
       if (!pill.contains(e.target) && !dd.contains(e.target)) {
         dd.classList.remove('open');
-        pill.classList.remove('open');
         pill.setAttribute('aria-expanded', 'false');
       }
     });
 
-    // Close on Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         document.getElementById('profile-dropdown').classList.remove('open');
-        document.getElementById('user-pill').classList.remove('open');
         closeSettings();
       }
     });
 
-    // ── Icons ─────────────────────────────────────────────────────
+    // FAB menu toggle
+    window.toggleFabMenu = function() {
+      const menu = document.getElementById('fab-menu');
+      const fab  = document.getElementById('fab-main');
+      const isOpen = menu.classList.contains('open');
+      menu.classList.toggle('open', !isOpen);
+      fab.classList.toggle('active', !isOpen);
+    };
+
+    document.addEventListener('click', (e) => {
+      const container = document.querySelector('.fab-container');
+      if (container && !container.contains(e.target)) {
+        document.getElementById('fab-menu')?.classList.remove('open');
+        document.getElementById('fab-main')?.classList.remove('active');
+      }
+    });
+
     if (window.lucide) window.lucide.createIcons();
-    document.addEventListener('DOMContentLoaded', () => { if (window.lucide) window.lucide.createIcons(); });
   </script>
 
-  <!-- ── SETTINGS PANEL LOGIC ── -->
+  <!-- ── SETTINGS PANEL & EVENTS LOGIC ── -->
   <script>
-    /* Open / Close */
     window.openSettings = function() {
       document.getElementById('settings-panel').classList.add('open');
       document.getElementById('settings-overlay').classList.add('open');
-      document.getElementById('settings-nav').classList.add('active');
       populateSettings();
       if (window.lucide) window.lucide.createIcons();
     };
     window.closeSettings = function() {
       document.getElementById('settings-panel').classList.remove('open');
       document.getElementById('settings-overlay').classList.remove('open');
-      document.getElementById('settings-nav').classList.remove('active');
     };
 
-    /* Tab switching */
     window.switchTab = function(tab) {
       ['account','profile','prefs'].forEach(t => {
         document.getElementById('tab-' + t).classList.toggle('active', t === tab);
@@ -976,16 +1327,11 @@
       });
     };
 
-    /* Populate panel from localStorage */
     function populateSettings() {
-      // Signup data (from signup.html)
       const sd = JSON.parse(localStorage.getItem('eventhub_signup_data') || 'null');
-      // Firebase user cache (from login / signup)
       const u  = JSON.parse(localStorage.getItem('eventhub_user') || 'null');
-      // Academic profile (from register.html)
       const p  = JSON.parse(localStorage.getItem('eventhub_profile') || 'null');
 
-      // ── Account tab ─────────────────────────────────────────────
       const fullName = sd?.fullName || u?.displayName || '—';
       const email    = sd?.email    || u?.email        || '—';
       const uid      = sd?.uid      || u?.uid          || '—';
@@ -993,8 +1339,7 @@
       let   dateStr  = '—';
       if (sd?.signedUpAt) {
         const d = new Date(sd.signedUpAt);
-        dateStr = d.toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }) +
-                  ' at ' + d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+        dateStr = d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
       }
 
       document.getElementById('si-name').textContent   = fullName;
@@ -1003,10 +1348,7 @@
       document.getElementById('si-date').textContent   = dateStr;
       document.getElementById('si-uid').textContent    = uid ? uid.slice(0, 20) + (uid.length > 20 ? '…' : '') : '—';
 
-      // Editable display name field (Account tab)
       document.getElementById('sp-displayname').value  = u?.displayName || sd?.fullName || '';
-
-      // ── Profile tab ─────────────────────────────────────────────
       document.getElementById('sp-college').value        = p?.college        || '';
       document.getElementById('sp-degree').value         = p?.degree         || '';
       document.getElementById('sp-specialization').value = p?.specialization || '';
@@ -1014,28 +1356,26 @@
       document.getElementById('sp-state').value          = p?.state          || '';
       document.getElementById('sp-district').value       = p?.district       || '';
       document.getElementById('sp-whatsapp').value       = p?.whatsapp       || '';
+
+      const savedTheme = localStorage.getItem('eventhub_theme') || 'dark';
+      updateThemeButtons(savedTheme);
     }
 
-    /* Save all settings back to localStorage */
     window.saveSettings = function() {
       const u  = JSON.parse(localStorage.getItem('eventhub_user') || '{}');
       const sd = JSON.parse(localStorage.getItem('eventhub_signup_data') || '{}');
 
-      // Update display name
       const newName = document.getElementById('sp-displayname').value.trim();
       if (newName) {
         u.displayName = newName;
         localStorage.setItem('eventhub_user', JSON.stringify(u));
-        // Also keep signup_data in sync
         if (sd.fullName !== undefined) { sd.fullName = newName; localStorage.setItem('eventhub_signup_data', JSON.stringify(sd)); }
-        // Refresh topbar
         const nameTop = document.getElementById('user-name-top');
         if (nameTop) nameTop.textContent = newName;
         const greet = document.getElementById('greeting-name');
         if (greet) greet.textContent = newName.split(' ')[0];
       }
 
-      // Save academic profile
       const profile = {
         college:        document.getElementById('sp-college').value.trim(),
         degree:         document.getElementById('sp-degree').value,
@@ -1047,38 +1387,27 @@
       };
       localStorage.setItem('eventhub_profile', JSON.stringify(profile));
 
-      // Refresh sidebar profile card if it exists
-      if (typeof loadProfile === 'function') loadProfile();
+      if (typeof window.loadProfile === 'function') window.loadProfile();
 
-      // Show success toast
       const toast = document.getElementById('sp-saved-toast');
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 2800);
     };
 
-    /* Clear all local data */
     window.clearAllData = function() {
-      if (!confirm('This will clear ALL locally saved data (account info, profile, events). Continue?')) return;
-      ['eventhub_user','eventhub_signup_data','eventhub_profile','eventhub_google_redirect'].forEach(k => localStorage.removeItem(k));
+      if (!confirm('This will reset all locally stored session and event data. Proceed?')) return;
+      ['eventhub_user','eventhub_signup_data','eventhub_profile','eventhub_events'].forEach(k => localStorage.removeItem(k));
       sessionStorage.clear();
-      alert('All local data cleared. You will now be redirected to login.');
       window.location.replace('login.html');
     };
 
-    /* ── Theme Switching ── */
     window.applyTheme = function(choice) {
-      // Resolve 'system' to actual dark/light based on OS preference
       const resolved = choice === 'system'
         ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
         : choice;
 
-      // Apply to <html> attribute — all CSS [data-theme] rules fire instantly
       document.documentElement.setAttribute('data-theme', resolved);
-
-      // Persist user's explicit choice (not the resolved value)
       localStorage.setItem('eventhub_theme', choice);
-
-      // Update button states
       updateThemeButtons(choice);
     };
 
@@ -1089,131 +1418,37 @@
       });
     }
 
-    // Highlight active theme whenever Settings opens
-    const _origOpen = window.openSettings;
-    window.openSettings = function() {
-      _origOpen();
-      const saved = localStorage.getItem('eventhub_theme') || 'dark';
-      updateThemeButtons(saved);
-    };
-
-    // Listen for OS color-scheme changes when "System" is selected
-    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
-      if (localStorage.getItem('eventhub_theme') === 'system') {
-        document.documentElement.setAttribute('data-theme', e.matches ? 'light' : 'dark');
-      }
-    });
-  </script>
-
-  <!-- ── EVENTS LIST LOADER ── -->
-  <style>
-    /* ── Count badge next to My Events title ── */
-    .ev-count-badge {
-      display:inline-flex;align-items:center;justify-content:center;
-      min-width:22px;padding:2px 8px;border-radius:999px;
-      background:rgba(124,58,237,.2);color:var(--purple-400);
-      font-size:.73rem;font-weight:700;margin-left:6px;
-    }
-
-    /* ── Full event card ── */
-    .ev-card {
-      border-radius:var(--radius-md);
-      border:1px solid rgba(124,58,237,.15);
-      background:rgba(124,58,237,.04);
-      overflow:hidden;
-      transition:var(--transition);
-    }
-    .ev-card:hover { border-color:rgba(124,58,237,.35); background:rgba(124,58,237,.08); transform:translateY(-1px); box-shadow:0 6px 24px rgba(124,58,237,.12); }
-    [data-theme="light"] .ev-card { background:rgba(255,255,255,.8); border-color:rgba(124,58,237,.15); }
-    [data-theme="light"] .ev-card:hover { background:#fff; }
-
-    /* Coloured top-bar per category */
-    .ev-card-bar { height:4px; width:100%; }
-    .ev-card-inner { display:flex; align-items:flex-start; gap:14px; padding:14px 16px 12px; }
-
-    /* Date box */
-    .ev-date-box {
-      flex-shrink:0; width:46px; height:52px; border-radius:var(--radius-sm);
-      background:var(--grad-primary); display:flex; flex-direction:column;
-      align-items:center; justify-content:center; color:#fff; line-height:1.1; gap:1px;
-    }
-    .ev-month { font-size:.56rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase; opacity:.85; }
-    .ev-day   { font-size:1.3rem; font-weight:900; }
-
-    /* Event info */
-    .ev-body  { flex:1; min-width:0; }
-    .ev-name  { font-weight:700; font-size:.92rem; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .ev-rows  { display:flex; flex-direction:column; gap:4px; }
-    .ev-row   { display:flex; align-items:flex-start; gap:7px; font-size:.78rem; color:var(--text-secondary); }
-    .ev-row-icon { font-size:.85rem; flex-shrink:0; margin-top:1px; }
-    .ev-desc  { font-size:.76rem; color:var(--text-muted); margin-top:6px; line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-
-    /* Right side: badge + attendees */
-    .ev-right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0; }
-    .ev-cat-badge {
-      display:inline-flex;align-items:center;padding:3px 10px;
-      border-radius:999px;font-size:.7rem;font-weight:700;
-      background:rgba(124,58,237,.18);color:var(--purple-400);
-      white-space:nowrap;
-    }
-    .ev-max  { font-size:.7rem; color:var(--text-muted); text-align:right; }
-
-    /* Footer row */
-    .ev-footer { display:flex; align-items:center; justify-content:space-between; padding:8px 16px; border-top:1px solid rgba(124,58,237,.1); font-size:.72rem; color:var(--text-muted); }
-    .ev-created { font-size:.7rem; color:var(--text-muted); }
-
-    /* Add-more button */
-    .ev-add-btn {
-      display:flex;align-items:center;justify-content:center;gap:7px;
-      width:100%;padding:11px;border-radius:var(--radius-full);
-      background:var(--grad-primary);color:#fff;
-      font-size:.84rem;font-weight:700;border:none;cursor:pointer;
-      transition:var(--transition);font-family:'Inter',sans-serif;
-      margin-top:4px;
-    }
-    .ev-add-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(124,58,237,.45); }
-  </style>
-
-  <script>
-    var CAT_COLORS = { Tech:'#60a5fa', Cultural:'#f472b6', Sports:'#4ade80', Workshop:'#fb923c', Hackathon:'#a78bfa', Music:'#facc15', Business:'#34d399', Other:'#94a3b8' };
-    var CAT_EMOJI  = { Tech:'💻', Cultural:'🎭', Sports:'⚽', Workshop:'🛠', Hackathon:'🚀', Music:'🎵', Business:'💼', Other:'📌' };
-
     function fmt12(t) {
       if (!t) return '';
-      var p = t.split(':'), h = +p[0];
+      const p = t.split(':'); const h = +p[0];
       return (h % 12 || 12) + ':' + p[1] + ' ' + (h < 12 ? 'AM' : 'PM');
     }
 
     function fmtDate(dateStr) {
       if (!dateStr) return { mon:'—', day:'—', full:'—' };
-      var d = new Date(dateStr + 'T00:00:00');
+      const d = new Date(dateStr + 'T00:00:00');
       return {
         mon:  d.toLocaleDateString('en-IN', { month:'short' }),
         day:  d.getDate(),
-        full: d.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'long', year:'numeric' })
+        full: d.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' })
       };
     }
 
-    function fmtCreated(iso) {
-      if (!iso) return '';
-      var d = new Date(iso);
-      return 'Created ' + d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
-    }
-
     function loadEvents() {
-      var events = [];
+      let events = [];
       try { events = JSON.parse(localStorage.getItem('eventhub_events') || '[]'); } catch(e) {}
 
-      /* ── Stat card ── */
-      var statEl = document.querySelector('.stat-card.purple .stat-value');
+      const statEl = document.getElementById('stat-events-val');
       if (statEl) statEl.textContent = events.length;
 
-      /* ── Count badge ── */
-      var cntEl = document.getElementById('events-count');
+      const cntEl = document.getElementById('events-count');
       if (cntEl) cntEl.textContent = events.length;
 
-      var emptyEl = document.getElementById('events-empty');
-      var listEl  = document.getElementById('events-list');
+      const chipCnt = document.getElementById('chip-events-cnt');
+      if (chipCnt) chipCnt.textContent = events.length;
+
+      const emptyEl = document.getElementById('events-empty');
+      const listEl  = document.getElementById('events-list');
       if (!emptyEl || !listEl) return;
 
       if (events.length === 0) {
@@ -1227,60 +1462,40 @@
       listEl.innerHTML      = '';
 
       events.forEach(function(ev) {
-        var dt      = fmtDate(ev.date);
-        var color   = CAT_COLORS[ev.category] || '#a78bfa';
-        var emoji   = CAT_EMOJI[ev.category]  || '📌';
-        var timeStr = fmt12(ev.startTime) + (ev.endTime ? ' – ' + fmt12(ev.endTime) : '');
-        var location= [ev.venue, ev.city, ev.state].filter(Boolean).join(', ');
-        var maxTxt  = ev.maxAttendees ? 'Max ' + ev.maxAttendees + ' attendees' : 'Unlimited attendance';
+        const dt       = fmtDate(ev.date);
+        const timeStr  = fmt12(ev.startTime) + (ev.endTime ? ' – ' + fmt12(ev.endTime) : '');
+        const location = [ev.venue, ev.city, ev.state].filter(Boolean).join(', ');
 
-        var card = document.createElement('div');
+        const card = document.createElement('div');
         card.className = 'ev-card';
-        card.innerHTML =
-          '<div class="ev-card-bar" style="background:' + color + ';opacity:.7;"></div>' +
-          '<div class="ev-card-inner">' +
-            '<div class="ev-date-box">' +
-              '<span class="ev-month">' + dt.mon + '</span>' +
-              '<span class="ev-day">' + dt.day + '</span>' +
-            '</div>' +
-            '<div class="ev-body">' +
-              '<div class="ev-name">' + (ev.name || 'Untitled Event') + '</div>' +
-              '<div class="ev-rows">' +
-                (dt.full !== '—' ? '<div class="ev-row"><span class="ev-row-icon">📅</span>' + dt.full + '</div>' : '') +
-                (timeStr          ? '<div class="ev-row"><span class="ev-row-icon">🕐</span>' + timeStr + '</div>' : '') +
-                (location         ? '<div class="ev-row"><span class="ev-row-icon">📍</span>' + location + '</div>' : '') +
-              '</div>' +
-              (ev.description ? '<div class="ev-desc">' + ev.description + '</div>' : '') +
-            '</div>' +
-            '<div class="ev-right">' +
-              '<div class="ev-cat-badge">' + emoji + ' ' + (ev.category || 'Other') + '</div>' +
-              '<div class="ev-max">' + maxTxt + '</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="ev-footer">' +
-            '<span>' + fmtCreated(ev.createdAt) + '</span>' +
-            '<span style="color:var(--green-400);font-weight:600;">● Active</span>' +
-          '</div>';
+        card.innerHTML = `
+          <div class="ev-card-inner">
+            <div class="ev-date-box">
+              <span class="ev-month">${dt.mon}</span>
+              <span class="ev-day">${dt.day}</span>
+            </div>
+            <div class="ev-body">
+              <div class="ev-name">${ev.name || 'Untitled Event'}</div>
+              <div class="ev-row">
+                <i data-lucide="clock" style="width:14px;height:14px;"></i> ${timeStr || 'Time TBA'} &nbsp;•&nbsp; 
+                <i data-lucide="map-pin" style="width:14px;height:14px;"></i> ${location || 'Venue TBA'}
+              </div>
+            </div>
+            <div class="ev-cat-badge">${ev.category || 'Event'}</div>
+          </div>
+          <div class="ev-footer">
+            <span>Registration Active</span>
+            <span style="color:var(--md-sys-color-success); font-weight:600;">● Published</span>
+          </div>`;
 
         listEl.appendChild(card);
       });
 
-      // Add "Create another" button at bottom
-      var btn = document.createElement('button');
-      btn.className = 'ev-add-btn';
-      btn.innerHTML = '+ Create Another Event';
-      btn.onclick = function() { window.location.href='create-event.html'; };
-      listEl.appendChild(btn);
-
       if (window.lucide) window.lucide.createIcons();
     }
 
-    // Run on load
     loadEvents();
-    // Also re-run if user navigates back from create-event page
     window.addEventListener('pageshow', loadEvents);
   </script>
 </body>
 </html>
-
-

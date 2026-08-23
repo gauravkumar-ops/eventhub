@@ -18,30 +18,41 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const auth  = getAuth(fbApp);
 
-/* ── STEP 1 — Instant pre-render (synchronous sessionStorage) ─
-   Prevents the "Log In" button flash for returning signed-in users.   */
-(function preRenderNavbar() {
+/* ── STEP 1 — Auto-redirect or pre-render logged-in user ─────────
+   If logged in, navigate straight to dashboard.html unless ?preview=1 is requested. */
+const urlParams = new URLSearchParams(window.location.search);
+const allowPreview = urlParams.get('preview') === '1' || urlParams.get('action') === 'landing';
+
+(function checkSession() {
   try {
-    const u = JSON.parse(localStorage.getItem('eventhub_user') || 'null');
-    if (u) renderUserNav(u.displayName || u.email?.split('@')[0], u.photoURL, u.email);
+    const cached = localStorage.getItem('eventhub_user');
+    if (cached && !allowPreview) {
+      window.location.replace('dashboard.html');
+      return;
+    }
+    if (cached) {
+      const u = JSON.parse(cached);
+      renderUserNav(u.displayName || u.email?.split('@')[0], u.photoURL, u.email);
+    }
   } catch (_) {}
 })();
 
 /* ── STEP 2 — Firebase Auth listener (authoritative) ────────── */
 onAuthStateChanged(auth, (user) => {
   const navCta = document.querySelector('.nav-cta');
-  if (!navCta) return;
-
   if (!user) {
-    // Guard: if localStorage still has a user, Firebase may just be slow
-    // to restore the session (IndexedDB async). Don't flash "Log In" yet.
     const cached = localStorage.getItem('eventhub_user');
-    if (cached) return;  // wait — Firebase will fire again with the user
+    if (cached && !allowPreview) {
+      window.location.replace('dashboard.html');
+      return;
+    }
+    if (cached) return;
 
-    // Truly signed out — show login buttons
-    navCta.innerHTML = `
-      <a href="login.html?action=login" class="btn btn-ghost" id="login-btn">Log In</a>
-      <a href="login.html?action=login" class="btn btn-primary" id="get-started-btn">Get Started Free</a>`;
+    if (navCta) {
+      navCta.innerHTML = `
+        <a href="login.html?action=login" class="btn btn-ghost" id="login-btn">Log In</a>
+        <a href="login.html?action=login" class="btn btn-primary" id="get-started-btn">Get Started Free</a>`;
+    }
     return;
   }
 
@@ -52,6 +63,12 @@ onAuthStateChanged(auth, (user) => {
     photoURL:    user.photoURL || null
   };
   localStorage.setItem('eventhub_user', JSON.stringify(stored));
+
+  if (!allowPreview) {
+    window.location.replace('dashboard.html');
+    return;
+  }
+
   renderUserNav(stored.displayName, stored.photoURL, stored.email);
 });
 
@@ -70,36 +87,44 @@ function buildDropdownHTML(displayName, photoURL, email) {
     .split(' ').filter(Boolean).map(w => w[0].toUpperCase()).slice(0, 2).join('');
 
   const avatar = photoURL
-    ? `<img src="${photoURL}" alt="${displayName}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #a78bfa;flex-shrink:0;">`
-    : `<div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem;flex-shrink:0;">${initials}</div>`;
+    ? `<img src="${photoURL}" alt="${displayName}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;">`
+    : `<div style="width:34px;height:34px;border-radius:50%;background-color:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem;flex-shrink:0;">${initials}</div>`;
 
   return `
     <div style="position:relative;" id="eh-user-wrap">
-      <button id="eh-menu-btn" style="display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.07);padding:4px 14px 4px 4px;border-radius:999px;border:1px solid rgba(255,255,255,.14);cursor:pointer;color:#f8fafc;transition:.2s;">
+      <button id="eh-menu-btn" style="display:flex;align-items:center;gap:9px;background-color:var(--md-sys-color-surface-container-high);padding:4px 14px 4px 4px;border-radius:var(--md-sys-shape-corner-full);border:1px solid var(--md-sys-color-outline-variant);cursor:pointer;color:var(--md-sys-color-on-surface);transition:var(--transition);">
         ${avatar}
         <div style="text-align:left;line-height:1.2;pointer-events:none;">
           <div style="font-size:.84rem;font-weight:600;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${displayName}</div>
-          <div style="font-size:.68rem;color:#64748b;">Account ▾</div>
+          <div style="font-size:.68rem;color:var(--md-sys-color-on-surface-variant);">Organizer ▾</div>
         </div>
       </button>
 
-      <div id="eh-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 10px);width:248px;background:#0d0b1e;border:1px solid rgba(255,255,255,.13);border-radius:16px;padding:8px;box-shadow:0 16px 48px rgba(0,0,0,.65);backdrop-filter:blur(24px);z-index:9999;">
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px 12px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:6px;">
+      <div id="eh-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 10px);width:260px;background-color:var(--md-sys-color-surface-container-high);border:1px solid var(--md-sys-color-outline);border-radius:var(--md-sys-shape-corner-large);padding:8px;box-shadow:0 16px 48px rgba(0,0,0,.65);backdrop-filter:blur(24px);z-index:9999;">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px 12px;border-bottom:1px solid var(--md-sys-color-outline-variant);margin-bottom:6px;">
           ${avatar}
           <div style="min-width:0;">
-            <div style="font-size:.84rem;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${displayName}</div>
-            <div style="font-size:.72rem;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${email}</div>
+            <div style="font-size:.84rem;font-weight:700;color:var(--md-sys-color-on-surface);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${displayName}</div>
+            <div style="font-size:.72rem;color:var(--md-sys-color-on-surface-variant);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${email}</div>
           </div>
         </div>
 
-        <a href="login.html?action=login" style="display:flex;align-items:center;gap:9px;padding:10px 12px;font-size:.83rem;color:#cbd5e1;border-radius:10px;text-decoration:none;transition:.15s;" onmouseover="this.style.background='rgba(167,139,250,.1)'" onmouseout="this.style.background='transparent'">
-          <i data-lucide="refresh-cw" style="width:15px;height:15px;color:#a78bfa;"></i> Switch Account
+        <a href="dashboard.html" style="display:flex;align-items:center;gap:9px;padding:10px 12px;font-size:.83rem;color:var(--md-sys-color-on-surface);border-radius:var(--md-sys-shape-corner-small);text-decoration:none;transition:var(--transition);">
+          <i data-lucide="layout-dashboard" style="width:16px;height:16px;color:var(--md-sys-color-primary);"></i> Go to Dashboard
         </a>
 
-        <div style="height:1px;background:rgba(255,255,255,.07);margin:4px 0;"></div>
+        <a href="create-event.html" style="display:flex;align-items:center;gap:9px;padding:10px 12px;font-size:.83rem;color:var(--md-sys-color-on-surface);border-radius:var(--md-sys-shape-corner-small);text-decoration:none;transition:var(--transition);">
+          <i data-lucide="calendar-plus" style="width:16px;height:16px;color:var(--md-sys-color-primary);"></i> Create Event
+        </a>
 
-        <button id="eh-signout" style="width:100%;display:flex;align-items:center;gap:9px;padding:10px 12px;font-size:.83rem;color:#f87171;background:none;border:none;border-radius:10px;cursor:pointer;text-align:left;transition:.15s;" onmouseover="this.style.background='rgba(248,113,113,.1)'" onmouseout="this.style.background='transparent'">
-          <i data-lucide="log-out" style="width:15px;height:15px;"></i> Sign Out
+        <a href="register.html" style="display:flex;align-items:center;gap:9px;padding:10px 12px;font-size:.83rem;color:var(--md-sys-color-on-surface);border-radius:var(--md-sys-shape-corner-small);text-decoration:none;transition:var(--transition);">
+          <i data-lucide="user" style="width:16px;height:16px;color:var(--md-sys-color-primary);"></i> My Profile
+        </a>
+
+        <div style="height:1px;background-color:var(--md-sys-color-outline-variant);margin:4px 0;"></div>
+
+        <button id="eh-signout" style="width:100%;display:flex;align-items:center;gap:9px;padding:10px 12px;font-size:.83rem;color:var(--md-sys-color-error);background:none;border:none;border-radius:var(--md-sys-shape-corner-small);cursor:pointer;text-align:left;transition:var(--transition);">
+          <i data-lucide="log-out" style="width:16px;height:16px;"></i> Sign Out
         </button>
       </div>
     </div>`;
@@ -115,7 +140,6 @@ function bindDropdownEvents() {
     dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
   });
 
-  // Close on outside click — use capture so it fires before btn click
   document.addEventListener('click', () => { if (dropdown) dropdown.style.display = 'none'; });
 
   document.getElementById('eh-signout')?.addEventListener('click', async () => {
@@ -131,30 +155,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.lucide) window.lucide.createIcons();
   if (document.getElementById('eh-menu-btn')) bindDropdownEvents();
 
-  initParticles();
   initNavbar();
   initHamburger();
   initScrollAnimations();
   initCounters();
   initFAQ();
-  initPricingToggle();
   initBackToTop();
   initSmoothScroll();
 });
-
-/* ── Particles ───────────────────────────────────────────────── */
-function initParticles() {
-  const c = document.getElementById('particles');
-  if (!c) return;
-  const colors = ['#7c3aed','#a855f7','#ec4899','#3b82f6','#22d3ee'];
-  for (let i = 0; i < 25; i++) {
-    const p   = document.createElement('div');
-    p.className = 'particle';
-    const sz  = Math.random() * 5 + 2;
-    p.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${Math.random()*15+10}s;animation-delay:${Math.random()*10}s;opacity:${Math.random()*.5+.1};`;
-    c.appendChild(p);
-  }
-}
 
 /* ── Navbar scroll ───────────────────────────────────────────── */
 function initNavbar() {
@@ -192,13 +200,14 @@ function initCounters() {
   els.forEach(el => obs.observe(el));
 }
 function animateCounter(el) {
-  const target = parseInt(el.dataset.target, 10);
+  const target = parseFloat(el.dataset.target);
+  const isFloat = target % 1 !== 0;
   const step   = target / (1800 / 16);
   let cur = 0;
   const t = setInterval(() => {
     cur = Math.min(cur + step, target);
-    el.textContent = Math.floor(cur).toLocaleString();
-    if (cur >= target) { el.textContent = target.toLocaleString(); clearInterval(t); }
+    el.textContent = isFloat ? cur.toFixed(1) : Math.floor(cur).toLocaleString();
+    if (cur >= target) { el.textContent = isFloat ? target.toFixed(1) : target.toLocaleString(); clearInterval(t); }
   }, 16);
 }
 
@@ -210,22 +219,6 @@ function initFAQ() {
       document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
       if (!open) item.classList.add('open');
     });
-  });
-}
-
-/* ── Pricing toggle ──────────────────────────────────────────── */
-function initPricingToggle() {
-  const toggle = document.getElementById('pricing-toggle');
-  if (!toggle) return;
-  toggle.addEventListener('change', () => {
-    const annual = toggle.checked;
-    document.querySelectorAll('.price-amount[data-monthly]').forEach(el => {
-      el.textContent = parseInt(annual ? el.dataset.annual : el.dataset.monthly).toLocaleString();
-    });
-    const ml = document.getElementById('monthly-label');
-    const al = document.getElementById('annual-label');
-    if (ml) ml.style.color = annual ? 'var(--text-muted)' : 'var(--text-primary)';
-    if (al) al.style.color = annual ? 'var(--text-primary)' : 'var(--text-muted)';
   });
 }
 

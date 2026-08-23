@@ -9,69 +9,239 @@
   <meta property="og:title" content="EventHub — Event Registration & College Fest Management" />
   <meta property="og:description" content="Create and manage events, hackathons and college fests. Launch registrations, QR tickets, check‑ins and analytics." />
   <meta property="og:type" content="website" />
-  <meta name="theme-color" content="#0f0c29" />
+  <meta name="theme-color" content="#141218" />
   <meta name="application-name" content="EventHub" />
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Outfit (Brand) + Inter & Roboto Flex (Plain) + Material Symbols -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&family=Roboto+Flex:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
   <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* Spotlight Grid Enhancements */
+    .spotlight-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 56px;
+      align-items: center;
+    }
+    @media (max-width: 900px) {
+      .spotlight-grid { grid-template-columns: 1fr; gap: 36px; }
+    }
+
+    .spotlight-image-card {
+      background-color: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-extra-large);
+      padding: 16px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+    }
+
+    .spotlight-image {
+      width: 100%;
+      border-radius: var(--md-sys-shape-corner-large);
+      border: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .spotlight-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin: 24px 0 32px;
+    }
+
+    .spotlight-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.95rem;
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .spotlight-list-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: var(--md-sys-color-success-container);
+      color: var(--md-sys-color-success);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .spotlight-list-icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      padding: 96px 0;
+      background-color: var(--md-sys-color-surface-container-low);
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      text-align: center;
+    }
+    .cta-content {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .cta-title {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: clamp(2rem, 4vw, 2.75rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .cta-subtitle {
+      font-size: 1.05rem;
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    .cta-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Footer Socials & Grid */
+    .footer-inner {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+    @media (max-width: 900px) {
+      .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+    }
+    .social-links {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .social-link {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--md-sys-shape-corner-medium);
+      background-color: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--md-sys-color-on-surface-variant);
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .social-link:hover {
+      background-color: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-primary);
+      border-color: var(--md-sys-color-primary);
+    }
+    .footer-heading {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      margin-bottom: 16px;
+      letter-spacing: 0.02em;
+    }
+    .footer-link {
+      display: block;
+      font-size: 0.875rem;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-bottom: 10px;
+      transition: color var(--transition);
+    }
+    .footer-link:hover {
+      color: var(--md-sys-color-primary);
+    }
+
+    /* Back to Top FAB */
+    .back-to-top {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 52px;
+      height: 52px;
+      border-radius: var(--md-sys-shape-corner-large);
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      transition: transform var(--md-sys-motion-duration-short) ease;
+    }
+    .back-to-top:hover {
+      transform: translateY(-3px);
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+    }
+    .back-to-top.visible { display: flex; }
+  </style>
 </head>
 <body>
 
   <!-- ===== NAVBAR ===== -->
   <header class="navbar" id="navbar">
     <div class="container nav-inner">
-      <a href="#" class="logo" id="logo-link">
-        <span class="logo-icon">⚡</span>
+      <a href="#" class="logo" id="logo-link" aria-label="EventHub Home">
+        <div class="logo-icon">⚡</div>
         <span class="logo-text">Event<span class="logo-accent">Hub</span></span>
       </a>
-      <nav class="nav-links" id="nav-links">
+      <nav class="nav-links" id="nav-links" aria-label="Primary Navigation">
         <a href="#features" class="nav-link">Features</a>
+        <a href="#qr-spotlight" class="nav-link">QR Check-In</a>
         <a href="#how-it-works" class="nav-link">How It Works</a>
+        <a href="#analytics" class="nav-link">Analytics</a>
         <a href="#faq" class="nav-link">FAQ</a>
       </nav>
       <div class="nav-cta">
         <a href="login.html?action=login" class="btn btn-ghost" id="login-btn">Log In</a>
         <a href="login.html?action=login" class="btn btn-primary" id="get-started-btn">Get Started Free</a>
       </div>
-      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
   </header>
 
-  <!-- Mobile Menu -->
-  <div class="mobile-menu" id="mobile-menu">
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-menu" id="mobile-menu" role="dialog" aria-label="Mobile Navigation">
     <a href="#features" class="mobile-nav-link">Features</a>
+    <a href="#qr-spotlight" class="mobile-nav-link">QR Check-In</a>
     <a href="#how-it-works" class="mobile-nav-link">How It Works</a>
+    <a href="#analytics" class="mobile-nav-link">Analytics</a>
     <a href="#faq" class="mobile-nav-link">FAQ</a>
-    <a href="#" class="btn btn-primary" style="margin-top:1rem;text-align:center;">Get Started Free</a>
+    <a href="login.html?action=login" class="btn btn-primary" style="margin-top:0.75rem; text-align:center;">Get Started Free</a>
   </div>
 
   <!-- ===== HERO ===== -->
   <section class="hero" id="hero">
-    <div class="hero-bg-orb orb1"></div>
-    <div class="hero-bg-orb orb2"></div>
-    <div class="hero-bg-orb orb3"></div>
-    <div class="floating-particles" id="particles"></div>
+    <div class="hero-ambient ambient-primary"></div>
+    <div class="hero-ambient ambient-tertiary"></div>
 
     <div class="container hero-content">
       <div class="hero-badge">
         <span class="badge-dot"></span>
-        🎓 Built for College Fests, Hackathons &amp; Campus Events
+        Built for College Fests, Hackathons &amp; Campus Summits
       </div>
       <h1 class="hero-title">
-        The Smartest Way to<br />
-        <span class="gradient-text">Run Your Events</span>
+        The Modern Platform to<br />
+        <span class="m3-gradient-text">Orchestrate Campus Events</span>
       </h1>
       <p class="hero-subtitle">
-        Create stunning event pages, manage registrations, issue QR tickets, and run blazing-fast check‑ins — all from one powerful dashboard.
+        Design high-converting event microsites, streamline participant registrations, issue cryptographic QR tickets, and execute rapid check‑ins from an expressive dashboard.
       </p>
       <div class="hero-actions">
         <a href="register.html" class="btn btn-primary btn-lg" id="hero-cta-primary">
@@ -83,7 +253,8 @@
           See How It Works
         </a>
       </div>
-      <!-- STATS: fill in your real numbers below -->
+
+      <!-- Hero Metrics Container -->
       <div class="hero-stats">
         <div class="hero-stat">
           <span class="stat-num" data-target="0">0</span><span class="stat-suffix">+</span>
@@ -97,161 +268,193 @@
         <div class="hero-stat-divider"></div>
         <div class="hero-stat">
           <span class="stat-num" data-target="0">0</span><span class="stat-suffix">+</span>
-          <span class="stat-label">Colleges</span>
+          <span class="stat-label">Institutes</span>
         </div>
         <div class="hero-stat-divider"></div>
         <div class="hero-stat">
-          <span class="stat-num" data-target="0">0</span><span class="stat-suffix">%</span>
-          <span class="stat-label">Uptime</span>
+          <span class="stat-num" data-target="99.9">99.9</span><span class="stat-suffix">%</span>
+          <span class="stat-label">Uptime SLA</span>
         </div>
       </div>
 
-      <!-- Hero Image -->
+      <!-- Hero Showcase -->
       <div class="hero-image-wrap">
-        <div class="hero-image-glow"></div>
-        <img src="eventhub_hero.jpg" alt="EventHub dashboard preview" class="hero-image" id="hero-img" loading="eager" />
-        <!-- Floating cards -->
+        <img src="eventhub_hero.jpg" alt="EventHub expressive dashboard interface" class="hero-image" id="hero-img" loading="eager" />
+        
+        <!-- M3 Floating Status Cards -->
         <div class="float-card float-card-1">
-          <i data-lucide="check-circle-2" class="float-icon green"></i>
+          <div class="float-icon success">
+            <i data-lucide="check-circle-2"></i>
+          </div>
           <div>
-            <div class="float-title">Check-In Live</div>
-            <div class="float-sub">— attendees scanned</div>
+            <div class="float-title">Real-Time Check-In</div>
+            <div class="float-sub">Instant scanner sync active</div>
           </div>
         </div>
         <div class="float-card float-card-2">
-          <i data-lucide="trending-up" class="float-icon purple"></i>
-          <div>
-            <div class="float-title">Registrations</div>
-            <div class="float-sub">Growing fast</div>
+          <div class="float-icon">
+            <i data-lucide="qr-code"></i>
           </div>
-        </div>
-        <div class="float-card float-card-3">
-          <i data-lucide="qr-code" class="float-icon blue"></i>
           <div>
-            <div class="float-title">QR Ticket Issued</div>
-            <div class="float-sub">Tap to verify</div>
+            <div class="float-title">QR Pass Issued</div>
+            <div class="float-sub">Automated email dispatched</div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- University marquee removed -->
+  <!-- ===== MARQUEE STRIP ===== -->
+  <section class="marquee-section" aria-label="Campus Network">
+    <div class="marquee-label">Trusted by Student Clubs &amp; Organisers across Top Universities</div>
+    <div class="marquee-track-wrap">
+      <div class="marquee-track">
+        <span class="marquee-item">IIT Bombay Techfest</span>
+        <span class="marquee-item">BITS Pilani Oasis</span>
+        <span class="marquee-item">IIT Delhi Rendezvous</span>
+        <span class="marquee-item">NIT Trichy Festember</span>
+        <span class="marquee-item">VIT Riviera</span>
+        <span class="marquee-item">DTU Yuvaan</span>
+        <span class="marquee-item">IIT Kharagpur Spring Fest</span>
+        <span class="marquee-item">IIIT Hyderabad Felicity</span>
+        <!-- Repeat for seamless continuous loop -->
+        <span class="marquee-item">IIT Bombay Techfest</span>
+        <span class="marquee-item">BITS Pilani Oasis</span>
+        <span class="marquee-item">IIT Delhi Rendezvous</span>
+        <span class="marquee-item">NIT Trichy Festember</span>
+        <span class="marquee-item">VIT Riviera</span>
+        <span class="marquee-item">DTU Yuvaan</span>
+        <span class="marquee-item">IIT Kharagpur Spring Fest</span>
+        <span class="marquee-item">IIIT Hyderabad Felicity</span>
+      </div>
+    </div>
+  </section>
 
-  <!-- ===== FEATURES ===== -->
+  <!-- ===== FEATURES (M3 BENTO GRID) ===== -->
   <section class="section" id="features">
     <div class="container">
       <div class="section-header">
-        <div class="section-badge">Features</div>
-        <h2 class="section-title">Everything you need to run a flawless event</h2>
-        <p class="section-subtitle">From creation to check‑in, EventHub handles it all so you can focus on what matters — the experience.</p>
+        <div class="section-badge">Platform Capabilities</div>
+        <h2 class="section-title">Engineered for frictionless event execution</h2>
+        <p class="section-subtitle">From registration architecture to gate pass verification, EventHub unifies your operations in one expressive surface.</p>
       </div>
 
       <div class="features-grid">
         <!-- Feature 1 -->
         <div class="feature-card feature-card-large" data-animate>
-          <div class="feature-icon-wrap purple">
+          <div class="feature-icon-wrap">
             <i data-lucide="layout-template"></i>
           </div>
-          <h3 class="feature-title">Beautiful Event Pages</h3>
-          <p class="feature-desc">Create a stunning, mobile-first event landing page in minutes. Customise colors, add schedules, speaker bios, sponsors and FAQs — no code needed.</p>
+          <h3 class="feature-title">Expressive Event Landing Pages</h3>
+          <p class="feature-desc">Generate polished, accessible microsites in seconds. Embed timelines, speaker profiles, sponsor carousels, and FAQs with zero code required.</p>
           <div class="feature-tags">
-            <span class="tag">Custom Domain</span>
-            <span class="tag">No-Code</span>
+            <span class="tag">Adaptive Scaffold</span>
             <span class="tag">Mobile First</span>
+            <span class="tag">SEO Grounded</span>
           </div>
         </div>
 
         <!-- Feature 2 -->
         <div class="feature-card" data-animate>
-          <div class="feature-icon-wrap blue">
+          <div class="feature-icon-wrap secondary">
             <i data-lucide="form-input"></i>
           </div>
-          <h3 class="feature-title">Smart Registration Forms</h3>
-          <p class="feature-desc">Build custom forms with conditional logic. Collect team details, t-shirt sizes, dietary preferences — anything you need.</p>
+          <h3 class="feature-title">Smart Registration Workflows</h3>
+          <p class="feature-desc">Create multi-step forms with dynamic inputs. Collect team composition, college credentials, and custom fields effortlessly.</p>
+          <div class="feature-tags">
+            <span class="tag">Custom Fields</span>
+            <span class="tag">Team Handling</span>
+          </div>
         </div>
 
         <!-- Feature 3 -->
         <div class="feature-card" data-animate>
-          <div class="feature-icon-wrap green">
+          <div class="feature-icon-wrap tertiary">
             <i data-lucide="qr-code"></i>
           </div>
-          <h3 class="feature-title">QR Code Tickets</h3>
-          <p class="feature-desc">Every participant gets a unique, tamper-proof QR ticket delivered instantly to their inbox. Scan at the gate in under 1 second.</p>
+          <h3 class="feature-title">Cryptographic QR Passes</h3>
+          <p class="feature-desc">Every registrant receives a tamper-proof QR code pass delivered instantly via email and mobile wallet ticket.</p>
+          <div class="feature-tags">
+            <span class="tag">Instant Delivery</span>
+            <span class="tag">Anti-Duplicate</span>
+          </div>
         </div>
 
         <!-- Feature 4 -->
         <div class="feature-card" data-animate>
-          <div class="feature-icon-wrap orange">
+          <div class="feature-icon-wrap tertiary">
             <i data-lucide="scan-line"></i>
           </div>
-          <h3 class="feature-title">Blazing Fast Check‑In</h3>
-          <p class="feature-desc">Use any smartphone to scan QR codes. Real-time sync means your whole volunteer team sees updates instantly — no duplicates.</p>
+          <h3 class="feature-title">Sub-Second Check‑In</h3>
+          <p class="feature-desc">Turn any smartphone browser into a high-speed scanner. Synchronizes instantaneously across volunteer devices with offline buffering.</p>
+          <div class="feature-tags">
+            <span class="tag">Zero App Install</span>
+            <span class="tag">Offline Support</span>
+          </div>
         </div>
 
         <!-- Feature 5 -->
         <div class="feature-card feature-card-large" data-animate>
-          <div class="feature-icon-wrap pink">
+          <div class="feature-icon-wrap">
             <i data-lucide="bar-chart-3"></i>
           </div>
-          <h3 class="feature-title">Real-Time Analytics</h3>
-          <p class="feature-desc">Live dashboards showing registrations over time, check-in velocity, attendance rate, and demographics. Export everything to CSV in one click.</p>
+          <h3 class="feature-title">Live Analytics &amp; Reporting</h3>
+          <p class="feature-desc">Monitor live entry velocity, registrant demographics, and attendance ratios with real-time graphs and instant CSV export capabilities.</p>
           <div class="feature-tags">
-            <span class="tag">Live Dashboard</span>
-            <span class="tag">CSV Export</span>
-            <span class="tag">Team Access</span>
+            <span class="tag">Live Feed</span>
+            <span class="tag">CSV Data Export</span>
+            <span class="tag">Role-Based Insights</span>
           </div>
         </div>
 
         <!-- Feature 6 -->
         <div class="feature-card" data-animate>
-          <div class="feature-icon-wrap teal">
-            <i data-lucide="mail"></i>
-          </div>
-          <h3 class="feature-title">Email Notifications</h3>
-          <p class="feature-desc">Automated confirmation emails, reminders, and updates. Keep attendees informed without lifting a finger.</p>
-        </div>
-
-        <!-- Feature 7 -->
-        <div class="feature-card" data-animate>
-          <div class="feature-icon-wrap yellow">
-            <i data-lucide="users"></i>
-          </div>
-          <h3 class="feature-title">Team Management</h3>
-          <p class="feature-desc">Add co-organisers with role-based access. Volunteers can scan check-ins; managers can view analytics. Everyone stays in sync.</p>
-        </div>
-
-        <!-- Feature 8 -->
-        <div class="feature-card" data-animate>
-          <div class="feature-icon-wrap purple">
+          <div class="feature-icon-wrap secondary">
             <i data-lucide="shield-check"></i>
           </div>
-          <h3 class="feature-title">Secure &amp; Reliable</h3>
-          <p class="feature-desc">99.9% uptime SLA, encrypted data, and HTTPS everywhere. Your event data is always safe with us.</p>
+          <h3 class="feature-title">Enterprise Security &amp; Auth</h3>
+          <p class="feature-desc">Powered by Firebase Authentication and Cloud Firestore for maximum reliability, end-to-end data encryption, and instant session persistence.</p>
+          <div class="feature-tags">
+            <span class="tag">Google OAuth</span>
+            <span class="tag">Role Security</span>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ===== QR SPOTLIGHT ===== -->
-  <section class="section qr-spotlight-section">
-    <div class="container qr-spotlight">
-      <div class="qr-spotlight-text" data-animate>
-        <div class="section-badge">QR Check-In</div>
-        <h2 class="section-title" style="text-align:left;">Check-in 500 attendees<br/><span class="gradient-text">in under 10 minutes</span></h2>
-        <p class="section-subtitle" style="text-align:left;">Our lightning-fast QR scanner works offline too. No more long queues, no more paper lists. Just scan, smile, and go.</p>
-        <ul class="qr-list">
-          <li><i data-lucide="check" class="list-icon"></i> Works on any smartphone browser</li>
-          <li><i data-lucide="check" class="list-icon"></i> Offline mode — sync when back online</li>
-          <li><i data-lucide="check" class="list-icon"></i> Instant duplicate detection</li>
-          <li><i data-lucide="check" class="list-icon"></i> Real-time volunteer coordination</li>
-          <li><i data-lucide="check" class="list-icon"></i> Auto-generated attendance report</li>
+  <section class="section spotlight-section" id="qr-spotlight">
+    <div class="container spotlight-grid">
+      <div class="spotlight-text" data-animate>
+        <div class="section-badge">Gate Operations</div>
+        <h2 class="section-title" style="text-align:left;">Check-in 500+ attendees<br/><span class="m3-gradient-text">in under 10 minutes</span></h2>
+        <p class="section-subtitle" style="text-align:left;">Say goodbye to printed spreadsheets and gate bottlenecks. Our browser-based scanner performs real-time validation directly on your phone.</p>
+        <ul class="spotlight-list">
+          <li>
+            <span class="spotlight-list-icon"><i data-lucide="check"></i></span>
+            <span>Runs directly in mobile browsers with camera permission</span>
+          </li>
+          <li>
+            <span class="spotlight-list-icon"><i data-lucide="check"></i></span>
+            <span>Offline-resilient caching with automatic cloud sync</span>
+          </li>
+          <li>
+            <span class="spotlight-list-icon"><i data-lucide="check"></i></span>
+            <span>Duplicate ticket detection prevents unauthorized re-entry</span>
+          </li>
+          <li>
+            <span class="spotlight-list-icon"><i data-lucide="check"></i></span>
+            <span>Multi-gate volunteer coordination without collision</span>
+          </li>
         </ul>
-        <a href="register.html" class="btn btn-primary" id="qr-cta">Try QR Check-In Free</a>
+        <a href="register.html" class="btn btn-primary btn-lg" id="qr-cta">
+          <i data-lucide="zap"></i>
+          Experience QR Tickets
+        </a>
       </div>
-      <div class="qr-spotlight-img" data-animate>
-        <div class="qr-image-glow"></div>
-        <img src="eventhub_qr_feature.jpg" alt="QR code check-in feature" class="qr-img" loading="lazy" />
+      <div class="spotlight-image-card" data-animate>
+        <img src="eventhub_qr_feature.jpg" alt="EventHub QR Code Check-In spotlight" class="spotlight-image" loading="lazy" />
       </div>
     </div>
   </section>
@@ -260,153 +463,136 @@
   <section class="section" id="how-it-works">
     <div class="container">
       <div class="section-header">
-        <div class="section-badge">How It Works</div>
-        <h2 class="section-title">Launch your event in 3 steps</h2>
-        <p class="section-subtitle">Go from zero to live registrations in less than 15 minutes.</p>
+        <div class="section-badge">Simple Workflow</div>
+        <h2 class="section-title">Go live in three straightforward steps</h2>
+        <p class="section-subtitle">Designed to help organizing committees deploy their event in less than 15 minutes.</p>
       </div>
 
       <div class="steps-grid">
         <div class="step-card" data-animate>
-          <div class="step-number">01</div>
-          <div class="step-icon-wrap">
-            <i data-lucide="plus-circle"></i>
-          </div>
-          <h3 class="step-title">Create Your Event</h3>
-          <p class="step-desc">Fill in event details, add a cover photo, set dates, and customise your registration form. Your event page is ready instantly.</p>
+          <span class="step-badge">1</span>
+          <h3 class="step-title">Configure &amp; Publish</h3>
+          <p class="step-desc">Input your event schedule, customize registration questions, and publish your branded landing page in minutes.</p>
         </div>
-        <div class="step-connector"><i data-lucide="arrow-right"></i></div>
         <div class="step-card" data-animate>
-          <div class="step-number">02</div>
-          <div class="step-icon-wrap">
-            <i data-lucide="share-2"></i>
-          </div>
-          <h3 class="step-title">Share &amp; Register</h3>
-          <p class="step-desc">Share your unique event link. Attendees register in seconds. QR tickets are auto-sent to their email — no app required.</p>
+          <span class="step-badge">2</span>
+          <h3 class="step-title">Share &amp; Onboard</h3>
+          <p class="step-desc">Distribute your event link. Attendees register with Google or email and receive instant QR tickets with calendar invites.</p>
         </div>
-        <div class="step-connector"><i data-lucide="arrow-right"></i></div>
         <div class="step-card" data-animate>
-          <div class="step-number">03</div>
-          <div class="step-icon-wrap">
-            <i data-lucide="scan-face"></i>
-          </div>
-          <h3 class="step-title">Check-In with QR</h3>
-          <p class="step-desc">On event day, volunteers scan QR codes at the gate. Real-time attendance updates flow straight to your dashboard.</p>
+          <span class="step-badge">3</span>
+          <h3 class="step-title">Scan &amp; Analyze</h3>
+          <p class="step-desc">On event day, volunteers scan tickets at gate check-ins while organizers track attendance analytics live on the dashboard.</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ===== ANALYTICS SPOTLIGHT ===== -->
-  <section class="section analytics-section">
-    <div class="container analytics-spotlight">
-      <div class="analytics-img" data-animate>
-        <div class="analytics-glow"></div>
-        <img src="eventhub_dashboard_feature.jpg" alt="EventHub analytics dashboard" class="analytics-img-el" loading="lazy" />
+  <section class="section spotlight-section" id="analytics">
+    <div class="container spotlight-grid">
+      <div class="spotlight-image-card" data-animate>
+        <img src="eventhub_dashboard_feature.jpg" alt="EventHub analytics and metrics overview" class="spotlight-image" loading="lazy" />
       </div>
-      <div class="analytics-text" data-animate>
-        <div class="section-badge">Analytics</div>
-        <h2 class="section-title" style="text-align:left;">Data-driven decisions,<br/><span class="gradient-text">event after event</span></h2>
-        <p class="section-subtitle" style="text-align:left;">Know exactly how your event is performing with real-time graphs, registration funnels, and post-event reports.</p>
-        <div class="analytics-stats">
-          <div class="a-stat">
-            <span class="a-stat-num">Real-Time</span>
-            <span class="a-stat-label">Registration Feed</span>
-          </div>
-          <div class="a-stat">
-            <span class="a-stat-num">1-Click</span>
-            <span class="a-stat-label">CSV Export</span>
-          </div>
-          <div class="a-stat">
-            <span class="a-stat-num">∞</span>
-            <span class="a-stat-label">Data Retention</span>
-          </div>
-        </div>
+      <div class="spotlight-text" data-animate>
+        <div class="section-badge">Live Intelligence</div>
+        <h2 class="section-title" style="text-align:left;">Data-driven clarity,<br/><span class="m3-gradient-text">every step of the way</span></h2>
+        <p class="section-subtitle" style="text-align:left;">Stay on top of registrations, track attendance throughput during peak check-in hours, and export audit-ready reports with a single click.</p>
+        <ul class="spotlight-list">
+          <li>
+            <span class="spotlight-list-icon"><i data-lucide="check"></i></span>
+            <span>Real-time registration growth graphs and conversion rates</span>
+          </li>
+          <li>
+            <span class="spotlight-list-icon"><i data-lucide="check"></i></span>
+            <span>One-click CSV/Excel export for college administration reports</span>
+          </li>
+          <li>
+            <span class="spotlight-list-icon"><i data-lucide="check"></i></span>
+            <span>Multi-admin roles to share insights with faculty advisors</span>
+          </li>
+        </ul>
+        <a href="dashboard.html" class="btn btn-tonal btn-lg">
+          <i data-lucide="layout-dashboard"></i>
+          Open Organizer Dashboard
+        </a>
       </div>
     </div>
   </section>
-
-
-
-
 
   <!-- ===== FAQ ===== -->
   <section class="section" id="faq">
     <div class="container faq-container">
       <div class="section-header">
-        <div class="section-badge">FAQ</div>
+        <div class="section-badge">Support &amp; FAQ</div>
         <h2 class="section-title">Frequently asked questions</h2>
-        <p class="section-subtitle">Got questions? We've got answers. Reach out if you need more help.</p>
+        <p class="section-subtitle">Everything you need to know about setting up and running your event on EventHub.</p>
       </div>
 
       <div class="faq-list">
         <div class="faq-item" data-animate>
-          <button class="faq-question" id="faq-1">
-            Is EventHub really free to start?
+          <button class="faq-question" id="faq-1" aria-expanded="false">
+            Is EventHub completely free for student organizers?
             <i data-lucide="chevron-down" class="faq-icon"></i>
           </button>
           <div class="faq-answer">
-            <p>Yes! Our Free plan lets you manage up to 100 registrations per event with full QR ticket and check-in support. No credit card required.</p>
+            <p>Yes! EventHub is built specifically to support student communities, hackathon organizers, and college clubs with free access to registration portals, QR check-in tools, and live analytics.</p>
           </div>
         </div>
         <div class="faq-item" data-animate>
-          <button class="faq-question" id="faq-2">
-            Do attendees need to download an app?
+          <button class="faq-question" id="faq-2" aria-expanded="false">
+            Do attendees or volunteers need to install a mobile app?
             <i data-lucide="chevron-down" class="faq-icon"></i>
           </button>
           <div class="faq-answer">
-            <p>Absolutely not. Attendees register via a web link and receive a QR ticket by email. Volunteers scan QR codes directly in a web browser — no app installation for anyone.</p>
+            <p>No app installation is required. Everything runs in standard web browsers on Android and iOS devices. Tickets arrive via email and web links, while volunteers scan passes directly via the mobile web scanner.</p>
           </div>
         </div>
         <div class="faq-item" data-animate>
-          <button class="faq-question" id="faq-3">
-            Can I use EventHub for paid ticketing?
+          <button class="faq-question" id="faq-3" aria-expanded="false">
+            Can multiple team members scan tickets simultaneously?
             <i data-lucide="chevron-down" class="faq-icon"></i>
           </button>
           <div class="faq-answer">
-            <p>Yes! Pro and Enterprise plans support payment collection via Razorpay and Stripe integrations. Ticket revenue goes directly to your account.</p>
+            <p>Yes. You can have multiple volunteers scanning at different entry gates at the same time. The database synchronizes live to prevent duplicate check-ins.</p>
           </div>
         </div>
         <div class="faq-item" data-animate>
-          <button class="faq-question" id="faq-4">
-            How many team members can scan at once?
+          <button class="faq-question" id="faq-4" aria-expanded="false">
+            What happens if venue Wi-Fi becomes unstable?
             <i data-lucide="chevron-down" class="faq-icon"></i>
           </button>
           <div class="faq-answer">
-            <p>On the Pro plan, up to 10 team members can scan simultaneously in real-time. The system syncs instantly so there are zero duplicate check-ins.</p>
+            <p>EventHub scanner leverages local client-side verification caching so scans continue seamlessly even during momentary network drops, synchronizing once connectivity is restored.</p>
           </div>
         </div>
         <div class="faq-item" data-animate>
-          <button class="faq-question" id="faq-5">
-            What happens if we lose internet on event day?
+          <button class="faq-question" id="faq-5" aria-expanded="false">
+            Can I export registration and check-in records?
             <i data-lucide="chevron-down" class="faq-icon"></i>
           </button>
           <div class="faq-answer">
-            <p>Our QR scanner supports offline mode. Scans are cached locally and synced automatically once the connection is restored. Your event won't stop for a bad Wi-Fi signal.</p>
-          </div>
-        </div>
-        <div class="faq-item" data-animate>
-          <button class="faq-question" id="faq-6">
-            Can I export the attendee list?
-            <i data-lucide="chevron-down" class="faq-icon"></i>
-          </button>
-          <div class="faq-answer">
-            <p>Yes. You can export registrant and attendance data as CSV or Excel at any time — before, during, or after the event.</p>
+            <p>Yes, all attendee data, timestamps, and check-in statuses can be exported as CSV spreadsheets anytime from your dashboard for sponsorship or university record-keeping.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ===== CTA BANNER ===== -->
+  <!-- ===== CALL TO ACTION ===== -->
   <section class="cta-section">
-    <div class="cta-bg-orb cta-orb1"></div>
-    <div class="cta-bg-orb cta-orb2"></div>
     <div class="container cta-content">
-      <h2 class="cta-title">Ready to run your best event yet?</h2>
-      <p class="cta-subtitle">Get started free — no credit card needed.</p>
+      <h2 class="cta-title">Ready to elevate your campus events?</h2>
+      <p class="cta-subtitle">Launch your event page in minutes with verified QR ticketing and real-time dashboard analytics.</p>
       <div class="cta-actions">
-        <a href="register.html" class="btn btn-white btn-lg" id="cta-final-primary">🚀 Create Your Event Free</a>
-        <a href="#" class="btn btn-ghost-white btn-lg" id="cta-final-secondary">Talk to Sales</a>
+        <a href="register.html" class="btn btn-primary btn-lg" id="cta-final-primary">
+          <i data-lucide="sparkles"></i>
+          Create Your Event Free
+        </a>
+        <a href="dashboard.html" class="btn btn-outline btn-lg" id="cta-final-secondary">
+          <i data-lucide="layout-dashboard"></i>
+          View Dashboard
+        </a>
       </div>
     </div>
   </section>
@@ -419,7 +605,7 @@
           <span class="logo-icon">⚡</span>
           <span class="logo-text">Event<span class="logo-accent">Hub</span></span>
         </a>
-        <p class="footer-tagline">The smartest way to run campus events. Built for student organisers, by people who get it.</p>
+        <p class="footer-tagline">The modern standard for college festivals, hackathons, and student community events.</p>
         <div class="social-links">
           <a href="#" class="social-link" aria-label="Twitter" id="social-twitter"><i data-lucide="twitter"></i></a>
           <a href="#" class="social-link" aria-label="Instagram" id="social-instagram"><i data-lucide="instagram"></i></a>
@@ -428,40 +614,34 @@
         </div>
       </div>
       <div class="footer-links-group">
-        <h4 class="footer-heading">Product</h4>
-        <a href="#" class="footer-link">Features</a>
-        <a href="#" class="footer-link">Pricing</a>
-        <a href="#" class="footer-link">Changelog</a>
-        <a href="#" class="footer-link">Roadmap</a>
+        <h4 class="footer-heading">Platform</h4>
+        <a href="#features" class="footer-link">Features</a>
+        <a href="#qr-spotlight" class="footer-link">QR Ticketing</a>
+        <a href="#analytics" class="footer-link">Analytics</a>
+        <a href="create-event.html" class="footer-link">Create Event</a>
       </div>
       <div class="footer-links-group">
-        <h4 class="footer-heading">Use Cases</h4>
-        <a href="#" class="footer-link">Hackathons</a>
+        <h4 class="footer-heading">Solutions</h4>
         <a href="#" class="footer-link">College Fests</a>
-        <a href="#" class="footer-link">Workshops</a>
-        <a href="#" class="footer-link">Sports Events</a>
+        <a href="#" class="footer-link">Hackathons</a>
+        <a href="#" class="footer-link">Workshops &amp; Talks</a>
+        <a href="#" class="footer-link">Club Meetups</a>
       </div>
       <div class="footer-links-group">
-        <h4 class="footer-heading">Company</h4>
-        <a href="#" class="footer-link">About</a>
-        <a href="#" class="footer-link">Blog</a>
-        <a href="#" class="footer-link">Careers</a>
-        <a href="#" class="footer-link">Contact</a>
-      </div>
-      <div class="footer-links-group">
-        <h4 class="footer-heading">Legal</h4>
+        <h4 class="footer-heading">Security &amp; Legal</h4>
         <a href="#" class="footer-link">Privacy Policy</a>
         <a href="#" class="footer-link">Terms of Service</a>
-        <a href="#" class="footer-link">Cookie Policy</a>
-        <a href="#" class="footer-link">Security</a>
+        <a href="#" class="footer-link">Security Overview</a>
+        <a href="#" class="footer-link">Contact Support</a>
       </div>
     </div>
-    <div class="footer-bottom">
-      <p>© 2025 EventHub. All rights reserved. Made with ❤️ for student organisers across India.</p>
+    <div class="container footer-bottom">
+      <p>© 2026 EventHub. Designed with Material Design 3 Expressive standards.</p>
+      <p>Built with ❤️ for student organizers.</p>
     </div>
   </footer>
 
-  <!-- Back to Top -->
+  <!-- Back to Top FAB -->
   <button class="back-to-top" id="back-to-top" aria-label="Back to top">
     <i data-lucide="arrow-up"></i>
   </button>
