@@ -13,56 +13,131 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
+  <!-- Apply saved theme BEFORE render -->
+  <script>
+    (function(){
+      const saved = localStorage.getItem('eventhub_theme') || 'dark';
+      const pref  = saved === 'system'
+        ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+        : saved;
+      document.documentElement.setAttribute('data-theme', pref);
+    })();
+  </script>
+
+  <link rel="stylesheet" href="style.css" />
+
   <style>
-    :root {
-      --md-sys-color-primary: #d0bcff;
-      --md-sys-color-on-primary: #381e72;
-      --md-sys-color-primary-container: #4f378b;
-      --md-sys-color-on-primary-container: #eaddff;
-      --md-sys-color-secondary-container: #4a4458;
-      --md-sys-color-on-secondary-container: #e8def8;
-      --md-sys-color-tertiary-container: #633b48;
-      --md-sys-color-on-tertiary-container: #ffd8e4;
-      --md-sys-color-surface: #141218;
-      --md-sys-color-surface-container-lowest: #0f0d13;
-      --md-sys-color-surface-container-low: #1d1b20;
-      --md-sys-color-surface-container: #211f26;
-      --md-sys-color-surface-container-high: #2b2930;
-      --md-sys-color-surface-container-highest: #36343b;
-      --md-sys-color-on-surface: #e6e0e9;
-      --md-sys-color-on-surface-variant: #cac4d0;
-      --md-sys-color-outline: #938f99;
-      --md-sys-color-outline-variant: #49454f;
-      --md-sys-color-error: #f2b8b5;
-      --md-sys-color-error-container: #8c1d18;
-      --md-sys-color-on-error-container: #f9dedc;
-      --md-sys-color-success-container: #005322;
-      --md-sys-color-success: #6dd58c;
-
-      --md-sys-shape-corner-small: 8px;
-      --md-sys-shape-corner-medium: 12px;
-      --md-sys-shape-corner-large: 16px;
-      --md-sys-shape-corner-extra-large: 28px;
-      --md-sys-shape-corner-full: 9999px;
-
-      --md-sys-typescale-brand-font: 'Outfit', sans-serif;
-      --md-sys-typescale-plain-font: 'Inter', 'Roboto Flex', sans-serif;
-      --transition: 0.25s cubic-bezier(0.2, 0, 0, 1);
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 16px; color-scheme: dark; }
     body {
-      font-family: var(--md-sys-typescale-plain-font);
+      min-height: 100vh;
       background-color: var(--md-sys-color-surface);
       color: var(--md-sys-color-on-surface);
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 1.15fr 1fr;
+      display: flex;
+      flex-direction: column;
       overflow-x: hidden;
     }
-    a { text-decoration: none; color: inherit; }
-    button { cursor: pointer; font-family: inherit; border: none; background: none; }
+
+    /* M3 Top App Bar */
+    .login-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 36px;
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      background-color: var(--md-sys-color-surface);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+    }
+    [data-theme="light"] .login-topbar {
+      background-color: var(--md-sys-color-surface);
+    }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 1.35rem;
+      font-weight: 800;
+      text-decoration: none;
+      color: var(--md-sys-color-on-surface);
+    }
+
+    .logo-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--md-sys-shape-corner-small);
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .topbar-chipset {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .m3-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 14px;
+      border-radius: var(--md-sys-shape-corner-small);
+      border: 1px solid var(--md-sys-color-outline);
+      background-color: var(--md-sys-color-surface-container-low);
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .m3-chip svg { width: 14px; height: 14px; }
+    .m3-chip:hover {
+      background-color: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface);
+      border-color: var(--md-sys-color-primary);
+    }
+    .m3-chip.active {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    /* M3 Theme Switcher Button */
+    .theme-toggle-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      background-color: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface-variant);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--md-sys-motion-duration-short) ease;
+    }
+    .theme-toggle-btn:hover {
+      background-color: var(--md-sys-color-surface-container-highest);
+      color: var(--md-sys-color-on-surface);
+      border-color: var(--md-sys-color-primary);
+    }
+
+    /* Layout Split Container */
+    .auth-main-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      min-height: calc(100vh - 65px);
+    }
 
     /* LEFT BRANDING PANEL */
     .left-panel {
@@ -86,32 +161,30 @@
     .glow-1 { width: 440px; height: 440px; background: radial-gradient(circle, var(--md-sys-color-primary-container) 0%, transparent 70%); top: -60px; left: -60px; }
     .glow-2 { width: 360px; height: 360px; background: radial-gradient(circle, var(--md-sys-color-tertiary-container) 0%, transparent 70%); bottom: 40px; right: -40px; }
 
-    .panel-logo {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-family: var(--md-sys-typescale-brand-font);
-      font-size: 1.5rem;
-      font-weight: 800;
-    }
-    .panel-logo-icon {
-      width: 34px; height: 34px;
-      border-radius: var(--md-sys-shape-corner-small);
-      background: var(--md-sys-color-primary-container);
-      color: var(--md-sys-color-on-primary-container);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .panel-logo-accent { color: var(--md-sys-color-primary); }
-
     .panel-body {
       position: relative;
       z-index: 2;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      margin: 40px 0;
+      margin: auto 0;
+    }
+
+    .m3-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: var(--md-sys-shape-corner-full);
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 20px;
+      width: fit-content;
+      border: 1px solid var(--md-sys-color-outline-variant);
     }
 
     .panel-headline {
@@ -123,7 +196,7 @@
       margin-bottom: 16px;
     }
     .grad-text {
-      background: linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-tertiary-container) 100%);
+      background: linear-gradient(135deg, var(--md-sys-color-primary) 0%, var(--md-sys-color-tertiary) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -133,16 +206,16 @@
       font-size: 1.05rem;
       color: var(--md-sys-color-on-surface-variant);
       line-height: 1.65;
-      max-width: 440px;
+      max-width: 460px;
       margin-bottom: 36px;
     }
 
-    /* M3 Feature Containers */
+    /* M3 Feature Containers styled identically to dashboard cards */
     .feature-stack {
       display: flex;
       flex-direction: column;
       gap: 14px;
-      max-width: 460px;
+      max-width: 480px;
     }
 
     .m3-feature-tile {
@@ -153,16 +226,18 @@
       border: 1px solid var(--md-sys-color-outline-variant);
       border-radius: var(--md-sys-shape-corner-medium);
       padding: 16px 20px;
-      transition: border-color var(--transition);
+      transition: all var(--md-sys-motion-duration-short) ease;
     }
     .m3-feature-tile:hover {
-      border-color: var(--md-sys-color-outline);
+      border-color: var(--md-sys-color-primary);
+      background-color: var(--md-sys-color-surface-container-high);
+      transform: translateX(4px);
     }
 
     .feature-tile-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--md-sys-shape-corner-small);
+      width: 42px;
+      height: 42px;
+      border-radius: var(--md-sys-shape-corner-medium);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -175,7 +250,7 @@
     .feature-tile-text strong {
       display: block;
       font-size: 0.9375rem;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--md-sys-color-on-surface);
     }
     .feature-tile-text span {
@@ -188,6 +263,9 @@
       z-index: 2;
       font-size: 0.8125rem;
       color: var(--md-sys-color-on-surface-variant);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     /* RIGHT AUTH FORM PANEL */
@@ -201,36 +279,22 @@
       overflow-y: auto;
     }
 
-    .back-link {
-      position: absolute;
-      top: 32px;
-      left: 36px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--md-sys-color-on-surface-variant);
-      padding: 6px 14px;
-      border-radius: var(--md-sys-shape-corner-full);
-      transition: var(--transition);
-    }
-    .back-link:hover {
-      color: var(--md-sys-color-on-surface);
-      background-color: var(--md-sys-color-surface-container-high);
-    }
-
-    .form-container {
+    .auth-card-wrapper {
       width: 100%;
-      max-width: 410px;
+      max-width: 440px;
+      background-color: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-extra-large);
+      padding: 36px 32px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
     }
 
     .form-header {
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
     .form-title {
       font-family: var(--md-sys-typescale-brand-font);
-      font-size: 2rem;
+      font-size: 1.85rem;
       font-weight: 800;
       letter-spacing: -0.02em;
       margin-bottom: 6px;
@@ -239,9 +303,10 @@
     .form-subtitle {
       font-size: 0.9375rem;
       color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.5;
     }
 
-    /* Google Button conforming to Google Identity specs */
+    /* M3 Outlined Google Button */
     .google-btn {
       width: 100%;
       padding: 12px 20px;
@@ -257,7 +322,8 @@
       border-radius: var(--md-sys-shape-corner-full);
       cursor: pointer;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-      transition: var(--transition);
+      transition: all var(--md-sys-motion-duration-short) ease;
+      border: none;
     }
     .google-btn:hover {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -271,7 +337,7 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      margin: 24px 0;
+      margin: 22px 0;
     }
     .divider-line {
       flex: 1;
@@ -279,17 +345,18 @@
       background-color: var(--md-sys-color-outline-variant);
     }
     .divider-text {
-      font-size: 0.8125rem;
+      font-size: 0.75rem;
+      font-weight: 700;
       color: var(--md-sys-color-on-surface-variant);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
     }
 
-    /* M3 Outlined Form Controls */
+    /* M3 Outlined Form Controls matching Dashboard/Create-Event */
     .form {
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
     }
 
     .field {
@@ -316,24 +383,24 @@
       pointer-events: none;
       width: 18px;
       height: 18px;
-      transition: color var(--transition);
+      transition: color var(--md-sys-motion-duration-short) ease;
     }
 
     .field-input {
       width: 100%;
       padding: 13px 16px 13px 46px;
-      border-radius: var(--md-sys-shape-corner-small);
-      border: 1.5px solid var(--md-sys-color-outline);
-      background-color: var(--md-sys-color-surface-container-low);
+      border-radius: var(--md-sys-shape-corner-medium);
+      border: 1.5px solid var(--md-sys-color-outline-variant);
+      background-color: var(--md-sys-color-surface-container);
       color: var(--md-sys-color-on-surface);
       font-size: 0.9375rem;
       font-family: inherit;
       outline: none;
-      transition: var(--transition);
+      transition: all var(--md-sys-motion-duration-short) ease;
     }
     .field-input:focus {
       border-color: var(--md-sys-color-primary);
-      background-color: var(--md-sys-color-surface-container);
+      background-color: var(--md-sys-color-surface-container-high);
       box-shadow: 0 0 0 1px var(--md-sys-color-primary);
     }
     .field-wrap:focus-within .field-icon {
@@ -349,6 +416,8 @@
       align-items: center;
       padding: 4px;
       border-radius: 50%;
+      background: none;
+      border: none;
     }
     .pass-toggle:hover {
       color: var(--md-sys-color-on-surface);
@@ -363,7 +432,8 @@
       font-size: 0.8125rem;
       font-weight: 600;
       color: var(--md-sys-color-primary);
-      transition: color var(--transition);
+      text-decoration: none;
+      transition: color var(--md-sys-motion-duration-short) ease;
     }
     .forgot-link:hover {
       text-decoration: underline;
@@ -374,7 +444,7 @@
       align-items: center;
       gap: 10px;
       padding: 12px 16px;
-      border-radius: var(--md-sys-shape-corner-small);
+      border-radius: var(--md-sys-shape-corner-medium);
       background-color: var(--md-sys-color-error-container);
       color: var(--md-sys-color-on-error-container);
       font-size: 0.875rem;
@@ -399,11 +469,14 @@
       justify-content: center;
       gap: 8px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-      transition: var(--transition);
+      transition: all var(--md-sys-motion-duration-short) ease;
+      border: none;
     }
     .submit-btn:hover {
       transform: translateY(-1px);
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      background-color: var(--md-sys-color-primary-fixed);
+      color: var(--md-sys-color-on-primary-fixed);
     }
     .submit-btn.loading {
       pointer-events: none;
@@ -424,13 +497,14 @@
 
     .signup-row {
       text-align: center;
-      margin-top: 6px;
+      margin-top: 8px;
       font-size: 0.875rem;
       color: var(--md-sys-color-on-surface-variant);
     }
     .signup-row a {
       color: var(--md-sys-color-primary);
       font-weight: 600;
+      text-decoration: none;
     }
     .signup-row a:hover {
       text-decoration: underline;
@@ -460,121 +534,147 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    @media (max-width: 900px) {
-      body { grid-template-columns: 1fr; }
+    @media (max-width: 960px) {
+      .auth-main-layout { grid-template-columns: 1fr; }
       .left-panel { display: none; }
-      .right-panel { padding: 64px 24px 40px; min-height: 100vh; }
+      .right-panel { padding: 32px 20px; min-height: calc(100vh - 65px); }
+      .login-topbar { padding: 12px 20px; }
+      .auth-card-wrapper { padding: 28px 20px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- LEFT BRANDING PANEL -->
-  <div class="left-panel">
-    <div class="glow-1 ambient-glow"></div>
-    <div class="glow-2 ambient-glow"></div>
-
-    <a href="index.html" class="panel-logo">
-      <div class="panel-logo-icon">⚡</div>
-      <span>Event<span class="panel-logo-accent">Hub</span></span>
+  <!-- TOP APP BAR -->
+  <header class="login-topbar">
+    <a href="index.html" class="topbar-brand">
+      <div class="logo-badge">⚡</div>
+      <span>Event<span style="color:var(--md-sys-color-primary);">Hub</span></span>
     </a>
 
-    <div class="panel-body">
-      <h2 class="panel-headline">Your campus events,<br/><span class="grad-text">seamlessly delivered.</span></h2>
-      <p class="panel-sub">Trusted by college organizing committees to streamline registrations, generate verified QR passes, and track check‑ins live.</p>
-      
-      <div class="feature-stack">
-        <div class="m3-feature-tile">
-          <div class="feature-tile-icon primary"><i data-lucide="zap"></i></div>
-          <div class="feature-tile-text">
-            <strong>Instant QR Gate Passes</strong>
-            <span>Delivered immediately to attendees</span>
+    <div class="topbar-chipset">
+      <a href="index.html" class="m3-chip">
+        <i data-lucide="home"></i> Home
+      </a>
+      <a href="signup.html" class="m3-chip">
+        <i data-lucide="user-plus"></i> Register
+      </a>
+      <button class="theme-toggle-btn" id="theme-btn" aria-label="Toggle dark/light theme" title="Toggle Theme">
+        <i data-lucide="sun" id="theme-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN SPLIT LAYOUT -->
+  <div class="auth-main-layout">
+    <!-- LEFT BRANDING PANEL -->
+    <div class="left-panel">
+      <div class="glow-1 ambient-glow"></div>
+      <div class="glow-2 ambient-glow"></div>
+
+      <div></div>
+
+      <div class="panel-body">
+        <div class="m3-badge-pill">
+          <i data-lucide="sparkles" style="width:13px;height:13px;"></i> Material Design 3 Expressive
+        </div>
+        <h1 class="panel-headline">Your campus events,<br/><span class="grad-text">seamlessly delivered.</span></h1>
+        <p class="panel-sub">Trusted by college organizing committees to streamline registrations, generate verified QR passes, and track check‑ins live with sub-second latency.</p>
+        
+        <div class="feature-stack">
+          <div class="m3-feature-tile">
+            <div class="feature-tile-icon primary"><i data-lucide="zap"></i></div>
+            <div class="feature-tile-text">
+              <strong>Instant QR Gate Passes</strong>
+              <span>Delivered immediately to verified attendees</span>
+            </div>
+          </div>
+          <div class="m3-feature-tile">
+            <div class="feature-tile-icon success"><i data-lucide="scan-line"></i></div>
+            <div class="feature-tile-text">
+              <strong>Sub-Second Scanner</strong>
+              <span>Verify 500+ attendees at scale smoothly</span>
+            </div>
+          </div>
+          <div class="m3-feature-tile">
+            <div class="feature-tile-icon secondary"><i data-lucide="bar-chart-3"></i></div>
+            <div class="feature-tile-text">
+              <strong>Live M3 Analytics</strong>
+              <span>Attendance feed synchronization &amp; export</span>
+            </div>
           </div>
         </div>
-        <div class="m3-feature-tile">
-          <div class="feature-tile-icon success"><i data-lucide="scan-line"></i></div>
-          <div class="feature-tile-text">
-            <strong>Sub-Second Scanner</strong>
-            <span>Verify 500+ attendees in minutes</span>
-          </div>
-        </div>
-        <div class="m3-feature-tile">
-          <div class="feature-tile-icon secondary"><i data-lucide="bar-chart-3"></i></div>
-          <div class="feature-tile-text">
-            <strong>Real-Time Analytics</strong>
-            <span>Live attendance feeds &amp; CSV reporting</span>
-          </div>
-        </div>
+      </div>
+
+      <div class="panel-footer">
+        <span>© 2026 EventHub · All rights reserved</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="shield-check" style="width:14px;height:14px;color:var(--md-sys-color-success);"></i> Google Auth Protected</span>
       </div>
     </div>
 
-    <div class="panel-footer">© 2026 EventHub · Material Design 3 Expressive</div>
-  </div>
-
-  <!-- RIGHT AUTH FORM PANEL -->
-  <div class="right-panel">
-    <a href="index.html" class="back-link"><i data-lucide="arrow-left"></i> Back to home</a>
-
-    <div class="form-container">
-      <div class="form-header">
-        <h1 class="form-title">Welcome back 👋</h1>
-        <p class="form-subtitle">Sign in to manage your events and registrations.</p>
-      </div>
-
-      <!-- Google Sign-In Button -->
-      <button class="google-btn" id="btn-google" aria-label="Sign in with Google">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
-          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-        </svg>
-        Continue with Google
-      </button>
-
-      <div class="divider">
-        <div class="divider-line"></div>
-        <span class="divider-text">or continue with email</span>
-        <div class="divider-line"></div>
-      </div>
-
-      <!-- Email / Password Form -->
-      <form class="form" id="login-form" novalidate>
-        <div class="field">
-          <label class="field-label" for="email">Email address</label>
-          <div class="field-wrap">
-            <span class="field-icon"><i data-lucide="mail"></i></span>
-            <input class="field-input" type="email" id="email" placeholder="organizer@university.edu" autocomplete="email" required />
-          </div>
+    <!-- RIGHT AUTH FORM PANEL -->
+    <div class="right-panel">
+      <div class="auth-card-wrapper">
+        <div class="form-header">
+          <h2 class="form-title">Welcome back 👋</h2>
+          <p class="form-subtitle">Sign in to manage your events and registrations.</p>
         </div>
 
-        <div class="field">
-          <label class="field-label" for="password">Password</label>
-          <div class="field-wrap">
-            <span class="field-icon"><i data-lucide="lock"></i></span>
-            <input class="field-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password" required />
-            <button type="button" class="pass-toggle" id="pass-toggle" aria-label="Toggle password visibility">
-              <i data-lucide="eye" id="eye-icon"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <a href="#" class="forgot-link" id="forgot-link">Forgot password?</a>
-        </div>
-
-        <div class="error-msg" id="error-msg">
-          <i data-lucide="alert-circle"></i>
-          <span id="error-text">Invalid email or password.</span>
-        </div>
-
-        <button type="submit" class="submit-btn" id="submit-btn">
-          <span class="btn-text">Log In to EventHub</span>
-          <div class="btn-spinner"></div>
+        <!-- Google Sign-In Button -->
+        <button class="google-btn" id="btn-google" aria-label="Sign in with Google">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Continue with Google
         </button>
 
-        <p class="signup-row">New organizer? <a href="signup.html" id="signup-link">Create a free account →</a></p>
-      </form>
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">or continue with email</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <!-- Email / Password Form -->
+        <form class="form" id="login-form" novalidate>
+          <div class="field">
+            <label class="field-label" for="email">Email address</label>
+            <div class="field-wrap">
+              <span class="field-icon"><i data-lucide="mail"></i></span>
+              <input class="field-input" type="email" id="email" placeholder="organizer@university.edu" autocomplete="email" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="password">Password</label>
+            <div class="field-wrap">
+              <span class="field-icon"><i data-lucide="lock"></i></span>
+              <input class="field-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password" required />
+              <button type="button" class="pass-toggle" id="pass-toggle" aria-label="Toggle password visibility">
+                <i data-lucide="eye" id="eye-icon"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <a href="#" class="forgot-link" id="forgot-link">Forgot password?</a>
+          </div>
+
+          <div class="error-msg" id="error-msg">
+            <i data-lucide="alert-circle"></i>
+            <span id="error-text">Invalid email or password.</span>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submit-btn">
+            <span class="btn-text">Log In to EventHub</span>
+            <div class="btn-spinner"></div>
+          </button>
+
+          <p class="signup-row">New organizer? <a href="signup.html" id="signup-link">Create a free account →</a></p>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -584,7 +684,28 @@
     <span id="toast-msg">Signing you in…</span>
   </div>
 
-  <!-- Firebase SDK Auth Script -->
+  <!-- Theme Toggle & Firebase SDK Auth Script -->
+  <script>
+    // Theme toggle handling
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const themeIcon = document.getElementById('theme-icon');
+    if (themeIcon) {
+      themeIcon.setAttribute('data-lucide', currentTheme === 'light' ? 'moon' : 'sun');
+    }
+
+    document.getElementById('theme-btn')?.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+      const nextTheme = isDark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', nextTheme);
+      localStorage.setItem('eventhub_theme', nextTheme);
+      const icon = document.getElementById('theme-icon');
+      if (icon) {
+        icon.setAttribute('data-lucide', nextTheme === 'light' ? 'moon' : 'sun');
+        if (window.lucide) window.lucide.createIcons();
+      }
+    });
+  </script>
+
   <script type="module">
     import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithPopup,
