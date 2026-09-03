@@ -11,7 +11,7 @@
 
 **EventHub** is a premium, fully responsive event management landing page built for college fests, hackathons, and campus events. Features a stunning dark UI with glassmorphism, animated QR check-in spotlight, real-time analytics section, and a two-panel login page.
 
-[🚀 Live Demo](#) · [🐛 Report Bug](https://github.com/gauravkumar-ops/eventhub/issues) · [✨ Request Feature](https://github.com/gauravkumar-ops/eventhub/issues)
+[🚀 Live Demo / Website](https://eventhub-qzxx05x7q-g-xrave.vercel.app/) · [🐛 Report Bug](https://github.com/gauravkumar-ops/eventhub/issues) · [✨ Request Feature](https://github.com/gauravkumar-ops/eventhub/issues)
 
 </div>
 
