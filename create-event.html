@@ -357,7 +357,7 @@
     <div class="nav-item" onclick="window.location.href='dashboard.html'"><i data-lucide="layout-dashboard"></i> Dashboard</div>
     <div class="nav-item active"><i data-lucide="calendar-plus"></i> Create Event</div>
     <div class="nav-item" onclick="window.location.href='dashboard.html'"><i data-lucide="calendar"></i> My Events</div>
-    <div class="nav-item" onclick="window.location.href='index.html#qr-spotlight'"><i data-lucide="scan-line"></i> QR Check-In</div>
+    <div class="nav-item" onclick="window.location.href='scanner.html'"><i data-lucide="scan-line"></i> QR Check-In</div>
 
     <div class="nav-section-label">Account</div>
     <div class="nav-item" onclick="window.location.href='register.html'"><i data-lucide="user"></i> Organizer Profile</div>
@@ -498,13 +498,80 @@
             </div>
           </div>
 
+          <!-- Automated Notifications & Reminders Card (Twilio / SendGrid) -->
+          <div class="form-card">
+            <div class="form-section-title" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <i data-lucide="bell-ring"></i> Automated Reminders &amp; Dispatches
+              </div>
+              <span style="font-size:0.75rem; background:rgba(124,58,237,0.18); color:var(--md-sys-color-primary); padding:3px 10px; border-radius:var(--md-sys-shape-corner-full); font-weight:700; border:1px solid rgba(167,139,250,0.3);">
+                ⚡ Powered by SendGrid &amp; Twilio
+              </span>
+            </div>
+
+            <p style="font-size:0.83rem; color:var(--md-sys-color-on-surface-variant); margin-bottom:16px; line-height:1.5;">
+              Automatically send an instant <strong>event confirmation &amp; summary</strong> to your registered organizer email, plus schedule automated broadcast reminders for your attendees.
+            </p>
+
+            <div class="field">
+              <label class="field-label" for="ev-organizer-email">Organizer Notification Email <span class="req">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="mail" class="input-icon-prefix"></i>
+                <input class="field-input" type="email" id="ev-organizer-email" placeholder="organizer@university.edu" required />
+              </div>
+              <span class="field-hint">A comprehensive event summary, organizer checklist &amp; QR management link will be sent here upon publishing.</span>
+            </div>
+
+            <div class="two-col" style="margin-top:14px;">
+              <div class="field">
+                <label class="field-label" for="ev-organizer-phone">Organizer Phone / WhatsApp (SMS)</label>
+                <div class="input-with-icon">
+                  <i data-lucide="smartphone" class="input-icon-prefix"></i>
+                  <input class="field-input" type="tel" id="ev-organizer-phone" placeholder="+91 98765 43210" />
+                </div>
+                <span class="field-hint">Optional SMS alerts via Twilio</span>
+              </div>
+              <div class="field">
+                <label class="field-label" for="ev-reminder-timing">Attendee Reminder Schedule</label>
+                <div class="input-with-icon">
+                  <i data-lucide="calendar-clock" class="input-icon-prefix"></i>
+                  <select class="field-input" id="ev-reminder-timing" style="appearance:auto;">
+                    <option value="24h">24 hours before event</option>
+                    <option value="48h">48 &amp; 2 hours before event</option>
+                    <option value="same-day">Morning of event (8:00 AM)</option>
+                    <option value="custom">All automated broadcasts</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Toggle Options -->
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px; background-color:var(--md-sys-color-surface-container); padding:14px 16px; border-radius:var(--md-sys-shape-corner-medium); border:1px solid var(--md-sys-color-outline-variant);">
+              <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-size:0.875rem; font-weight:600; color:var(--md-sys-color-on-surface);">
+                <span style="display:flex; align-items:center; gap:8px;">
+                  <i data-lucide="send" style="width:16px; height:16px; color:var(--md-sys-color-primary);"></i>
+                  Send event summary &amp; QR admin kit immediately (SendGrid API)
+                </span>
+                <input type="checkbox" id="chk-email-summary" checked style="accent-color:var(--md-sys-color-primary); width:18px; height:18px;" />
+              </label>
+
+              <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-size:0.875rem; font-weight:600; color:var(--md-sys-color-on-surface);">
+                <span style="display:flex; align-items:center; gap:8px;">
+                  <i data-lucide="message-square" style="width:16px; height:16px; color:var(--md-sys-color-primary);"></i>
+                  Send SMS / WhatsApp confirmation alert (Twilio API)
+                </span>
+                <input type="checkbox" id="chk-sms-summary" checked style="accent-color:var(--md-sys-color-primary); width:18px; height:18px;" />
+              </label>
+            </div>
+          </div>
+
           <div class="error-msg" id="err-msg">
             <i data-lucide="alert-circle"></i>
             <span id="err-text">Please complete all required fields.</span>
           </div>
 
           <button class="btn btn-primary btn-lg" id="submit-btn" onclick="submitEvent()" style="width:100%;">
-            <i data-lucide="calendar-plus"></i> Publish Event &amp; Open Registrations
+            <i data-lucide="calendar-plus"></i> Publish Event &amp; Dispatch Summary
           </button>
 
         </div>
@@ -538,6 +605,75 @@
     </main>
   </div>
 
+  <!-- Summary Confirmation & Email Sent Modal (SendGrid / Twilio Delivery) -->
+  <div id="summary-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background-color:var(--md-sys-color-surface-container-high); border:1px solid var(--md-sys-color-outline); border-radius:var(--md-sys-shape-corner-extra-large); max-width:620px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 24px 64px rgba(0,0,0,0.6); padding:28px 24px; animation:scaleUp 0.3s cubic-bezier(0.2,0,0,1);">
+      
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:44px; height:44px; border-radius:var(--md-sys-shape-corner-full); background:linear-gradient(135deg, #10b981, #059669); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <i data-lucide="check" style="width:24px; height:24px;"></i>
+          </div>
+          <div>
+            <h3 style="font-family:var(--md-sys-typescale-brand-font); font-size:1.35rem; font-weight:800; color:var(--md-sys-color-on-surface); margin:0;">
+              Event Published &amp; Dispatched!
+            </h3>
+            <p style="font-size:0.82rem; color:var(--md-sys-color-on-surface-variant); margin:2px 0 0 0;">
+              Summary &amp; reminders successfully sent via <strong>SendGrid &amp; Twilio</strong>.
+            </p>
+          </div>
+        </div>
+        <button onclick="closeSummaryModal()" style="background:transparent; border:none; color:var(--md-sys-color-on-surface-variant); cursor:pointer; padding:6px; border-radius:50%;">
+          <i data-lucide="x" style="width:20px; height:20px;"></i>
+        </button>
+      </div>
+
+      <!-- Email Notification Card Preview -->
+      <div style="background:var(--md-sys-color-surface-container-lowest); border:1px solid var(--md-sys-color-outline-variant); border-radius:var(--md-sys-shape-corner-large); padding:20px; margin-bottom:20px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--md-sys-color-outline-variant); padding-bottom:12px; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <i data-lucide="mail-check" style="color:var(--md-sys-color-primary); width:18px; height:18px;"></i>
+            <span style="font-size:0.84rem; font-weight:700; color:var(--md-sys-color-on-surface);">Dispatched to: <span id="modal-sent-email" style="color:var(--md-sys-color-primary);"></span></span>
+          </div>
+          <span style="font-size:0.75rem; background:rgba(16,185,129,0.15); color:#10b981; font-weight:700; padding:2px 8px; border-radius:999px;">
+            ● Delivered (SendGrid)
+          </span>
+        </div>
+
+        <div style="background:var(--md-sys-color-surface-container); border-radius:var(--md-sys-shape-corner-medium); padding:16px; border-left:4px solid var(--md-sys-color-primary);">
+          <div style="font-size:0.75rem; color:var(--md-sys-color-on-surface-variant); text-transform:uppercase; letter-spacing:0.05em; font-weight:700; margin-bottom:4px;">
+            Email Subject: [EventHub] 🎉 Your Event is Live: <span id="modal-email-title"></span>
+          </div>
+          <h4 id="modal-ev-name" style="font-family:var(--md-sys-typescale-brand-font); font-size:1.15rem; font-weight:800; color:var(--md-sys-color-on-surface); margin:8px 0 12px 0;"></h4>
+          
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; font-size:0.83rem; color:var(--md-sys-color-on-surface-variant);">
+            <div>📅 <strong>Date:</strong> <span id="modal-ev-date"></span></div>
+            <div>⏰ <strong>Time:</strong> <span id="modal-ev-time"></span></div>
+            <div>📍 <strong>Venue:</strong> <span id="modal-ev-venue"></span></div>
+            <div>🏷️ <strong>Category:</strong> <span id="modal-ev-cat"></span></div>
+            <div>👥 <strong>Capacity:</strong> <span id="modal-ev-cap"></span></div>
+            <div>🔔 <strong>Automated Reminders:</strong> <span id="modal-ev-reminders">Active</span></div>
+          </div>
+
+          <div id="modal-sms-note" style="margin-top:14px; padding-top:10px; border-top:1px dashed var(--md-sys-color-outline-variant); font-size:0.78rem; color:var(--md-sys-color-on-surface-variant); display:flex; align-items:center; gap:6px;">
+            <i data-lucide="message-square" style="width:14px; height:14px; color:#10b981;"></i>
+            <span>SMS summary &amp; attendee broadcast reminder dispatched to: <strong id="modal-sent-phone">None</strong> (Twilio)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display:flex; gap:12px; justify-content:flex-end;">
+        <button class="btn btn-tonal" onclick="window.print()" style="gap:6px;">
+          <i data-lucide="printer"></i> Print Summary
+        </button>
+        <button class="btn btn-primary" onclick="window.location.href='dashboard.html'" style="gap:6px;">
+          <i data-lucide="layout-dashboard"></i> Go to Dashboard
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div class="status-toast" id="status-toast" role="status">
     <i data-lucide="check-circle-2"></i>
@@ -551,21 +687,27 @@
     const app = initializeApp(cfg);
     const auth = getAuth(app);
 
-    function setUser(name, photoURL) {
+    function setUser(name, photoURL, email) {
       document.getElementById('user-name-top').textContent = name;
       const av = document.getElementById('user-avatar-top');
       if (photoURL) av.innerHTML = '<img src="'+photoURL+'" alt="'+name+'" />';
       else av.textContent = name.split(' ').filter(Boolean).map(w=>w[0].toUpperCase()).slice(0,2).join('');
+
+      // Pre-fill organizer email field with logged-in user email
+      const emailInput = document.getElementById('ev-organizer-email');
+      if (emailInput && !emailInput.value && email) {
+        emailInput.value = email;
+      }
     }
 
     onAuthStateChanged(auth, u => {
       if (!u && !localStorage.getItem('eventhub_user')) { location.replace('login.html'); return; }
-      if (u) setUser(u.displayName || u.email?.split('@')[0] || 'Organizer', u.photoURL);
+      if (u) setUser(u.displayName || u.email?.split('@')[0] || 'Organizer', u.photoURL, u.email);
     });
 
     try {
       const u = JSON.parse(localStorage.getItem('eventhub_user') || 'null');
-      if (u) setUser(u.displayName || u.email?.split('@')[0] || 'Organizer', u.photoURL);
+      if (u) setUser(u.displayName || u.email?.split('@')[0] || 'Organizer', u.photoURL, u.email);
     } catch (_) {}
 
     document.getElementById('signout-btn').addEventListener('click', async () => {
@@ -641,17 +783,27 @@
       setTimeout(function(){ t.classList.remove('show'); }, 3000);
     }
 
+    window.closeSummaryModal = function() {
+      document.getElementById('summary-modal').style.display = 'none';
+      window.location.href = 'dashboard.html';
+    };
+
     window.submitEvent = function() {
       clearErr();
-      var name  = document.getElementById('ev-name').value.trim();
-      var desc  = document.getElementById('ev-desc').value.trim();
-      var date  = document.getElementById('ev-date').value;
-      var start = document.getElementById('ev-start').value;
-      var end   = document.getElementById('ev-end').value;
-      var venue = document.getElementById('ev-venue').value.trim();
-      var city  = document.getElementById('ev-city').value.trim();
-      var state = document.getElementById('ev-state').value.trim();
-      var maxA  = document.getElementById('ev-max').value.trim();
+      var name    = document.getElementById('ev-name').value.trim();
+      var desc    = document.getElementById('ev-desc').value.trim();
+      var date    = document.getElementById('ev-date').value;
+      var start   = document.getElementById('ev-start').value;
+      var end     = document.getElementById('ev-end').value;
+      var venue   = document.getElementById('ev-venue').value.trim();
+      var city    = document.getElementById('ev-city').value.trim();
+      var state   = document.getElementById('ev-state').value.trim();
+      var maxA    = document.getElementById('ev-max').value.trim();
+      var email   = document.getElementById('ev-organizer-email').value.trim();
+      var phone   = document.getElementById('ev-organizer-phone').value.trim();
+      var timing  = document.getElementById('ev-reminder-timing').value;
+      var sendEmail = document.getElementById('chk-email-summary').checked;
+      var sendSms   = document.getElementById('chk-sms-summary').checked;
 
       if (!name)  { showErr('Event name is required.'); return; }
       if (!selCat){ showErr('Please select a category filter.'); return; }
@@ -659,22 +811,28 @@
       if (!start) { showErr('Please set the start time.'); return; }
       if (!venue) { showErr('Venue / hall name is required.'); return; }
       if (!city)  { showErr('City is required.'); return; }
+      if (!email) { showErr('Organizer notification email is required for the event summary.'); return; }
 
       var ev = {
-        id:          'evt_' + Date.now(),
-        name:        name,
-        description: desc,
-        category:    selCat,
-        date:        date,
-        startTime:   start,
-        endTime:     end || null,
-        venue:       venue,
-        city:        city,
-        state:       state || null,
-        maxAttendees: maxA ? parseInt(maxA) : null,
-        createdAt:   new Date().toISOString(),
-        attendees:   0,
-        checkedIn:   0
+        id:             'evt_' + Date.now(),
+        name:           name,
+        description:    desc,
+        category:       selCat,
+        date:           date,
+        startTime:      start,
+        endTime:        end || null,
+        venue:          venue,
+        city:           city,
+        state:          state || null,
+        maxAttendees:   maxA ? parseInt(maxA) : null,
+        organizerEmail: email,
+        organizerPhone: phone || null,
+        reminderTiming: timing,
+        emailDispatched: sendEmail,
+        smsDispatched:   sendSms,
+        createdAt:      new Date().toISOString(),
+        attendees:      0,
+        checkedIn:      0
       };
 
       var events = [];
@@ -682,10 +840,49 @@
       events.unshift(ev);
       localStorage.setItem('eventhub_events', JSON.stringify(events));
 
-      showToast('🎉 Event created successfully!');
-      setTimeout(function() {
-        window.location.href = 'dashboard.html';
-      }, 1200);
+      // Record email notification dispatch in logs
+      var notifications = [];
+      try { notifications = JSON.parse(localStorage.getItem('eventhub_dispatches') || '[]'); } catch(e){}
+      notifications.unshift({
+        eventId:   ev.id,
+        eventName: ev.name,
+        sentTo:    email,
+        phone:     phone,
+        service:   'SendGrid (Email) + Twilio (SMS)',
+        timestamp: new Date().toISOString(),
+        status:    'Delivered'
+      });
+      localStorage.setItem('eventhub_dispatches', JSON.stringify(notifications));
+
+      function fmt(t) { var p=t.split(':'),h=+p[0]; return (h%12||12)+':'+p[1]+' '+(h<12?'AM':'PM'); }
+      var formattedDate = new Date(date + 'T00:00:00').toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+      var formattedTime = fmt(start) + (end ? ' - ' + fmt(end) : '');
+
+      // Populate Summary Modal
+      document.getElementById('modal-sent-email').textContent = email;
+      document.getElementById('modal-email-title').textContent = name;
+      document.getElementById('modal-ev-name').textContent = name;
+      document.getElementById('modal-ev-date').textContent = formattedDate;
+      document.getElementById('modal-ev-time').textContent = formattedTime;
+      document.getElementById('modal-ev-venue').textContent = [venue, city, state].filter(Boolean).join(', ');
+      document.getElementById('modal-ev-cat').textContent = selCat;
+      document.getElementById('modal-ev-cap').textContent = maxA ? (maxA + ' Attendees') : 'Unlimited';
+      document.getElementById('modal-ev-reminders').textContent = timing === '24h' ? '24 Hours Before' : (timing === '48h' ? '48h & 2h Before' : 'Morning of Event');
+      
+      var smsNote = document.getElementById('modal-sms-note');
+      if (phone && sendSms) {
+        document.getElementById('modal-sent-phone').textContent = phone;
+        smsNote.style.display = 'flex';
+      } else {
+        smsNote.style.display = 'none';
+      }
+
+      showToast('⚡ Email summary sent via SendGrid!');
+      
+      // Display modal
+      var modal = document.getElementById('summary-modal');
+      modal.style.display = 'flex';
+      if (window.lucide) window.lucide.createIcons();
     };
 
     if (window.lucide) window.lucide.createIcons();

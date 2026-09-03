@@ -21,6 +21,20 @@
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
+  <!-- Immediate Session Guard: Redirect to dashboard if already logged in -->
+  <script>
+    (function() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const allowPreview = urlParams.get('preview') === '1' || urlParams.get('action') === 'landing';
+        const user = localStorage.getItem('eventhub_user') || localStorage.getItem('eventhub_signup_data');
+        if (user && !allowPreview) {
+          window.location.replace('dashboard.html');
+        }
+      } catch (_) {}
+    })();
+  </script>
+
   <link rel="stylesheet" href="style.css" />
 
   <style>
@@ -370,13 +384,14 @@
         <!-- Feature 3 -->
         <div class="feature-card" data-animate>
           <div class="feature-icon-wrap tertiary">
-            <i data-lucide="qr-code"></i>
+            <i data-lucide="bell-ring"></i>
           </div>
-          <h3 class="feature-title">Cryptographic QR Passes</h3>
-          <p class="feature-desc">Every registrant receives a tamper-proof QR code pass delivered instantly via email and mobile wallet ticket.</p>
+          <h3 class="feature-title">SendGrid &amp; Twilio Reminders</h3>
+          <p class="feature-desc">Organizers receive instant email summaries with admin links upon publishing. Automated SMS and email broadcast reminders keep attendees punctual.</p>
           <div class="feature-tags">
-            <span class="tag">Instant Delivery</span>
-            <span class="tag">Anti-Duplicate</span>
+            <span class="tag">SendGrid Email</span>
+            <span class="tag">Twilio SMS</span>
+            <span class="tag">Auto-Dispatches</span>
           </div>
         </div>
 

@@ -25,14 +25,14 @@ const allowPreview = urlParams.get('preview') === '1' || urlParams.get('action')
 
 (function checkSession() {
   try {
-    const cached = localStorage.getItem('eventhub_user');
+    const cached = localStorage.getItem('eventhub_user') || localStorage.getItem('eventhub_signup_data');
     if (cached && !allowPreview) {
       window.location.replace('dashboard.html');
       return;
     }
     if (cached) {
       const u = JSON.parse(cached);
-      renderUserNav(u.displayName || u.email?.split('@')[0], u.photoURL, u.email);
+      renderUserNav(u.displayName || u.fullName || u.email?.split('@')[0], u.photoURL, u.email);
     }
   } catch (_) {}
 })();

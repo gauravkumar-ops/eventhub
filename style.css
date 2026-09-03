@@ -197,14 +197,44 @@
   --md-sys-state-focus-opacity:            0.12;
   --md-sys-state-pressed-opacity:          0.16;
 
-  /* Motion & Transitions (M3 Standard & Emphasized Easing) */
+  /* ============================================================
+     M3 EXPRESSIVE MOTION SYSTEM (Spring Physics & Emphasized Curves)
+     ============================================================ */
   --md-sys-motion-easing-emphasized:       cubic-bezier(0.2, 0, 0, 1);
-  --md-sys-motion-easing-decelerate:       cubic-bezier(0.05, 0.7, 0.1, 1);
-  --md-sys-motion-easing-accelerate:       cubic-bezier(0.3, 0, 0.8, 0.15);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-sys-motion-easing-standard:         cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --md-sys-motion-easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
+  
+  /* M3 Expressive Spring Physics Simulation */
+  --md-sys-motion-easing-spring-fast:      cubic-bezier(0.175, 0.885, 0.32, 1.175);
+  --md-sys-motion-easing-spring-expressive: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --md-sys-motion-easing-spring-bouncy:     cubic-bezier(0.68, -0.6, 0.32, 1.6);
+
+  /* M3 Expressive Durations */
+  --md-sys-motion-duration-short1:         50ms;
+  --md-sys-motion-duration-short2:         100ms;
+  --md-sys-motion-duration-short3:         150ms;
+  --md-sys-motion-duration-short4:         200ms;
+  --md-sys-motion-duration-medium1:        250ms;
+  --md-sys-motion-duration-medium2:        300ms;
+  --md-sys-motion-duration-medium3:        350ms;
+  --md-sys-motion-duration-medium4:        400ms;
+  --md-sys-motion-duration-long1:          450ms;
+  --md-sys-motion-duration-long2:          500ms;
+  --md-sys-motion-duration-long3:          550ms;
+  --md-sys-motion-duration-long4:          600ms;
+  --md-sys-motion-duration-extra-long1:    700ms;
+  --md-sys-motion-duration-extra-long2:    800ms;
+
   --md-sys-motion-duration-short:          200ms;
   --md-sys-motion-duration-medium:         350ms;
   --md-sys-motion-duration-long:           500ms;
-  --transition:                            0.25s cubic-bezier(0.2, 0, 0, 1);
+
+  --transition:                            var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
+  --transition-spring:                     var(--md-sys-motion-duration-medium4) var(--md-sys-motion-easing-spring-expressive);
+  --transition-fast:                       var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized);
 
   --nav-h:                                 72px;
   --sidebar-w:                             270px;
@@ -329,7 +359,7 @@ img {
 }
 
 /* ============================================================
-   M3 EXPRESSIVE BUTTONS (5 Canonical Variants)
+   M3 EXPRESSIVE BUTTONS (5 Canonical Variants + Springs)
    ============================================================ */
 .btn {
   display: inline-flex;
@@ -343,7 +373,11 @@ img {
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.01em;
-  transition: all var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-emphasized);
+  transition: transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-spring-expressive),
+              background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized),
+              box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized),
+              color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized),
+              border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized);
   position: relative;
   overflow: hidden;
   user-select: none;
@@ -351,7 +385,8 @@ img {
 }
 
 .btn:active {
-  transform: scale(0.97);
+  transform: scale(0.95);
+  transition-duration: var(--md-sys-motion-duration-short1);
 }
 
 /* 1. Filled Button (High Emphasis) */
@@ -363,8 +398,8 @@ img {
 .btn-primary:hover {
   background-color: var(--md-sys-color-primary-fixed);
   color: var(--md-sys-color-on-primary-fixed);
-  box-shadow: 0 4px 12px rgba(208, 188, 255, 0.35);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(208, 188, 255, 0.4);
+  transform: translateY(-2px) scale(1.02);
 }
 
 /* 2. Tonal Button (Medium Emphasis) */
@@ -375,7 +410,8 @@ img {
 .btn-tonal:hover, .btn-secondary:hover {
   background-color: var(--md-sys-color-surface-container-highest);
   color: var(--md-sys-color-on-surface);
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
 }
 
 /* 3. Outlined Button */
@@ -387,6 +423,8 @@ img {
 .btn-outline:hover {
   background-color: var(--md-sys-color-surface-container-high);
   border-color: var(--md-sys-color-primary);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 /* 4. Text / Ghost Button (Low Emphasis) */
@@ -396,6 +434,7 @@ img {
 }
 .btn-ghost:hover, .btn-text:hover {
   background-color: var(--md-sys-color-surface-container-high);
+  transform: translateY(-1px);
 }
 
 /* 5. Elevated Button */
@@ -406,7 +445,8 @@ img {
 }
 .btn-elevated:hover {
   background-color: var(--md-sys-color-surface-container);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.35);
+  transform: translateY(-2px) scale(1.02);
 }
 
 /* Button Sizing */
@@ -940,14 +980,17 @@ textarea.field-input {
   padding: 36px;
   display: flex;
   flex-direction: column;
-  transition: all var(--md-sys-motion-duration-short) ease;
+  transition: transform var(--md-sys-motion-duration-medium3) var(--md-sys-motion-easing-spring-expressive),
+              background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized),
+              border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized),
+              box-shadow var(--md-sys-motion-duration-medium3) var(--md-sys-motion-easing-emphasized);
 }
 
 .feature-card:hover {
   background-color: var(--md-sys-color-surface-container);
   border-color: var(--md-sys-color-primary);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
 }
 
 .feature-icon-wrap {

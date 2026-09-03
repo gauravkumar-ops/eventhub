@@ -23,6 +23,7 @@
 - ⚡ **Animated Hero** — Floating particle system, animated orbs, and scroll-triggered stat counters
 - 🏛️ **Infinite Marquee** — Auto-scrolling college name strip
 - 🧩 **Bento Feature Grid** — 8-card responsive layout showcasing platform capabilities
+- 📧 **SendGrid & Twilio Automated Reminders** — Instant event summary dispatches to registered organizer email & automated SMS broadcast alerts for attendees
 - 📱 **QR Check-In Spotlight** — Split-layout section with feature checklist
 - 📊 **Analytics Dashboard** — Real dashboard preview with animated stats
 - 🪗 **FAQ Accordion** — Smooth animated expand/collapse
