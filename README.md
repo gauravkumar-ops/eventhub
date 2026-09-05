@@ -37,14 +37,19 @@
 
 ```
 eventhub/
+├── assets/
+│   └── images/                   # High-res UI showcases & feature assets
 ├── index.html                    # Main landing page
-├── login.html                    # Login / auth page
-├── style.css                     # Global stylesheet
-├── app.js                        # JavaScript (animations, counters, FAQ, navbar)
-├── eventhub_hero.jpg             # Hero section background image
-├── eventhub_qr_feature.jpg       # QR check-in feature image
-├── eventhub_dashboard_feature.jpg# Analytics dashboard image
-└── README.md                     # This file
+├── login.html                    # Auth / sign-in portal
+├── signup.html                   # Onboarding & registration
+├── dashboard.html                # Organizer management dashboard
+├── create-event.html             # Event creation & ticket designer
+├── ticket.html                   # Dynamic QR pass viewer
+├── scanner.html                  # Gate check-in camera scanner
+├── style.css                     # Design system & stylesheet
+├── app.js                        # Client-side routing & core logic
+├── .gitignore                    # Git exclusions
+└── README.md                     # Documentation
 ```
 
 ---

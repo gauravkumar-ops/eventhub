@@ -1,0 +1,17 @@
+# Dependencies & OS-specific files
+node_modules/
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+*.log
+
+# AI & Agent artifacts
+.agents/
+.gemini/
+.antigravity/
+
+# Sensitive environment variables & API tokens
+.env
+.env.local
+.env.*.local
