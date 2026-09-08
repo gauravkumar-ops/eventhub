@@ -1,55 +1,70 @@
 /**
  * EventHub — Firebase Configuration Loader
  * 
- * Supports reading configuration from:
- * 1. Global runtime window/env variables (e.g. injected at build time, serverless runtime, or via Vercel env script)
- * 2. Process environment variables if bundled with Vite/Webpack/Next.js/Parcel
- * 3. Default fallback configuration (API key should be set via environment variables or runtime)
+ * Supports dynamic configuration loading:
+ * 1. Asynchronously fetches /api/config from Vercel Serverless Function
+ * 2. Window globals or build-time injected environment variables
+ * 3. Fallback to localStorage or cached config
  */
 
-export const firebaseConfig = {
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth }        from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+// Default base configuration (non-sensitive project identifiers)
+export let firebaseConfig = {
   apiKey:
     (typeof window !== "undefined" && window.__ENV__?.FIREBASE_API_KEY) ||
     (typeof window !== "undefined" && window.FIREBASE_API_KEY) ||
-    (typeof process !== "undefined" && process.env?.FIREBASE_API_KEY) ||
-    (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_FIREBASE_API_KEY) ||
-    (typeof process !== "undefined" && process.env?.VITE_FIREBASE_API_KEY) ||
+    (typeof window !== "undefined" && localStorage.getItem('eventhub_firebase_api_key')) ||
     "",
-  authDomain:
-    (typeof window !== "undefined" && window.__ENV__?.FIREBASE_AUTH_DOMAIN) ||
-    (typeof window !== "undefined" && window.FIREBASE_AUTH_DOMAIN) ||
-    (typeof process !== "undefined" && process.env?.FIREBASE_AUTH_DOMAIN) ||
-    "event-hub-36864.firebaseapp.com",
-  projectId:
-    (typeof window !== "undefined" && window.__ENV__?.FIREBASE_PROJECT_ID) ||
-    (typeof window !== "undefined" && window.FIREBASE_PROJECT_ID) ||
-    (typeof process !== "undefined" && process.env?.FIREBASE_PROJECT_ID) ||
-    "event-hub-36864",
-  storageBucket:
-    (typeof window !== "undefined" && window.__ENV__?.FIREBASE_STORAGE_BUCKET) ||
-    (typeof window !== "undefined" && window.FIREBASE_STORAGE_BUCKET) ||
-    (typeof process !== "undefined" && process.env?.FIREBASE_STORAGE_BUCKET) ||
-    "event-hub-36864.firebasestorage.app",
-  messagingSenderId:
-    (typeof window !== "undefined" && window.__ENV__?.FIREBASE_MESSAGING_SENDER_ID) ||
-    (typeof window !== "undefined" && window.FIREBASE_MESSAGING_SENDER_ID) ||
-    (typeof process !== "undefined" && process.env?.FIREBASE_MESSAGING_SENDER_ID) ||
-    "260968384601",
-  appId:
-    (typeof window !== "undefined" && window.__ENV__?.FIREBASE_APP_ID) ||
-    (typeof window !== "undefined" && window.FIREBASE_APP_ID) ||
-    (typeof process !== "undefined" && process.env?.FIREBASE_APP_ID) ||
-    "1:260968384601:web:3d825f81f8f3d6351ec948"
+  authDomain: "event-hub-36864.firebaseapp.com",
+  projectId: "event-hub-36864",
+  storageBucket: "event-hub-36864.firebasestorage.app",
+  messagingSenderId: "260968384601",
+  appId: "1:260968384601:web:3d825f81f8f3d6351ec948"
 };
 
+let appInstance = null;
+let authInstance = null;
+
 /**
- * Validates that the Firebase API key is configured before making auth calls.
- * Displays a helpful warning if missing in development / preview environments.
+ * Initializes and returns the Firebase Auth instance.
+ * Automatically fetches the API key from Vercel environment endpoint `/api/config` if not already present.
  */
-export function checkFirebaseConfig() {
+export async function getFirebaseAuth() {
+  if (authInstance) return authInstance;
+
+  // If apiKey is missing, attempt to fetch from Vercel Serverless endpoint /api/config
   if (!firebaseConfig.apiKey) {
-    console.warn(
-      "[EventHub] Warning: Firebase API Key is not set. Please set FIREBASE_API_KEY in your .env or Vercel Environment Variables."
+    try {
+      const res = await fetch('/api/config');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.apiKey) {
+          firebaseConfig = { ...firebaseConfig, ...data };
+          if (typeof window !== "undefined") {
+            try { localStorage.setItem('eventhub_firebase_api_key', data.apiKey); } catch (_) {}
+          }
+        }
+      }
+    } catch (_) {
+      // Offline / non-server environment fallback
+    }
+  }
+
+  // Initialize Firebase App
+  if (!appInstance) {
+    appInstance = initializeApp(firebaseConfig);
+    authInstance = getAuth(appInstance);
+  }
+
+  return authInstance;
+}
+
+export function checkFirebaseConfig() {
+  if (!firebaseConfig.apiKey && typeof window !== "undefined" && !window.location.hostname.includes('vercel.app')) {
+    console.info(
+      "[EventHub] Firebase API key will be dynamically loaded from Vercel /api/config on deployment."
     );
   }
 }

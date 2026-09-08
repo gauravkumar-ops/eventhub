@@ -638,16 +638,14 @@
   </div>
 
   <script type="module">
-    import { initializeApp }                       from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword,
+    import { createUserWithEmailAndPassword,
              updateProfile, signInWithRedirect,
              getRedirectResult, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-    import { firebaseConfig, checkFirebaseConfig } from "./firebase-config.js";
+    import { getFirebaseAuth, checkFirebaseConfig } from "./firebase-config.js";
 
     checkFirebaseConfig();
-    const app            = initializeApp(firebaseConfig);
-    const auth           = getAuth(app);
     const googleProvider = new GoogleAuthProvider();
+    let auth = null;
 
     const GOOGLE_REDIRECT_KEY = 'eventhub_google_signup_redirect';
     const isGoogleReturn = !!sessionStorage.getItem(GOOGLE_REDIRECT_KEY);
@@ -656,25 +654,28 @@
       window.location.replace('dashboard.html');
     }
 
-    if (isGoogleReturn) {
-      const gBtn = document.getElementById('btn-google');
-      if (gBtn) {
-        gBtn.classList.add('loading');
-        gBtn.innerHTML = '<div class="btn-spinner" style="display:block; border-color: rgba(0,0,0,0.2); border-top-color: #1f1f1f;"></div>';
+    getFirebaseAuth().then((a) => {
+      auth = a;
+      if (isGoogleReturn) {
+        const gBtn = document.getElementById('btn-google');
+        if (gBtn) {
+          gBtn.classList.add('loading');
+          gBtn.innerHTML = '<div class="btn-spinner" style="display:block; border-color: rgba(0,0,0,0.2); border-top-color: #1f1f1f;"></div>';
+        }
+        getRedirectResult(auth).then((result) => {
+          sessionStorage.removeItem(GOOGLE_REDIRECT_KEY);
+          if (result && result.user) {
+            persistSession(result.user);
+            showToast('Welcome, ' + (result.user.displayName || 'Organizer') + '! Redirecting...');
+            setTimeout(() => window.location.replace('dashboard.html'), 900);
+          } else { restoreGoogleBtn(); }
+        }).catch((err) => {
+          sessionStorage.removeItem(GOOGLE_REDIRECT_KEY);
+          restoreGoogleBtn();
+          showError(err.message);
+        });
       }
-      getRedirectResult(auth).then((result) => {
-        sessionStorage.removeItem(GOOGLE_REDIRECT_KEY);
-        if (result && result.user) {
-          persistSession(result.user);
-          showToast('Welcome, ' + (result.user.displayName || 'Organizer') + '! Redirecting...');
-          setTimeout(() => window.location.replace('dashboard.html'), 900);
-        } else { restoreGoogleBtn(); }
-      }).catch((err) => {
-        sessionStorage.removeItem(GOOGLE_REDIRECT_KEY);
-        restoreGoogleBtn();
-        showError(err.message);
-      });
-    }
+    }).catch(console.error);
 
     function persistSession(user) {
       localStorage.setItem('eventhub_user', JSON.stringify({
@@ -752,8 +753,9 @@
       btn.classList.add('loading');
       btn.innerHTML = '<div class="btn-spinner" style="display:block; border-color: rgba(0,0,0,0.2); border-top-color: #1f1f1f;"></div>';
       try {
+        const a = auth || await getFirebaseAuth();
         sessionStorage.setItem(GOOGLE_REDIRECT_KEY, '1');
-        await signInWithRedirect(auth, googleProvider);
+        await signInWithRedirect(a, googleProvider);
       } catch (err) {
         sessionStorage.removeItem(GOOGLE_REDIRECT_KEY);
         restoreGoogleBtn();
@@ -775,7 +777,8 @@
       if (!terms)          { showError('Please accept the Terms of Service.'); return; }
       btn.classList.add('loading');
       try {
-        const result = await createUserWithEmailAndPassword(auth, email, pass);
+        const a = auth || await getFirebaseAuth();
+        const result = await createUserWithEmailAndPassword(a, email, pass);
         await updateProfile(result.user, { displayName: name });
         persistSession({ ...result.user, displayName: name });
 

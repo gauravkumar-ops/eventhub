@@ -604,14 +604,22 @@
 
   <!-- Firebase SDK Auth Script -->
   <script type="module">
-    import { initializeApp }      from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-    import { firebaseConfig, checkFirebaseConfig } from "./firebase-config.js";
+    import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirebaseAuth, checkFirebaseConfig } from "./firebase-config.js";
 
     checkFirebaseConfig();
-    const app            = initializeApp(firebaseConfig);
-    const auth           = getAuth(app);
     const googleProvider = new GoogleAuthProvider();
+    let auth = null;
+
+    getFirebaseAuth().then((a) => {
+      auth = a;
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          persistSession(user);
+          window.location.replace('dashboard.html');
+        }
+      });
+    }).catch(console.error);
 
     const params    = new URLSearchParams(window.location.search);
     const forceShow = params.get('action') === 'login';
@@ -619,13 +627,6 @@
     if (!forceShow && localStorage.getItem('eventhub_user')) {
       window.location.replace('dashboard.html');
     }
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        persistSession(user);
-        window.location.replace('dashboard.html');
-      }
-    });
 
     function persistSession(user) {
       localStorage.setItem('eventhub_user', JSON.stringify({
@@ -668,7 +669,8 @@
       btn.classList.add('loading');
 
       try {
-        const result = await signInWithPopup(auth, googleProvider);
+        const a = auth || await getFirebaseAuth();
+        const result = await signInWithPopup(a, googleProvider);
         if (result && result.user) {
           showToast(`Welcome back, ${result.user.displayName || 'Organizer'}!`);
           persistSession(result.user);

@@ -3,67 +3,48 @@
    Firebase imports MUST stay at the very top of the file.
    ============================================================ */
 
-import { initializeApp }                      from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-import { firebaseConfig, checkFirebaseConfig } from "./firebase-config.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getFirebaseAuth, checkFirebaseConfig } from "./firebase-config.js";
 
 checkFirebaseConfig();
-const fbApp = initializeApp(firebaseConfig);
-const auth  = getAuth(fbApp);
+let auth = null;
 
-/* ── STEP 1 — Auto-redirect or pre-render logged-in user ─────────
-   If logged in, navigate straight to dashboard.html unless ?preview=1 is requested. */
-const urlParams = new URLSearchParams(window.location.search);
-const allowPreview = urlParams.get('preview') === '1' || urlParams.get('action') === 'landing';
+getFirebaseAuth().then((a) => {
+  auth = a;
+  onAuthStateChanged(auth, (user) => {
+    const navCta = document.querySelector('.nav-cta');
+    if (!user) {
+      const cached = localStorage.getItem('eventhub_user');
+      if (cached && !allowPreview) {
+        window.location.replace('dashboard.html');
+        return;
+      }
+      if (cached) return;
 
-(function checkSession() {
-  try {
-    const cached = localStorage.getItem('eventhub_user') || localStorage.getItem('eventhub_signup_data');
-    if (cached && !allowPreview) {
+      if (navCta) {
+        navCta.innerHTML = `
+          <a href="login.html?action=login" class="btn btn-ghost" id="login-btn">Log In</a>
+          <a href="login.html?action=login" class="btn btn-primary" id="get-started-btn">Get Started Free</a>`;
+      }
+      return;
+    }
+
+    const stored = {
+      uid:         user.uid,
+      email:       user.email,
+      displayName: user.displayName || user.email?.split('@')[0] || 'Organizer',
+      photoURL:    user.photoURL || null
+    };
+    localStorage.setItem('eventhub_user', JSON.stringify(stored));
+
+    if (!allowPreview) {
       window.location.replace('dashboard.html');
       return;
     }
-    if (cached) {
-      const u = JSON.parse(cached);
-      renderUserNav(u.displayName || u.fullName || u.email?.split('@')[0], u.photoURL, u.email);
-    }
-  } catch (_) {}
-})();
 
-/* ── STEP 2 — Firebase Auth listener (authoritative) ────────── */
-onAuthStateChanged(auth, (user) => {
-  const navCta = document.querySelector('.nav-cta');
-  if (!user) {
-    const cached = localStorage.getItem('eventhub_user');
-    if (cached && !allowPreview) {
-      window.location.replace('dashboard.html');
-      return;
-    }
-    if (cached) return;
-
-    if (navCta) {
-      navCta.innerHTML = `
-        <a href="login.html?action=login" class="btn btn-ghost" id="login-btn">Log In</a>
-        <a href="login.html?action=login" class="btn btn-primary" id="get-started-btn">Get Started Free</a>`;
-    }
-    return;
-  }
-
-  const stored = {
-    uid:         user.uid,
-    email:       user.email,
-    displayName: user.displayName || user.email?.split('@')[0] || 'Organizer',
-    photoURL:    user.photoURL || null
-  };
-  localStorage.setItem('eventhub_user', JSON.stringify(stored));
-
-  if (!allowPreview) {
-    window.location.replace('dashboard.html');
-    return;
-  }
-
-  renderUserNav(stored.displayName, stored.photoURL, stored.email);
-});
+    renderUserNav(stored.displayName, stored.photoURL, stored.email);
+  });
+}).catch(console.error);
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 
@@ -138,7 +119,10 @@ function bindDropdownEvents() {
   document.getElementById('eh-signout')?.addEventListener('click', async () => {
     localStorage.removeItem('eventhub_user');
     sessionStorage.removeItem('eventhub_user');
-    try { await signOut(auth); } catch (e) { console.warn('signOut error', e); }
+    try {
+      const a = auth || await getFirebaseAuth();
+      await signOut(a);
+    } catch (e) { console.warn('signOut error', e); }
     window.location.href = 'login.html?action=login';
   });
 }

@@ -686,13 +686,11 @@
   </div>
 
   <script type="module">
-    import { initializeApp }                        from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-    import { firebaseConfig, checkFirebaseConfig } from "./firebase-config.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirebaseAuth, checkFirebaseConfig } from "./firebase-config.js";
 
     checkFirebaseConfig();
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    let auth = null;
 
     function setUser(name, photoURL, email) {
       document.getElementById('user-name-top').textContent = name;
@@ -707,10 +705,13 @@
       }
     }
 
-    onAuthStateChanged(auth, u => {
-      if (!u && !localStorage.getItem('eventhub_user')) { location.replace('login.html'); return; }
-      if (u) setUser(u.displayName || u.email?.split('@')[0] || 'Organizer', u.photoURL, u.email);
-    });
+    getFirebaseAuth().then((a) => {
+      auth = a;
+      onAuthStateChanged(auth, u => {
+        if (!u && !localStorage.getItem('eventhub_user')) { location.replace('login.html'); return; }
+        if (u) setUser(u.displayName || u.email?.split('@')[0] || 'Organizer', u.photoURL, u.email);
+      });
+    }).catch(console.error);
 
     try {
       const u = JSON.parse(localStorage.getItem('eventhub_user') || 'null');
@@ -719,7 +720,10 @@
 
     document.getElementById('signout-btn').addEventListener('click', async () => {
       localStorage.removeItem('eventhub_user');
-      try { await signOut(auth); } catch(e){}
+      try {
+        const a = auth || await getFirebaseAuth();
+        await signOut(a);
+      } catch(e){}
       location.replace('login.html');
     });
   </script>
