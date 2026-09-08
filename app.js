@@ -1,20 +1,13 @@
-﻿/* ============================================================
+/* ============================================================
    EventHub — app.js  (ES Module)
    Firebase imports MUST stay at the very top of the file.
    ============================================================ */
 
 import { initializeApp }                      from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { firebaseConfig, checkFirebaseConfig } from "./firebase-config.js";
 
-const firebaseConfig = {
-  apiKey:            "",
-  authDomain:        "event-hub-36864.firebaseapp.com",
-  projectId:         "event-hub-36864",
-  storageBucket:     "event-hub-36864.firebasestorage.app",
-  messagingSenderId: "260968384601",
-  appId:             "1:260968384601:web:3d825f81f8f3d6351ec948"
-};
-
+checkFirebaseConfig();
 const fbApp = initializeApp(firebaseConfig);
 const auth  = getAuth(fbApp);
 

@@ -1260,51 +1260,215 @@ textarea.field-input {
 /* ============================================================
    GLOBAL MOBILE OPTIMIZATIONS & FLUID RESPONSIVENESS
    ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 900px) {
+  .hero-title {
+    font-size: clamp(2rem, 6vw, 3rem);
+  }
+  .spotlight-card {
+    grid-template-columns: 1fr;
+    padding: 28px 20px;
+    gap: 28px;
+  }
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  .feature-card-large {
+    grid-column: span 1;
+  }
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+  .footer-inner,
+  .footer-top {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+}
+
 @media (max-width: 640px) {
   html {
     font-size: 15px;
   }
   .container {
     padding: 0 16px;
+    width: 100%;
+    max-width: 100%;
   }
   .section {
-    padding: 60px 0;
+    padding: 50px 0;
   }
   .section-header {
-    margin-bottom: 40px;
+    margin-bottom: 32px;
+    padding: 0 8px;
+  }
+  .section-title {
+    font-size: 1.85rem;
+  }
+  .section-subtitle {
+    font-size: 0.95rem;
   }
   .btn {
-    height: 42px;
+    height: 44px;
     padding: 0 18px;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
+  }
+  .btn-lg {
+    height: 48px;
+    padding: 0 22px;
+    font-size: 0.9375rem;
   }
   .feature-card {
-    padding: 24px;
+    padding: 20px 16px;
+    border-radius: var(--md-sys-shape-corner-large);
   }
   .spotlight-card {
-    padding: 24px;
+    padding: 20px 16px;
+    border-radius: var(--md-sys-shape-corner-large);
+  }
+  .step-card {
+    padding: 24px 18px;
+  }
+  .footer-inner,
+  .footer-top {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .footer-brand p {
+    max-width: 100%;
+  }
+  
+  /* Hero section adjustments */
+  .hero {
+    padding: 48px 0 60px;
+  }
+  .hero-badge {
+    font-size: 0.75rem;
+    padding: 6px 14px;
+    max-width: 95%;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .hero-title {
+    font-size: 2.15rem;
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  .hero-subtitle {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin-bottom: 24px;
+  }
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Hero stats responsive adjustments */
+  .hero-stats {
+    width: 100%;
+    flex-direction: column;
+    padding: 18px 14px;
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+  .hero-stat {
+    padding: 4px 0;
+    width: 100%;
+  }
+  .hero-stat-divider {
+    width: 60%;
+    height: 1px;
+    margin: 4px 0;
+  }
+  .stat-num {
+    font-size: 1.7rem;
+  }
+
+  /* Floating badge indicators positioned safely on mobile */
+  .float-card {
+    position: static;
+    margin: 12px auto 0;
+    width: fit-content;
+    max-width: 100%;
+    animation: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  }
+  .float-card-1, .float-card-2 {
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+  }
+  .hero-image-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Modal Dialogs / Overlays full mobile width */
+  .dialog, .modal, .sheet, .panel-drawer {
+    max-width: calc(100vw - 24px) !important;
+    width: 100% !important;
+    margin: 12px auto !important;
   }
 }
 
 @media (max-width: 480px) {
   html {
-    font-size: 14.5px;
+    font-size: 14px;
   }
   .hero-title {
-    font-size: 2.15rem;
+    font-size: 1.95rem;
   }
-  .hero-actions {
-    flex-direction: column;
+  .hero-badge {
+    font-size: 0.72rem;
+  }
+  .navbar {
+    padding: 0 12px;
+  }
+  .nav-inner {
     width: 100%;
   }
-  .hero-actions .btn {
-    width: 100%;
+  .logo {
+    font-size: 1.25rem;
+    gap: 8px;
+  }
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 0.875rem;
+  }
+  .back-to-top {
+    bottom: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
   }
 }
 
 /* Touch Friendly Utilities */
 @media (hover: none) and (pointer: coarse) {
-  .btn, .nav-item, .m3-chip, .user-pill, .hamburger, .sidebar-toggle-btn {
+  .btn, .nav-item, .m3-chip, .user-pill, .hamburger, .sidebar-toggle-btn, .category-btn, .mobile-nav-link {
     min-height: 44px;
     touch-action: manipulation;
   }

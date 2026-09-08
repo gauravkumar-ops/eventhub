@@ -62,23 +62,42 @@ eventhub/
 
 ### Run Locally
 
-**Option 1 — Open directly in browser:**
+**Option 1 — Open directly in browser / Local server:**
 ```bash
-# Just double-click index.html, or drag it into your browser
-```
+# 1. Copy the environment template
+cp .env.example .env
 
-**Option 2 — Serve with Python (recommended):**
-```bash
-git clone https://github.com/gauravkumar-ops/eventhub.git
-cd eventhub
+# 2. Serve with Python:
 python -m http.server 3000
 ```
 Then open **[http://localhost:3000](http://localhost:3000)**
 
-**Option 3 — Serve with Node.js:**
+**Option 2 — Serve with Node.js:**
 ```bash
 npx serve .
 ```
+
+---
+
+## ⚙️ Environment Variables & Vercel Configuration
+
+EventHub uses [`firebase-config.js`](file:///c:/Users/gaura/OneDrive/Desktop/eventhub/firebase-config.js) to dynamically resolve environment keys at runtime.
+
+### Local Development
+Create a `.env` file from the provided [`.env.example`](file:///c:/Users/gaura/OneDrive/Desktop/eventhub/.env.example):
+```env
+FIREBASE_API_KEY="your-firebase-api-key"
+VITE_FIREBASE_API_KEY="your-firebase-api-key"
+NEXT_PUBLIC_FIREBASE_API_KEY="your-firebase-api-key"
+```
+
+### Vercel Deployment
+1. Import your repository on **[Vercel](https://vercel.com/)**.
+2. Navigate to **Project Settings > Environment Variables**.
+3. Add the following key:
+   - Key: `FIREBASE_API_KEY` (or `NEXT_PUBLIC_FIREBASE_API_KEY` / `VITE_FIREBASE_API_KEY`)
+   - Value: `<Your Firebase API Key>`
+4. Redeploy project. EventHub will automatically load the environment key without exposing credentials in code commits.
 
 ---
 
