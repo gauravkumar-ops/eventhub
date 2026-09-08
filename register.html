@@ -202,8 +202,13 @@
     .field-grid { display: grid; gap: 20px; }
     .col-3 { grid-template-columns: repeat(3, 1fr); }
     .col-2 { grid-template-columns: repeat(2, 1fr); }
-    .col-1 { grid-template-columns: 1fr; }
     @media(max-width:800px) { .col-3, .col-2 { grid-template-columns: 1fr; } }
+    @media(max-width:600px) {
+      .section-card { padding: 20px 16px; }
+      .form-wrap { padding: 0 12px; }
+      .topbar { padding: 12px 14px; }
+      .topbar-chipset { display: none; }
+    }
 
     .req { color: var(--md-sys-color-error); }
 

@@ -1111,18 +1111,86 @@
       justify-content: center;
     }
 
-    /* Responsive adjustments */
+    /* Responsive & Mobile Optimizations */
+    @media (max-width: 900px) {
+      .topbar {
+        padding: 12px 18px;
+        gap: 12px;
+      }
+      .content {
+        padding: 20px 16px;
+      }
+      .welcome-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 24px 20px;
+        gap: 16px;
+      }
+      .welcome-banner .btn {
+        width: 100%;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .stat-card {
+        padding: 18px 16px;
+      }
+      .profile-dropdown {
+        width: calc(100vw - 32px);
+        max-width: 340px;
+        right: 0;
+      }
+      .settings-panel {
+        width: 95vw !important;
+        max-width: 520px;
+      }
+    }
+
     @media (max-width: 768px) {
+      body {
+        padding-bottom: 80px;
+      }
       .sidebar {
         position: fixed;
         left: 0;
         top: 0;
         bottom: 0;
+        width: 280px;
+        max-width: 85vw;
         transform: translateX(-100%);
-        transition: transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
+        z-index: 200;
+        box-shadow: 10px 0 35px rgba(0,0,0,0.55);
+        transition: transform var(--md-sys-motion-duration-medium3) var(--md-sys-motion-easing-emphasized);
+      }
+      html.sidebar-open .sidebar,
+      html.features-active .sidebar,
+      body.features-drawer-open .sidebar {
+        transform: translateX(0);
       }
       html.sidebar-collapsed .sidebar {
-        transform: translateX(0);
+        transform: translateX(-100%);
+      }
+      .mobile-menu-toggle-btn {
+        display: inline-flex !important;
+      }
+      .topbar-chipset {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      .topbar-title {
+        font-size: 1.15rem;
+      }
+      .user-pill span#user-name-top {
+        display: none;
+      }
+      .user-pill {
+        padding: 4px 6px;
       }
     }
   </style>
@@ -1311,13 +1379,31 @@
   </div>
   <div class="sp-saved-toast" id="sp-saved-toast">✓ Settings updated successfully</div>
 
+  <!-- ── BACKDROP OVERLAY FOR LEFT-SIDE FEATURES SHIFT ── -->
+  <div class="features-drawer-backdrop" id="features-drawer-backdrop" onclick="closeFeaturesDrawer()"></div>
+
   <!-- ── MAIN CONTENT ── -->
-  <div class="main">
+  <div class="main" id="main-content-region">
 
     <!-- Top App Bar with Chipset Navigation -->
     <header class="topbar">
       <div class="topbar-left">
+        <!-- Mobile/Tablet Toggle Button to Shift into Features -->
+        <button class="sidebar-toggle-btn mobile-menu-toggle-btn" id="mobile-sidebar-toggle" onclick="toggleFeaturesShift()" aria-label="Toggle Features Side" style="display:none; width:38px; height:38px; background:var(--md-sys-color-surface-container-high); border:1px solid var(--md-sys-color-outline-variant); border-radius:50%;">
+          <i data-lucide="menu" id="mobile-menu-icon"></i>
+        </button>
+
         <div class="topbar-title">Organizer Console</div>
+
+        <!-- Interactive Slide to Features Toggle Button -->
+        <button class="feature-shift-toggle-btn" id="topbar-features-slider-btn" onclick="toggleFeaturesShift()" title="Slide and shift page towards features side">
+          <i data-lucide="sliders-horizontal" style="width:14px;height:14px;color:var(--md-sys-color-primary);"></i>
+          <span>Features Side</span>
+          <div class="toggle-switch-track">
+            <div class="toggle-switch-thumb"></div>
+          </div>
+        </button>
+
         <div class="topbar-chipset">
           <button class="m3-chip active" onclick="document.getElementById('my-events-card').scrollIntoView({behavior:'smooth'})">
             <i data-lucide="calendar"></i> Events (<span id="chip-events-cnt">0</span>)
@@ -1372,6 +1458,65 @@
           <i data-lucide="plus"></i> Create New Event
         </a>
       </div>
+
+      <!-- ── INTERACTIVE FEATURE SLIDER (PAGE SHIFTER) ── -->
+      <section class="dashboard-features-slider-section" id="dashboard-features-slider">
+        <div class="feature-slider-header">
+          <div class="feature-slider-title">
+            <i data-lucide="sparkles"></i>
+            <span>Features Hub — Interactive Slider</span>
+          </div>
+          <div class="feature-slider-controls">
+            <button class="feature-shift-toggle-btn" onclick="toggleFeaturesShift()" title="Click to shift page towards features side">
+              <span>Shift to Features</span>
+              <div class="toggle-switch-track">
+                <div class="toggle-switch-thumb"></div>
+              </div>
+            </button>
+            <button class="slider-nav-arrow" onclick="scrollFeatureSlider(-200)" aria-label="Slide Left">
+              <i data-lucide="chevron-left"></i>
+            </button>
+            <button class="slider-nav-arrow" onclick="scrollFeatureSlider(200)" aria-label="Slide Right">
+              <i data-lucide="chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="feature-slider-track-wrap">
+          <div class="feature-slider-track" id="feature-slider-track">
+            <div class="feature-slide-card active" onclick="handleFeatureSlideClick('dashboard')">
+              <div class="feature-slide-icon"><i data-lucide="layout-dashboard"></i></div>
+              <div class="feature-slide-name">Dashboard</div>
+              <div class="feature-slide-desc">Console &amp; Live Stats</div>
+            </div>
+            <div class="feature-slide-card" onclick="handleFeatureSlideClick('create-event')">
+              <div class="feature-slide-icon" style="background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container);"><i data-lucide="calendar-plus"></i></div>
+              <div class="feature-slide-name">Create Event</div>
+              <div class="feature-slide-desc">Build microsite &amp; tickets</div>
+            </div>
+            <div class="feature-slide-card" onclick="handleFeatureSlideClick('my-events')">
+              <div class="feature-slide-icon" style="background:var(--md-sys-color-tertiary-container);color:var(--md-sys-color-on-tertiary-container);"><i data-lucide="calendar"></i></div>
+              <div class="feature-slide-name">My Events</div>
+              <div class="feature-slide-desc">Manage registrations</div>
+            </div>
+            <div class="feature-slide-card" onclick="handleFeatureSlideClick('scanner')">
+              <div class="feature-slide-icon" style="background:var(--md-sys-color-success-container);color:var(--md-sys-color-success);"><i data-lucide="scan-line"></i></div>
+              <div class="feature-slide-name">Gate Scanner</div>
+              <div class="feature-slide-desc">Sub-second QR verification</div>
+            </div>
+            <div class="feature-slide-card" onclick="handleFeatureSlideClick('academic')">
+              <div class="feature-slide-icon"><i data-lucide="graduation-cap"></i></div>
+              <div class="feature-slide-name">Academic Profile</div>
+              <div class="feature-slide-desc">College &amp; dept records</div>
+            </div>
+            <div class="feature-slide-card" onclick="handleFeatureSlideClick('settings')">
+              <div class="feature-slide-icon"><i data-lucide="settings"></i></div>
+              <div class="feature-slide-name">System Settings</div>
+              <div class="feature-slide-desc">Themes &amp; configurations</div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <!-- Stat Metric Cards -->
       <div class="stats-grid">
@@ -1652,11 +1797,81 @@
       }
     });
 
-    // Sidebar Rail toggle logic
+    // Sidebar Rail toggle logic & Left Side Shift
     window.toggleSidebar = function() {
       const isCollapsed = document.documentElement.classList.toggle('sidebar-collapsed');
       localStorage.setItem('eventhub_sidebar_collapsed', isCollapsed ? 'true' : 'false');
       updateSidebarToggleIcon(isCollapsed);
+    };
+
+    // Features Shift Slider Toggle
+    window.toggleFeaturesShift = function() {
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        const isOpen = document.documentElement.classList.toggle('features-active');
+        document.body.classList.toggle('features-drawer-open', isOpen);
+      } else {
+        // Desktop: expand sidebar if collapsed, and highlight feature panel
+        const wasCollapsed = document.documentElement.classList.contains('sidebar-collapsed');
+        if (wasCollapsed) {
+          document.documentElement.classList.remove('sidebar-collapsed');
+          localStorage.setItem('eventhub_sidebar_collapsed', 'false');
+          updateSidebarToggleIcon(false);
+        }
+        document.documentElement.classList.toggle('features-active');
+      }
+      if (window.lucide) window.lucide.createIcons();
+    };
+
+    window.closeFeaturesDrawer = function() {
+      document.documentElement.classList.remove('features-active');
+      document.body.classList.remove('features-drawer-open');
+    };
+
+    window.scrollFeatureSlider = function(offset) {
+      const track = document.getElementById('feature-slider-track');
+      if (track) {
+        track.scrollBy({ left: offset, behavior: 'smooth' });
+      }
+    };
+
+    window.handleFeatureSlideClick = function(featureKey) {
+      // Highlight slide card
+      document.querySelectorAll('.feature-slide-card').forEach(card => card.classList.remove('active'));
+      const activeCard = event.currentTarget;
+      if (activeCard) activeCard.classList.add('active');
+
+      // Shift page smoothly towards left-side features
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        document.documentElement.classList.add('features-active');
+        document.body.classList.add('features-drawer-open');
+      } else {
+        document.documentElement.classList.remove('sidebar-collapsed');
+        localStorage.setItem('eventhub_sidebar_collapsed', 'false');
+        updateSidebarToggleIcon(false);
+        document.documentElement.classList.add('features-active');
+      }
+
+      // Feature specific action
+      setTimeout(() => {
+        if (featureKey === 'dashboard') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (featureKey === 'create-event') {
+          window.location.href = 'create-event.html';
+        } else if (featureKey === 'my-events') {
+          const el = document.getElementById('my-events-card');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+          if (isMobile) window.closeFeaturesDrawer();
+        } else if (featureKey === 'scanner') {
+          window.location.href = 'scanner.html';
+        } else if (featureKey === 'academic') {
+          window.location.href = 'register.html';
+        } else if (featureKey === 'settings') {
+          window.openSettings();
+          if (isMobile) window.closeFeaturesDrawer();
+        }
+      }, 250);
     };
 
     function updateSidebarToggleIcon(isCollapsed) {
