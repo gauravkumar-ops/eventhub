@@ -46,6 +46,15 @@
       top: 0;
       height: 100vh;
       overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      padding: 0 6px;
     }
 
     .sidebar-logo {
@@ -55,8 +64,25 @@
       font-family: var(--md-sys-typescale-brand-font);
       font-size: 1.35rem;
       font-weight: 800;
-      margin-bottom: 32px;
-      padding: 0 10px;
+      color: var(--md-sys-color-on-surface);
+      text-decoration: none;
+    }
+
+    .sidebar-close-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-on-surface);
+      cursor: pointer;
+      transition: background-color var(--md-sys-motion-duration-short) ease;
+    }
+    .sidebar-close-btn:hover {
+      background-color: var(--md-sys-color-surface-container-highest);
     }
 
     .nav-section-label {
@@ -110,10 +136,26 @@
       font-size: 0.875rem;
       font-weight: 600;
       color: var(--md-sys-color-error);
+      background: transparent;
+      border: none;
+      cursor: pointer;
       transition: background-color var(--md-sys-motion-duration-short) ease;
     }
     .signout-btn:hover {
       background-color: var(--md-sys-color-error-container);
+    }
+
+    /* Backdrop for mobile drawer */
+    .sidebar-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 150;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s cubic-bezier(0.2, 0, 0, 1);
     }
 
     .main {
@@ -121,6 +163,7 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      min-width: 0;
       overflow-x: hidden;
     }
 
@@ -128,6 +171,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 12px;
       padding: 16px 36px;
       border-bottom: 1px solid var(--md-sys-color-outline-variant);
       background-color: var(--md-sys-color-surface);
@@ -136,9 +180,37 @@
       z-index: 50;
     }
 
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mobile-menu-toggle-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--md-sys-shape-corner-medium);
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-on-surface);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background-color var(--md-sys-motion-duration-short) ease;
+    }
+    .mobile-menu-toggle-btn:hover {
+      background: var(--md-sys-color-surface-container-highest);
+    }
+
     .content {
       padding: 36px;
       flex: 1;
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
     }
 
     .page-header {
@@ -154,6 +226,7 @@
     .page-header p {
       color: var(--md-sys-color-on-surface-variant);
       font-size: 0.95rem;
+      line-height: 1.5;
     }
 
     /* M3 Split Form + Live Card Preview */
@@ -163,14 +236,12 @@
       gap: 28px;
       align-items: start;
     }
-    @media (max-width: 1080px) {
-      .form-grid { grid-template-columns: 1fr; }
-    }
 
     .form-col {
       display: flex;
       flex-direction: column;
       gap: 24px;
+      min-width: 0;
     }
 
     .form-card {
@@ -181,6 +252,7 @@
       display: flex;
       flex-direction: column;
       gap: 20px;
+      box-sizing: border-box;
     }
 
     .form-section-title {
@@ -199,12 +271,6 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
-    }
-    @media (max-width: 600px) { 
-      .two-col { grid-template-columns: 1fr; }
-      .form-card { padding: 20px 16px; }
-      .topbar { padding: 12px 16px; }
-      .container { padding: 0 14px; }
     }
 
     /* M3 Category Chips */
@@ -240,6 +306,101 @@
       font-size: 0.75rem;
       color: var(--md-sys-color-on-surface-variant);
       margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 1080px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .event-preview {
+        position: static;
+        top: auto;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 280px;
+        max-width: 85vw;
+        z-index: 200;
+        box-shadow: 10px 0 35px rgba(0, 0, 0, 0.6);
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+      }
+      html.sidebar-open .sidebar,
+      body.sidebar-open .sidebar {
+        transform: translateX(0);
+      }
+      html.sidebar-open .sidebar-backdrop,
+      body.sidebar-open .sidebar-backdrop {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .mobile-menu-toggle-btn {
+        display: inline-flex !important;
+      }
+      .sidebar-close-btn {
+        display: inline-flex !important;
+      }
+      .topbar {
+        padding: 14px 20px;
+      }
+      .content {
+        padding: 24px 20px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .topbar {
+        padding: 12px 14px;
+      }
+      .back-dash-btn span {
+        display: none;
+      }
+      .back-dash-btn {
+        padding: 8px 12px;
+      }
+      .content {
+        padding: 20px 14px;
+      }
+      .page-header h1 {
+        font-size: 1.5rem;
+      }
+      .page-header p {
+        font-size: 0.875rem;
+      }
+      .form-card {
+        padding: 20px 16px;
+        border-radius: var(--md-sys-shape-corner-large);
+        gap: 16px;
+      }
+      .two-col {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+      .cat-grid {
+        gap: 6px;
+      }
+      .category-btn {
+        padding: 7px 12px;
+        font-size: 0.78rem;
+      }
+      .user-pill span#user-name-top {
+        max-width: 85px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .event-preview {
+        padding: 20px 16px;
+        border-radius: var(--md-sys-shape-corner-large);
+      }
     }
 
     /* M3 Live Preview Card */
@@ -351,11 +512,19 @@
 </head>
 <body>
 
+  <!-- Backdrop overlay for mobile drawer -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar()"></div>
+
   <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon" style="width:28px;height:28px;font-size:.9rem;">⚡</div>
-      <span>Event<span class="logo-accent">Hub</span></span>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="sidebar-logo">
+        <div class="logo-icon" style="width:28px;height:28px;font-size:.9rem;">⚡</div>
+        <span>Event<span class="logo-accent">Hub</span></span>
+      </a>
+      <button class="sidebar-close-btn" id="sidebar-close-btn" onclick="toggleSidebar()" aria-label="Close sidebar">
+        <i data-lucide="x" style="width:18px;height:18px;"></i>
+      </button>
     </div>
 
     <div class="nav-section-label">Management</div>
@@ -379,9 +548,14 @@
 
     <!-- Top App Bar -->
     <header class="topbar">
-      <a href="dashboard.html" class="btn btn-tonal btn-sm">
-        <i data-lucide="arrow-left"></i> Back to Dashboard
-      </a>
+      <div class="topbar-left">
+        <button class="mobile-menu-toggle-btn" id="mobile-menu-toggle-btn" onclick="toggleSidebar()" aria-label="Open navigation menu">
+          <i data-lucide="menu" style="width:20px;height:20px;"></i>
+        </button>
+        <a href="dashboard.html" class="btn btn-tonal btn-sm back-dash-btn">
+          <i data-lucide="arrow-left"></i> <span>Back to Dashboard</span>
+        </a>
+      </div>
       <div class="user-pill" onclick="window.location.href='dashboard.html'">
         <div class="user-avatar" id="user-avatar-top">?</div>
         <span id="user-name-top">Organizer</span>
@@ -729,6 +903,20 @@
   </script>
 
   <script>
+    function toggleSidebar() {
+      document.body.classList.toggle('sidebar-open');
+      document.documentElement.classList.toggle('sidebar-open');
+      if (window.lucide) window.lucide.createIcons();
+    }
+    window.toggleSidebar = toggleSidebar;
+
+    // Close mobile sidebar on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && document.body.classList.contains('sidebar-open')) {
+        toggleSidebar();
+      }
+    });
+
     var selCat = '';
     document.getElementById('ev-date').min = new Date().toISOString().split('T')[0];
 
@@ -859,11 +1047,31 @@
         eventName: ev.name,
         sentTo:    email,
         phone:     phone,
-        service:   'SendGrid (Email) + Twilio (SMS)',
+        service:   'Python FastApi / SendGrid',
         timestamp: new Date().toISOString(),
         status:    'Delivered'
       });
       localStorage.setItem('eventhub_dispatches', JSON.stringify(notifications));
+
+      // Attempt async dispatch to local Python backend if online
+      if (sendEmail) {
+        fetch('http://127.0.0.1:8000/api/notifications/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to_email: email,
+            subject: '[EventHub] 🎉 Your Event is Live: ' + name,
+            template_type: 'event_summary',
+            data: {
+              event_name: name,
+              event_date: date,
+              event_time: start + (end ? ' - ' + end : ''),
+              event_venue: venue + (city ? ', ' + city : ''),
+              category: selCat
+            }
+          })
+        }).catch(function(err){ /* Graceful offline fallback */ });
+      }
 
       function fmt(t) { var p=t.split(':'),h=+p[0]; return (h%12||12)+':'+p[1]+' '+(h<12?'AM':'PM'); }
       var formattedDate = new Date(date + 'T00:00:00').toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short', year:'numeric'});

@@ -1696,17 +1696,19 @@ html.features-active .main {
 .features-drawer-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  z-index: 95;
+  z-index: 190;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
 }
 
 html.features-active .features-drawer-backdrop,
-body.features-drawer-open .features-drawer-backdrop {
+body.features-drawer-open .features-drawer-backdrop,
+html.sidebar-open .features-drawer-backdrop,
+body.sidebar-open .features-drawer-backdrop {
   opacity: 1;
   pointer-events: auto;
 }
