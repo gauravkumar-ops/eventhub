@@ -42,6 +42,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Socket.io Real-Time Client -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
   <!-- Apply saved theme BEFORE render -->
   <script>
@@ -489,14 +491,19 @@
              DEFINED PARTICIPANT REGISTRATION SPACE (Requirement)
              ============================================================ -->
         <div class="participant-space panel-card" id="participant-space-container">
-          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:800; color:var(--md-sys-color-primary); margin-bottom:6px; display:flex; align-items:center; gap:6px;">
-            <i data-lucide="users-2" style="width:16px;height:16px;"></i> Live Registration Counter
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:800; color:var(--md-sys-color-primary); margin-bottom:6px; display:flex; align-items:center; justify-content:space-between;">
+            <span style="display:flex; align-items:center; gap:6px;">
+              <i data-lucide="users-2" style="width:16px;height:16px;"></i> Live Registration Counter
+            </span>
+            <span id="socket-status-badge" style="font-size:0.7rem; padding:2px 8px; border-radius:999px; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3); display:inline-flex; align-items:center; gap:4px;">
+              <span style="width:6px; height:6px; border-radius:50%; background:#10b981; display:inline-block; animation:pulse 1.5s infinite;"></span> Real-Time Sync
+            </span>
           </div>
           
           <div class="participant-count-badge">
             <div>
-              <span class="count-large" id="stat-registered-count">0</span>
-              <span style="font-size:1.05rem; font-weight:700; color:var(--md-sys-color-on-surface); margin-left:4px;">Registered</span>
+              <span class="count-large" id="count">0</span>
+              <span style="font-size:1.05rem; font-weight:700; color:var(--md-sys-color-on-surface); margin-left:4px;">participants</span>
             </div>
             <div style="text-align:right;">
               <span style="font-size:0.78rem; color:var(--md-sys-color-on-surface-variant); display:block;">Capacity limit</span>
@@ -672,8 +679,8 @@
 
       <form id="attendee-form" onsubmit="handleAttendeeFormSubmit(event)" style="display:flex; flex-direction:column; gap:14px;">
         <div class="field">
-          <label class="field-label" for="att-name">Full Name *</label>
-          <input class="field-input" type="text" id="att-name" placeholder="e.g. Alex Johnson" required />
+          <label class="field-label" for="att-name">Full Name or User ID *</label>
+          <input class="field-input" type="text" id="att-name" placeholder="e.g. Alex Johnson or @alex_2026" required />
         </div>
 
         <div class="field">
@@ -848,12 +855,29 @@
     }
 
     // Update Live Participant Space (requirement)
-    function updateParticipantCountUI() {
+    function updateParticipantCountUI(animate = false) {
       const ev = currentEvent;
       const count = ev.attendees || 0;
       const max = ev.maxAttendees;
 
-      document.getElementById('stat-registered-count').textContent = count;
+      const countEl = document.getElementById('count');
+      const oldVal = countEl ? parseInt(countEl.textContent) || 0 : 0;
+      
+      if (countEl) {
+        countEl.textContent = count;
+        if (animate || count !== oldVal) {
+          countEl.style.transition = 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease';
+          countEl.style.transform = 'scale(1.35)';
+          countEl.style.color = '#10b981';
+          setTimeout(() => {
+            countEl.style.transform = 'scale(1)';
+            countEl.style.color = 'var(--md-sys-color-primary)';
+          }, 350);
+        }
+      }
+
+      const statOld = document.getElementById('stat-registered-count');
+      if (statOld) statOld.textContent = count;
       document.getElementById('stat-max-capacity').textContent = max ? `${max} Max` : 'Unlimited';
 
       const fillEl = document.getElementById('participant-progress-fill');
@@ -861,70 +885,81 @@
 
       if (max && max > 0) {
         const pct = Math.min(100, Math.round((count / max) * 100));
-        fillEl.style.width = pct + '%';
-        percentEl.textContent = `${pct}% capacity filled (${count}/${max})`;
+        if (fillEl) fillEl.style.width = pct + '%';
+        if (percentEl) percentEl.textContent = `${pct}% capacity filled (${count}/${max})`;
       } else {
-        fillEl.style.width = '100%';
-        percentEl.textContent = `${count} participants confirmed (Open Access)`;
+        if (fillEl) fillEl.style.width = '100%';
+        if (percentEl) percentEl.textContent = `${count} participants confirmed (Open Access)`;
       }
     }
 
-    // Check if current user is already registered for this event
-    function checkExistingRegistration() {
-      try {
-        const regMap = JSON.parse(localStorage.getItem('eventhub_registrations') || '{}');
-        const pass = regMap[currentEvent.id];
-        if (pass) {
-          isUserRegistered = true;
-          registeredPass = pass;
-          renderConfirmedPassUI(pass);
-          return;
+    // Real-Time Sync Channel (Cross-Tab BroadcastChannel + WebSockets / Socket.io)
+    const realtimeChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('eventhub_sync') : null;
+    if (realtimeChannel) {
+      realtimeChannel.onmessage = (msg) => {
+        if (msg.data && msg.data.type === 'registration_sync' && currentEvent && msg.data.eventId === currentEvent.id) {
+          console.log('[BroadcastChannel] Real-time registration sync received:', msg.data);
+          currentEvent.attendees = msg.data.attendees;
+          updateParticipantCountUI(true);
+          showToast(`⚡ Live Update: ${msg.data.attendeeName || 'A new participant'} just registered!`);
         }
-      } catch(_) {}
-
-      isUserRegistered = false;
-      document.getElementById('ticket-confirmed-box').style.display = 'none';
-      document.getElementById('ticket-unregistered-box').style.display = 'block';
-      document.getElementById('hero-register-text').textContent = 'Confirm Registration';
-      document.getElementById('hero-register-btn').classList.remove('btn-tonal');
-      document.getElementById('hero-register-btn').classList.add('btn-primary');
-      document.getElementById('btn-view-pass-scroll').style.display = 'none';
+      };
     }
 
-    // Trigger Registration (Automatic or 1-tap)
-    function triggerAttendeeRegistration(isAutoScan = false) {
-      if (isUserRegistered && registeredPass) {
-        showToast('You are already registered! Viewing your pass.');
-        document.getElementById('pass-section').scrollIntoView({ behavior: 'smooth' });
-        return;
-      }
+    // Socket.io Real-Time Synchronization Listener
+    let socket = null;
+    function initRealtimeSync() {
+      if (typeof io !== 'undefined') {
+        try {
+          socket = io(window.location.origin, { transports: ['websocket', 'polling'], timeout: 3000 });
+          
+          socket.on('connect', () => {
+            console.log('[Socket.io] Connected to EventHub real-time gateway');
+            const badge = document.getElementById('socket-status-badge');
+            if (badge) badge.style.opacity = '1';
+            if (currentEvent) {
+              socket.emit('join:event', currentEvent.id);
+            }
+          });
 
-      // Check if user profile is already saved in localStorage
-      let userData = null;
-      try {
-        const u = JSON.parse(localStorage.getItem('eventhub_user') || 'null');
-        const p = JSON.parse(localStorage.getItem('eventhub_profile') || 'null');
-        if (u || p) {
-          userData = {
-            name: (u && u.displayName) || (p && p.fullName) || 'Attendee',
-            email: (u && u.email) || (p && p.email) || 'attendee@campus.edu',
-            college: (p && p.college) || 'IIT Bombay / University Campus',
-            whatsapp: (p && p.whatsapp) ? '+91 ' + p.whatsapp : '+91 9876543210'
-          };
+          socket.on('registration:updated', (data) => {
+            if (currentEvent && data.eventId === currentEvent.id) {
+              console.log('[Socket.io] Live registration count updated:', data);
+              currentEvent.attendees = data.attendees;
+              updateParticipantCountUI(true);
+              const name = (data.newRegistration && data.newRegistration.name) || 'New attendee';
+              showToast(`⚡ Live Update: ${name} just registered!`);
+            }
+          });
+
+          socket.on('event:sync', (data) => {
+            if (currentEvent && data.eventId === currentEvent.id) {
+              currentEvent.attendees = data.attendees;
+              updateParticipantCountUI(false);
+            }
+          });
+        } catch (err) {
+          console.warn('[Socket.io] Offline mode / falling back to local real-time sync', err);
         }
-      } catch(_) {}
-
-      if (userData && userData.name && userData.email) {
-        // Auto-complete registration immediately
-        completeRegistration(userData, isAutoScan);
-      } else {
-        // Open Quick Attendee Details Modal
-        openAttendeeModal();
       }
+
+      // Cross-window storage listener fallback
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'eventhub_events' && currentEvent) {
+          try {
+            const list = JSON.parse(e.newValue || '[]');
+            const updated = list.find(item => item.id === currentEvent.id);
+            if (updated && updated.attendees !== currentEvent.attendees) {
+              currentEvent.attendees = updated.attendees;
+              updateParticipantCountUI(true);
+            }
+          } catch (_) {}
+        }
+      });
     }
 
     // Complete Registration & Generate Fresh Confirmation QR (requirement)
-    function completeRegistration(attendee, isAutoScan = false) {
+    async function completeRegistration(attendee, isAutoScan = false) {
       const ev = currentEvent;
 
       // Unique Ticket ID
@@ -975,12 +1010,42 @@
         localStorage.setItem('eventhub_events', JSON.stringify(allEvents));
       }
 
+      // 3. Post to backend server if online
+      try {
+        fetch(`/api/events/${ev.id}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventId: ev.id,
+            name: attendee.name,
+            email: attendee.email,
+            college: attendee.college,
+            whatsapp: attendee.whatsapp
+          })
+        }).then(res => res.json()).then(data => {
+          if (data && data.count) {
+            ev.attendees = data.count;
+            updateParticipantCountUI(false);
+          }
+        }).catch(() => { /* Offline fallback handled seamlessly */ });
+      } catch (_) {}
+
+      // 4. Broadcast real-time update to all open tabs/windows
+      if (realtimeChannel) {
+        realtimeChannel.postMessage({
+          type: 'registration_sync',
+          eventId: ev.id,
+          attendees: ev.attendees,
+          attendeeName: attendee.name
+        });
+      }
+
       // Update state
       isUserRegistered = true;
       registeredPass = pass;
 
-      // Update UI
-      updateParticipantCountUI();
+      // Update UI with pulse animation
+      updateParticipantCountUI(true);
       renderConfirmedPassUI(pass);
       closeAttendeeModal();
 
@@ -1176,6 +1241,7 @@
 
     // Initialize
     loadEventData();
+    initRealtimeSync();
   </script>
 </body>
 </html>
