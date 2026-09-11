@@ -5,8 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title id="page-title">Event Details — EventHub</title>
   <meta name="description" content="View event details, register automatically via QR, and get your verified digital entry pass on EventHub." />
+  <meta name="robots" content="index, follow" />
   
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <!-- Theme Color for Browser & Discord Embed Highlight -->
+  <meta name="theme-color" content="#7c3aed" />
+  <meta name="application-name" content="EventHub" />
+
+  <!-- Open Graph / WhatsApp / Facebook / Discord / LinkedIn -->
+  <meta property="og:site_name" content="EventHub" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" id="og-url" content="https://eventhub-g-xrave.vercel.app/event.html" />
+  <meta property="og:title" id="og-title" content="Event Details &amp; Registration — EventHub" />
+  <meta property="og:description" id="og-desc" content="Scan or click to register, view live participant capacity, and receive your verified entry QR pass on EventHub." />
+  <meta property="og:image" content="https://eventhub-g-xrave.vercel.app/assets/images/eventhub_qr_feature.jpg" />
+  <meta property="og:image:secure_url" content="https://eventhub-g-xrave.vercel.app/assets/images/eventhub_qr_feature.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="EventHub Event Registration &amp; QR Pass" />
+
+  <!-- Twitter / X Cards -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@EventHub" />
+  <meta name="twitter:url" id="twitter-url" content="https://eventhub-g-xrave.vercel.app/event.html" />
+  <meta name="twitter:title" id="twitter-title" content="Event Details &amp; Registration — EventHub" />
+  <meta name="twitter:description" id="twitter-desc" content="Scan or click to register, view live participant capacity, and receive your verified entry QR pass on EventHub." />
+  <meta name="twitter:image" content="https://eventhub-g-xrave.vercel.app/assets/images/eventhub_qr_feature.jpg" />
+  <meta name="twitter:image:alt" content="EventHub Event Registration &amp; QR Pass" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=Roboto+Flex:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
@@ -767,6 +792,22 @@
       document.getElementById('ev-title').textContent = ev.name || 'Campus Event';
       document.getElementById('ev-category-badge').textContent = `🏷️ ${ev.category || 'Event'}`;
       document.getElementById('ev-code-badge').textContent = `ID: ${ev.id}`;
+
+      // Update Open Graph & Twitter Card Meta Tags dynamically
+      const ogTitle = document.getElementById('og-title');
+      const twitterTitle = document.getElementById('twitter-title');
+      const ogDesc = document.getElementById('og-desc');
+      const twitterDesc = document.getElementById('twitter-desc');
+      const ogUrl = document.getElementById('og-url');
+      const twitterUrl = document.getElementById('twitter-url');
+
+      const descSnippet = `${ev.category || 'Event'} on ${formatDate(ev.date)} at ${[ev.venue, ev.city].filter(Boolean).join(', ') || 'Campus Venue'}. Scan QR or click to register & receive instant pass!`;
+      if (ogTitle) ogTitle.content = `${ev.name} — Event Registration & Entry Pass`;
+      if (twitterTitle) twitterTitle.content = `${ev.name} — Event Registration & Entry Pass`;
+      if (ogDesc) ogDesc.content = descSnippet;
+      if (twitterDesc) twitterDesc.content = descSnippet;
+      if (ogUrl) ogUrl.content = window.location.href;
+      if (twitterUrl) twitterUrl.content = window.location.href;
 
       const fullDate = formatDate(ev.date);
       const timeStr = formatTime(ev.startTime) + (ev.endTime ? ' - ' + formatTime(ev.endTime) : '');
