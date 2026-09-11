@@ -871,7 +871,26 @@
             </div>
           </div>
 
-          <div class="prev-label">Organizer Guidance</div>
+          <!-- Live Event Registration QR Card -->
+          <div class="prev-label" style="margin-top:20px;">Event Registration QR</div>
+          <div style="background:var(--md-sys-color-surface-container-high); border:1px solid var(--md-sys-color-outline-variant); border-radius:var(--md-sys-shape-corner-large); padding:16px; text-align:center;">
+            <div style="font-size:0.75rem; color:var(--md-sys-color-on-surface-variant); margin-bottom:8px;">
+              Unique registration QR generated for attendees
+            </div>
+            <div style="display:inline-flex; padding:8px; background:#ffffff; border-radius:var(--md-sys-shape-corner-medium); box-shadow:0 4px 12px rgba(0,0,0,0.25); margin-bottom:10px;">
+              <div id="sidebar-live-qr-holder"></div>
+            </div>
+            <div style="display:flex; gap:8px; justify-content:center;">
+              <button class="btn btn-primary btn-sm" onclick="shareCreatedEventQR()" style="font-size:0.8rem; padding:0 12px; height:32px;">
+                <i data-lucide="share-2"></i> Share QR
+              </button>
+              <button class="btn btn-tonal btn-sm" onclick="copyCreatedEventLink()" style="font-size:0.8rem; padding:0 12px; height:32px;">
+                <i data-lucide="link"></i> Copy Link
+              </button>
+            </div>
+          </div>
+
+          <div class="prev-label" style="margin-top:20px;">Organizer Guidance</div>
           <div style="display:flex; flex-direction:column; gap:12px;">
             <div class="tip-row"><div class="tip-dot"></div><span>The schedule and location will embed automatically into attendee digital QR passes.</span></div>
             <div class="tip-row"><div class="tip-dot"></div><span>Volunteers can scan and verify registrants using the browser scanner with instant live counts.</span></div>
@@ -1098,6 +1117,23 @@
         vr.style.display = 'flex';
       } else { vr.style.display = 'none'; }
 
+      // Live sidebar QR preview
+      var previewUrl = window.location.origin + window.location.pathname.replace('create-event.html', 'event.html') + '?preview=1&auto=1';
+      var sidebarQrEl = document.getElementById('sidebar-live-qr-holder');
+      if (sidebarQrEl && typeof QRCode !== 'undefined' && (!sidebarQrEl.dataset.initialized || name !== sidebarQrEl.dataset.lastName)) {
+        sidebarQrEl.innerHTML = '';
+        sidebarQrEl.dataset.initialized = 'true';
+        sidebarQrEl.dataset.lastName = name;
+        new QRCode(sidebarQrEl, {
+          text: previewUrl,
+          width: 110,
+          height: 110,
+          colorDark: "#141218",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+
       if (window.lucide) window.lucide.createIcons();
     }
     window.livePreview = livePreview;
@@ -1303,6 +1339,7 @@
     };
 
     if (window.lucide) window.lucide.createIcons();
+    setTimeout(function() { livePreview(); }, 100);
   </script>
 </body>
 </html>
