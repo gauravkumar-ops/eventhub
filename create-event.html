@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <script>
     (function(){
@@ -939,8 +940,46 @@
         </div>
       </div>
 
+      <!-- Unique Event Registration QR Code Section (Share QR) -->
+      <div style="background:var(--md-sys-color-surface-container-lowest); border:1px solid var(--md-sys-color-outline-variant); border-radius:var(--md-sys-shape-corner-large); padding:20px; margin-bottom:20px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <i data-lucide="qr-code" style="color:var(--md-sys-color-primary); width:20px; height:20px;"></i>
+            <span style="font-size:0.92rem; font-weight:800; color:var(--md-sys-color-on-surface);">Event Registration QR Code</span>
+          </div>
+          <span style="font-size:0.75rem; background:rgba(124,58,237,0.15); color:var(--md-sys-color-primary); font-weight:700; padding:2px 8px; border-radius:999px;">
+            ● Scan to Register
+          </span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:auto 1fr; gap:18px; align-items:center;">
+          <div style="background:#ffffff; padding:10px; border-radius:var(--md-sys-shape-corner-medium); box-shadow:0 8px 24px rgba(0,0,0,0.3); display:inline-block;">
+            <div id="modal-ev-qr-canvas"></div>
+          </div>
+          <div>
+            <p style="font-size:0.84rem; color:var(--md-sys-color-on-surface-variant); margin:0 0 10px 0; line-height:1.5;">
+              Share this unique QR code with participants. Scanning it opens the event webpage and automatically registers them with an entry pass!
+            </p>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" id="btn-modal-share-qr" onclick="shareCreatedEventQR()">
+                <i data-lucide="share-2"></i> Share QR
+              </button>
+              <button class="btn btn-tonal btn-sm" onclick="downloadCreatedEventQR()">
+                <i data-lucide="download"></i> Download QR
+              </button>
+              <button class="btn btn-ghost btn-sm" onclick="copyCreatedEventLink()">
+                <i data-lucide="copy"></i> Copy Link
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Action Buttons -->
-      <div style="display:flex; gap:12px; justify-content:flex-end;">
+      <div style="display:flex; gap:12px; justify-content:flex-end; flex-wrap:wrap;">
+        <a id="modal-view-event-btn" href="#" class="btn btn-tonal" style="gap:6px;">
+          <i data-lucide="external-link"></i> View Event Page
+        </a>
         <button class="btn btn-tonal" onclick="window.print()" style="gap:6px;">
           <i data-lucide="printer"></i> Print Summary
         </button>
@@ -1194,12 +1233,73 @@
         smsNote.style.display = 'none';
       }
 
+      // Generate unique QR for event registration
+      window.lastCreatedEvent = ev;
+      var eventRegUrl = window.location.origin + window.location.pathname.replace('create-event.html', 'event.html') + '?id=' + ev.id + '&auto=1';
+      window.lastCreatedEventUrl = eventRegUrl;
+      
+      document.getElementById('modal-view-event-btn').href = 'event.html?id=' + ev.id;
+
+      var qrContainer = document.getElementById('modal-ev-qr-canvas');
+      if (qrContainer) {
+        qrContainer.innerHTML = '';
+        new QRCode(qrContainer, {
+          text: eventRegUrl,
+          width: 140,
+          height: 140,
+          colorDark: "#141218",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      }
+
       showToast('⚡ Email summary sent via SendGrid!');
       
       // Display modal
       var modal = document.getElementById('summary-modal');
       modal.style.display = 'flex';
       if (window.lucide) window.lucide.createIcons();
+    };
+
+    window.shareCreatedEventQR = async function() {
+      var ev = window.lastCreatedEvent;
+      var url = window.lastCreatedEventUrl || (window.location.origin + '/event.html?id=' + (ev ? ev.id : ''));
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: ev ? ev.name : 'Event Registration',
+            text: 'Scan or click to register for ' + (ev ? ev.name : 'this event') + ' on EventHub!',
+            url: url
+          });
+          showToast('Shared successfully!');
+          return;
+        } catch(err) {
+          if (err.name !== 'AbortError') window.copyCreatedEventLink();
+        }
+      } else {
+        window.copyCreatedEventLink();
+      }
+    };
+
+    window.copyCreatedEventLink = function() {
+      var url = window.lastCreatedEventUrl;
+      if (!url) return;
+      navigator.clipboard.writeText(url).then(function(){
+        showToast('📋 Event Registration Link copied to clipboard!');
+      }).catch(function(){
+        showToast('Link: ' + url);
+      });
+    };
+
+    window.downloadCreatedEventQR = function() {
+      var qrCanvas = document.querySelector('#modal-ev-qr-canvas canvas') || document.querySelector('#modal-ev-qr-canvas img');
+      if (!qrCanvas) return;
+      var link = document.createElement('a');
+      var name = (window.lastCreatedEvent && window.lastCreatedEvent.name) || 'Event';
+      link.download = name.replace(/\s+/g, '_') + '_Registration_QR.png';
+      link.href = qrCanvas.tagName === 'CANVAS' ? qrCanvas.toDataURL('image/png') : qrCanvas.src;
+      link.click();
+      showToast('📥 Event QR Code downloaded!');
     };
 
     if (window.lucide) window.lucide.createIcons();

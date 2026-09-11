@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title id="page-title">Event Details — EventHub</title>
+  <meta name="description" content="View event details, register automatically via QR, and get your verified digital entry pass on EventHub." />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=Roboto+Flex:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <!-- QRCode.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Apply saved theme BEFORE render -->
+  <script>
+    (function(){
+      const saved = localStorage.getItem('eventhub_theme') || 'dark';
+      const pref  = saved === 'system'
+        ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+        : saved;
+      document.documentElement.setAttribute('data-theme', pref);
+    })();
+  </script>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    body {
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .event-top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: rgba(20, 18, 24, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    [data-theme="light"] .event-top-nav {
+      background-color: rgba(253, 247, 255, 0.85);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .event-page-container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+      flex: 1;
+    }
+
+    /* Hero Banner */
+    .event-hero {
+      position: relative;
+      background: linear-gradient(135deg, var(--md-sys-color-surface-container-high) 0%, var(--md-sys-color-surface-container) 100%);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-extra-large);
+      padding: 40px;
+      margin-bottom: 32px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.25) 0%, rgba(124, 58, 237, 0) 70%);
+      pointer-events: none;
+      filter: blur(40px);
+    }
+
+    .event-tags-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .event-main-title {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: clamp(1.8rem, 4vw, 2.75rem);
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--md-sys-color-on-surface);
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .event-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .meta-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background-color: var(--md-sys-color-surface-container-low);
+      padding: 14px 18px;
+      border-radius: var(--md-sys-shape-corner-large);
+      border: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .meta-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--md-sys-shape-corner-medium);
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .meta-content {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .meta-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--md-sys-color-on-surface-variant);
+      font-weight: 700;
+    }
+    .meta-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Main Content Layout */
+    .event-layout-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 32px;
+    }
+    @media (max-width: 960px) {
+      .event-layout-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .panel-card {
+      background-color: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-large);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .panel-title {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Defined Participant Space */
+    .participant-space {
+      background: linear-gradient(135deg, var(--md-sys-color-surface-container-highest) 0%, var(--md-sys-color-surface-container-high) 100%);
+      border: 2px solid var(--md-sys-color-primary);
+      border-radius: var(--md-sys-shape-corner-large);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .participant-count-badge {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .count-large {
+      font-family: var(--md-sys-typescale-brand-font);
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--md-sys-color-primary);
+      line-height: 1;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background-color: var(--md-sys-color-surface-container-lowest);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 12px 0;
+      border: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--md-sys-color-primary) 0%, #a855f7 100%);
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    /* Confirmation QR Ticket Card */
+    .confirmation-ticket-box {
+      background: var(--md-sys-color-surface-container-lowest);
+      border: 1px dashed var(--md-sys-color-outline);
+      border-radius: var(--md-sys-shape-corner-large);
+      padding: 24px;
+      text-align: center;
+      margin-top: 20px;
+      position: relative;
+    }
+
+    .qr-frame {
+      display: inline-flex;
+      padding: 14px;
+      background: #ffffff;
+      border-radius: var(--md-sys-shape-corner-medium);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      margin: 14px 0;
+    }
+
+    .qr-frame img, .qr-frame canvas {
+      display: block;
+      width: 180px;
+      height: 180px;
+    }
+
+    .status-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--md-sys-color-inverse-surface);
+      color: var(--md-sys-color-inverse-on-surface);
+      padding: 14px 20px;
+      border-radius: var(--md-sys-shape-corner-medium);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+      z-index: 10000;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.2,0,0,1);
+      pointer-events: none;
+    }
+    .status-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Share QR Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-dialog {
+      background-color: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: var(--md-sys-shape-corner-extra-large);
+      max-width: 520px;
+      width: 100%;
+      padding: 28px 24px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+      animation: modalPop 0.25s cubic-bezier(0.2,0,0,1);
+    }
+    @keyframes modalPop {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Navigation -->
+  <header class="event-top-nav">
+    <a href="index.html" class="nav-brand" style="text-decoration:none; display:flex; align-items:center; gap:8px;">
+      <div class="logo-mark" style="width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, var(--md-sys-color-primary), #9333ea); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800;">E</div>
+      <span class="brand-text" style="font-family:var(--md-sys-typescale-brand-font); font-size:1.15rem; font-weight:800; color:var(--md-sys-color-on-surface);">EventHub</span>
+    </a>
+
+    <div class="nav-actions">
+      <button class="btn btn-ghost btn-sm" id="btn-share-top" onclick="openShareModal()">
+        <i data-lucide="qr-code"></i> Share QR
+      </button>
+      <a href="ticket.html" class="btn btn-tonal btn-sm">
+        <i data-lucide="ticket"></i> My Passes
+      </a>
+      <a href="dashboard.html" class="btn btn-primary btn-sm">
+        <i data-lucide="layout-dashboard"></i> Dashboard
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="event-page-container">
+
+    <!-- Hero Banner -->
+    <div class="event-hero" id="event-hero-card">
+      <div class="hero-glow"></div>
+      
+      <div class="event-tags-bar">
+        <span class="badge badge-primary" id="ev-category-badge">🏷️ Hackathon</span>
+        <span class="badge" id="ev-status-badge" style="background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3); font-weight:700;">● Active Registration</span>
+        <span class="badge" id="ev-code-badge" style="background:var(--md-sys-color-surface-container); color:var(--md-sys-color-on-surface-variant); font-family:monospace;">ID: EVT-LIVE</span>
+      </div>
+
+      <h1 class="event-main-title" id="ev-title">Loading Event...</h1>
+
+      <!-- Key Metadata Grid -->
+      <div class="event-meta-grid">
+        <div class="meta-card">
+          <div class="meta-icon"><i data-lucide="calendar"></i></div>
+          <div class="meta-content">
+            <span class="meta-label">Date</span>
+            <span class="meta-val" id="ev-date-str">—</span>
+          </div>
+        </div>
+
+        <div class="meta-card">
+          <div class="meta-icon"><i data-lucide="clock"></i></div>
+          <div class="meta-content">
+            <span class="meta-label">Time</span>
+            <span class="meta-val" id="ev-time-str">—</span>
+          </div>
+        </div>
+
+        <div class="meta-card">
+          <div class="meta-icon"><i data-lucide="map-pin"></i></div>
+          <div class="meta-content">
+            <span class="meta-label">Location / Venue</span>
+            <span class="meta-val" id="ev-venue-str">—</span>
+          </div>
+        </div>
+
+        <div class="meta-card">
+          <div class="meta-icon"><i data-lucide="user-check"></i></div>
+          <div class="meta-content">
+            <span class="meta-label">Organizer</span>
+            <span class="meta-val" id="ev-organizer-str">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <button class="btn btn-primary btn-lg" id="hero-register-btn" onclick="triggerAttendeeRegistration()">
+          <i data-lucide="user-plus"></i> <span id="hero-register-text">Confirm Registration</span>
+        </button>
+        <button class="btn btn-tonal btn-lg" onclick="openShareModal()">
+          <i data-lucide="share-2"></i> Share Event QR &amp; Link
+        </button>
+        <button class="btn btn-ghost btn-lg" onclick="window.scrollTo({top: document.getElementById('pass-section').offsetTop - 80, behavior:'smooth'})" id="btn-view-pass-scroll" style="display:none;">
+          <i data-lucide="qr-code"></i> View My Entry Pass
+        </button>
+      </div>
+    </div>
+
+    <!-- 2-Column Layout -->
+    <div class="event-layout-grid">
+      
+      <!-- Left Column: Details, Schedule, Venue -->
+      <div class="left-col">
+        
+        <!-- About Event -->
+        <div class="panel-card">
+          <h2 class="panel-title"><i data-lucide="info"></i> About This Event</h2>
+          <div id="ev-description" style="font-size:0.95rem; line-height:1.7; color:var(--md-sys-color-on-surface-variant); white-space:pre-line;">
+            Loading event description...
+          </div>
+        </div>
+
+        <!-- Venue & Location Details -->
+        <div class="panel-card">
+          <h2 class="panel-title"><i data-lucide="map"></i> Venue &amp; Directions</h2>
+          <div style="display:flex; align-items:flex-start; gap:14px; background:var(--md-sys-color-surface-container-low); padding:16px; border-radius:var(--md-sys-shape-corner-medium); border:1px solid var(--md-sys-color-outline-variant);">
+            <div style="width:40px; height:40px; border-radius:50%; background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <i data-lucide="navigation"></i>
+            </div>
+            <div style="flex:1;">
+              <div style="font-weight:700; color:var(--md-sys-color-on-surface); font-size:1rem;" id="ev-venue-name">—</div>
+              <div style="font-size:0.85rem; color:var(--md-sys-color-on-surface-variant); margin-top:2px;" id="ev-venue-city">—</div>
+              <div style="margin-top:10px;">
+                <button class="btn btn-ghost btn-sm" onclick="copyVenueAddress()" style="font-size:0.8rem; padding:4px 10px; height:28px;">
+                  <i data-lucide="copy"></i> Copy Address
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Organizer Information -->
+        <div class="panel-card">
+          <h2 class="panel-title"><i data-lucide="shield-check"></i> Event Management &amp; Support</h2>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px; font-size:0.88rem;">
+            <div>
+              <span style="color:var(--md-sys-color-on-surface-variant); font-size:0.75rem; text-transform:uppercase; font-weight:700; display:block;">Organizer Email</span>
+              <span style="font-weight:600; color:var(--md-sys-color-on-surface);" id="ev-organizer-email">—</span>
+            </div>
+            <div>
+              <span style="color:var(--md-sys-color-on-surface-variant); font-size:0.75rem; text-transform:uppercase; font-weight:700; display:block;">Support Phone</span>
+              <span style="font-weight:600; color:var(--md-sys-color-on-surface);" id="ev-organizer-phone">—</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Registration Space & Confirmation Pass -->
+      <div class="right-col">
+        
+        <!-- ============================================================
+             DEFINED PARTICIPANT REGISTRATION SPACE (Requirement)
+             ============================================================ -->
+        <div class="participant-space panel-card" id="participant-space-container">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; font-weight:800; color:var(--md-sys-color-primary); margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+            <i data-lucide="users-2" style="width:16px;height:16px;"></i> Live Registration Counter
+          </div>
+          
+          <div class="participant-count-badge">
+            <div>
+              <span class="count-large" id="stat-registered-count">0</span>
+              <span style="font-size:1.05rem; font-weight:700; color:var(--md-sys-color-on-surface); margin-left:4px;">Registered</span>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-size:0.78rem; color:var(--md-sys-color-on-surface-variant); display:block;">Capacity limit</span>
+              <span style="font-weight:800; font-size:0.95rem; color:var(--md-sys-color-on-surface);" id="stat-max-capacity">Unlimited</span>
+            </div>
+          </div>
+
+          <!-- Live Progress Meter -->
+          <div class="progress-track">
+            <div class="progress-fill" id="participant-progress-fill"></div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--md-sys-color-on-surface-variant); margin-top:6px;">
+            <span id="stat-capacity-percent">0% filled</span>
+            <span style="color:var(--md-sys-color-success); font-weight:600; display:flex; align-items:center; gap:4px;">
+              <i data-lucide="zap" style="width:13px;height:13px;"></i> Instant QR Check-in Ready
+            </span>
+          </div>
+        </div>
+
+        <!-- ============================================================
+             FRESH CONFIRMATION ENTRY QR PASS (Requirement)
+             ============================================================ -->
+        <div class="panel-card" id="pass-section">
+          <h2 class="panel-title" style="margin-bottom:8px;">
+            <i data-lucide="ticket"></i> Participant Entry Pass
+          </h2>
+          <p style="font-size:0.82rem; color:var(--md-sys-color-on-surface-variant); margin-bottom:14px;">
+            Unique verification QR pass generated automatically upon registration for instant gate scanning.
+          </p>
+
+          <!-- If Registered: Pass Box -->
+          <div class="confirmation-ticket-box" id="ticket-confirmed-box" style="display:none;">
+            <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(16,185,129,0.15); color:#10b981; font-size:0.78rem; font-weight:800; padding:4px 12px; border-radius:999px; margin-bottom:8px;">
+              <i data-lucide="shield-check" style="width:14px;height:14px;"></i> ENTRY CONFIRMED &amp; VERIFIED
+            </div>
+            
+            <div style="font-size:1.1rem; font-weight:800; color:var(--md-sys-color-on-surface);" id="pass-attendee-name">Alex Johnson</div>
+            <div style="font-size:0.8rem; color:var(--md-sys-color-on-surface-variant);" id="pass-attendee-college">Campus Participant</div>
+
+            <!-- Fresh Confirmation QR Code Holder -->
+            <div class="qr-frame">
+              <div id="participant-qr-canvas"></div>
+            </div>
+
+            <div style="font-family:monospace; font-size:0.9rem; font-weight:700; color:var(--md-sys-color-primary); letter-spacing:0.08em;" id="pass-ticket-id">
+              EH-PASS-0000
+            </div>
+            <div style="font-size:0.72rem; color:var(--md-sys-color-on-surface-variant); margin-top:2px;">
+              Scan at entrance for admission • Anti-duplicate protected
+            </div>
+
+            <!-- Actions -->
+            <div style="display:flex; gap:8px; justify-content:center; margin-top:16px; flex-wrap:wrap;">
+              <button class="btn btn-tonal btn-sm" onclick="downloadParticipantPass()">
+                <i data-lucide="download"></i> Download Pass
+              </button>
+              <button class="btn btn-ghost btn-sm" onclick="window.print()">
+                <i data-lucide="printer"></i> Print
+              </button>
+            </div>
+          </div>
+
+          <!-- If Not Yet Registered: Prompt Box -->
+          <div id="ticket-unregistered-box" style="text-align:center; padding:28px 16px; background:var(--md-sys-color-surface-container-low); border-radius:var(--md-sys-shape-corner-medium); border:1px dashed var(--md-sys-color-outline-variant);">
+            <div style="width:48px; height:48px; border-radius:50%; background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); display:flex; align-items:center; justify-content:center; margin:0 auto 12px;">
+              <i data-lucide="qr-code" style="width:24px;height:24px;"></i>
+            </div>
+            <div style="font-weight:700; font-size:0.98rem; color:var(--md-sys-color-on-surface);">Pass Not Yet Generated</div>
+            <p style="font-size:0.82rem; color:var(--md-sys-color-on-surface-variant); margin:6px 0 16px;">
+              Confirm your registration below or scan the Event QR code to instantly receive your fresh digital entry QR pass.
+            </p>
+            <button class="btn btn-primary" onclick="triggerAttendeeRegistration()" style="width:100%;">
+              <i data-lucide="sparkles"></i> Register &amp; Generate QR Pass
+            </button>
+          </div>
+        </div>
+
+        <!-- Share Event QR Card -->
+        <div class="panel-card" style="text-align:center;">
+          <h2 class="panel-title" style="justify-content:center; margin-bottom:8px;">
+            <i data-lucide="share-2"></i> Share This Event
+          </h2>
+          <p style="font-size:0.82rem; color:var(--md-sys-color-on-surface-variant); margin-bottom:14px;">
+            Share this event's QR code so attendees can scan and register instantly.
+          </p>
+
+          <div style="display:inline-flex; padding:10px; background:#fff; border-radius:var(--md-sys-shape-corner-medium); box-shadow:0 4px 16px rgba(0,0,0,0.25); margin-bottom:14px;">
+            <div id="event-share-qr-canvas"></div>
+          </div>
+
+          <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+            <button class="btn btn-primary btn-sm" onclick="openShareModal()">
+              <i data-lucide="share-2"></i> Share QR
+            </button>
+            <button class="btn btn-tonal btn-sm" onclick="copyEventLink()">
+              <i data-lucide="link"></i> Copy Link
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Share QR Modal -->
+  <div class="modal-overlay" id="share-modal">
+    <div class="modal-dialog">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:36px; height:36px; border-radius:50%; background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); display:flex; align-items:center; justify-content:center;">
+            <i data-lucide="qr-code"></i>
+          </div>
+          <div>
+            <h3 style="font-family:var(--md-sys-typescale-brand-font); font-size:1.15rem; font-weight:800; margin:0; color:var(--md-sys-color-on-surface);">Share Event QR</h3>
+            <p style="font-size:0.75rem; color:var(--md-sys-color-on-surface-variant); margin:0;">Scan to view details &amp; auto-register</p>
+          </div>
+        </div>
+        <button onclick="closeShareModal()" style="background:transparent; border:none; color:var(--md-sys-color-on-surface-variant); cursor:pointer; padding:6px; border-radius:50%;">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div style="text-align:center; padding:16px; background:var(--md-sys-color-surface-container-low); border-radius:var(--md-sys-shape-corner-large); margin-bottom:16px;">
+        <div style="font-weight:700; color:var(--md-sys-color-on-surface); font-size:1rem; margin-bottom:4px;" id="share-modal-ev-name">Event Title</div>
+        <div style="font-size:0.78rem; color:var(--md-sys-color-on-surface-variant); margin-bottom:12px;" id="share-modal-ev-meta">Date • Venue</div>
+
+        <div style="display:inline-flex; padding:12px; background:#ffffff; border-radius:var(--md-sys-shape-corner-medium); box-shadow:0 8px 24px rgba(0,0,0,0.3);">
+          <div id="modal-qr-canvas"></div>
+        </div>
+
+        <div style="margin-top:12px; font-size:0.75rem; color:var(--md-sys-color-on-surface-variant);">
+          Direct Registration Link:
+        </div>
+        <div style="background:var(--md-sys-color-surface-container-highest); padding:8px 12px; border-radius:var(--md-sys-shape-corner-small); font-family:monospace; font-size:0.78rem; color:var(--md-sys-color-primary); word-break:break-all; margin-top:4px;" id="share-modal-url">
+          https://...
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <button class="btn btn-primary" onclick="executeNativeShare()">
+          <i data-lucide="share-2"></i> Share via App
+        </button>
+        <button class="btn btn-tonal" onclick="downloadEventQRImage()">
+          <i data-lucide="download"></i> Download QR
+        </button>
+      </div>
+      <button class="btn btn-ghost" onclick="copyEventLink()" style="width:100%; margin-top:8px;">
+        <i data-lucide="copy"></i> Copy Direct Registration Link
+      </button>
+    </div>
+  </div>
+
+  <!-- Quick Attendee Details Modal (If not logged in and registering) -->
+  <div class="modal-overlay" id="attendee-modal">
+    <div class="modal-dialog">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:36px; height:36px; border-radius:50%; background:var(--md-sys-color-primary-container); color:var(--md-sys-color-on-primary-container); display:flex; align-items:center; justify-content:center;">
+            <i data-lucide="user-plus"></i>
+          </div>
+          <div>
+            <h3 style="font-family:var(--md-sys-typescale-brand-font); font-size:1.15rem; font-weight:800; margin:0; color:var(--md-sys-color-on-surface);">Confirm Registration</h3>
+            <p style="font-size:0.75rem; color:var(--md-sys-color-on-surface-variant); margin:0;">Enter attendee name for the Entry QR pass</p>
+          </div>
+        </div>
+        <button onclick="closeAttendeeModal()" style="background:transparent; border:none; color:var(--md-sys-color-on-surface-variant); cursor:pointer; padding:6px; border-radius:50%;">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <form id="attendee-form" onsubmit="handleAttendeeFormSubmit(event)" style="display:flex; flex-direction:column; gap:14px;">
+        <div class="field">
+          <label class="field-label" for="att-name">Full Name *</label>
+          <input class="field-input" type="text" id="att-name" placeholder="e.g. Alex Johnson" required />
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="att-email">Email Address *</label>
+          <input class="field-input" type="email" id="att-email" placeholder="e.g. alex@campus.edu" required />
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="att-college">Institution / College</label>
+          <input class="field-input" type="text" id="att-college" placeholder="e.g. IIT Bombay / University" />
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="att-whatsapp">Phone / WhatsApp (Optional)</label>
+          <input class="field-input" type="tel" id="att-whatsapp" placeholder="+91 98765 43210" />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%; margin-top:6px;">
+          <i data-lucide="ticket"></i> Get Verified QR Pass
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Status Toast -->
+  <div class="status-toast" id="status-toast">
+    <i data-lucide="check-circle"></i>
+    <span id="toast-msg">Registration Successful!</span>
+  </div>
+
+  <script>
+    // State
+    let currentEvent = null;
+    let registeredPass = null;
+    let isUserRegistered = false;
+
+    // Helper: Format Date
+    function formatDate(dateStr) {
+      if (!dateStr) return 'Date TBA';
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    // Helper: Format 12-hour Time
+    function formatTime(t) {
+      if (!t) return '';
+      const p = t.split(':');
+      const h = +p[0];
+      return (h % 12 || 12) + ':' + p[1] + ' ' + (h < 12 ? 'AM' : 'PM');
+    }
+
+    // Helper: Toast
+    function showToast(msg) {
+      const t = document.getElementById('status-toast');
+      document.getElementById('toast-msg').textContent = msg;
+      t.classList.add('show');
+      if (window.lucide) window.lucide.createIcons();
+      setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    // Load Event from Storage by ID or Fallback Demo
+    function loadEventData() {
+      const params = new URLSearchParams(window.location.search);
+      const eventId = params.get('id');
+      const autoRegister = params.get('auto') === '1' || params.get('register') === '1';
+
+      let events = [];
+      try {
+        events = JSON.parse(localStorage.getItem('eventhub_events') || '[]');
+      } catch (_) {}
+
+      if (eventId && events.length > 0) {
+        currentEvent = events.find(e => e.id === eventId);
+      }
+
+      if (!currentEvent && events.length > 0) {
+        currentEvent = events[0];
+      }
+
+      // Fallback demo event if none exists
+      if (!currentEvent) {
+        currentEvent = {
+          id: 'evt_demo_01',
+          name: 'Apex AI & Robotics Hackathon 2026',
+          description: 'Join the premier inter-college artificial intelligence and robotics championship. Build high-impact agentic AI pipelines, compete for ₹2,50,000 in grand prizes, and network with leading tech founders.',
+          category: 'Hackathon',
+          date: '2026-10-24',
+          startTime: '09:00',
+          endTime: '18:00',
+          venue: 'Main Auditorium & Innovation Lab',
+          city: 'Pune',
+          state: 'Maharashtra',
+          maxAttendees: 150,
+          organizerEmail: 'organizer@eventhub.io',
+          organizerPhone: '+91 98765 43210',
+          attendees: 18,
+          checkedIn: 4
+        };
+      }
+
+      renderEventDetails();
+      checkExistingRegistration();
+
+      // If URL contains auto=1 (e.g. from scanning the Event Registration QR)
+      if (autoRegister && !isUserRegistered) {
+        triggerAttendeeRegistration(true);
+      }
+    }
+
+    // Render Event Details on Page
+    function renderEventDetails() {
+      const ev = currentEvent;
+      document.title = `${ev.name} — EventHub`;
+      document.getElementById('page-title').textContent = `${ev.name} — EventHub`;
+
+      document.getElementById('ev-title').textContent = ev.name || 'Campus Event';
+      document.getElementById('ev-category-badge').textContent = `🏷️ ${ev.category || 'Event'}`;
+      document.getElementById('ev-code-badge').textContent = `ID: ${ev.id}`;
+
+      const fullDate = formatDate(ev.date);
+      const timeStr = formatTime(ev.startTime) + (ev.endTime ? ' - ' + formatTime(ev.endTime) : '');
+      const locationStr = [ev.venue, ev.city, ev.state].filter(Boolean).join(', ');
+
+      document.getElementById('ev-date-str').textContent = fullDate;
+      document.getElementById('ev-time-str').textContent = timeStr || 'Time TBA';
+      document.getElementById('ev-venue-str').textContent = locationStr || 'Campus Venue';
+      document.getElementById('ev-organizer-str').textContent = ev.organizerEmail ? ev.organizerEmail.split('@')[0] : 'EventHub Team';
+
+      document.getElementById('ev-description').textContent = ev.description || 'Join us for this exciting campus event. Registration is free and open to all students.';
+      document.getElementById('ev-venue-name').textContent = ev.venue || 'Campus Venue';
+      document.getElementById('ev-venue-city').textContent = [ev.city, ev.state].filter(Boolean).join(', ') || 'Main Campus';
+
+      document.getElementById('ev-organizer-email').textContent = ev.organizerEmail || 'support@eventhub.io';
+      document.getElementById('ev-organizer-phone').textContent = ev.organizerPhone || '+91 (0) 98765 43210';
+
+      // Update Share Modal Info
+      document.getElementById('share-modal-ev-name').textContent = ev.name;
+      document.getElementById('share-modal-ev-meta').textContent = `${fullDate} • ${ev.venue || ev.city || 'Venue'}`;
+      
+      const shareUrl = getEventShareURL();
+      document.getElementById('share-modal-url').textContent = shareUrl;
+
+      // Update Participant Count in defined space
+      updateParticipantCountUI();
+
+      // Render Share QR codes
+      renderShareQRCodes(shareUrl);
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    // Helper: Compute Share URL (with auto=1 parameter for scan auto-registration)
+    function getEventShareURL() {
+      const base = window.location.origin + window.location.pathname;
+      return `${base}?id=${currentEvent.id}&auto=1`;
+    }
+
+    // Update Live Participant Space (requirement)
+    function updateParticipantCountUI() {
+      const ev = currentEvent;
+      const count = ev.attendees || 0;
+      const max = ev.maxAttendees;
+
+      document.getElementById('stat-registered-count').textContent = count;
+      document.getElementById('stat-max-capacity').textContent = max ? `${max} Max` : 'Unlimited';
+
+      const fillEl = document.getElementById('participant-progress-fill');
+      const percentEl = document.getElementById('stat-capacity-percent');
+
+      if (max && max > 0) {
+        const pct = Math.min(100, Math.round((count / max) * 100));
+        fillEl.style.width = pct + '%';
+        percentEl.textContent = `${pct}% capacity filled (${count}/${max})`;
+      } else {
+        fillEl.style.width = '100%';
+        percentEl.textContent = `${count} participants confirmed (Open Access)`;
+      }
+    }
+
+    // Check if current user is already registered for this event
+    function checkExistingRegistration() {
+      try {
+        const regMap = JSON.parse(localStorage.getItem('eventhub_registrations') || '{}');
+        const pass = regMap[currentEvent.id];
+        if (pass) {
+          isUserRegistered = true;
+          registeredPass = pass;
+          renderConfirmedPassUI(pass);
+          return;
+        }
+      } catch(_) {}
+
+      isUserRegistered = false;
+      document.getElementById('ticket-confirmed-box').style.display = 'none';
+      document.getElementById('ticket-unregistered-box').style.display = 'block';
+      document.getElementById('hero-register-text').textContent = 'Confirm Registration';
+      document.getElementById('hero-register-btn').classList.remove('btn-tonal');
+      document.getElementById('hero-register-btn').classList.add('btn-primary');
+      document.getElementById('btn-view-pass-scroll').style.display = 'none';
+    }
+
+    // Trigger Registration (Automatic or 1-tap)
+    function triggerAttendeeRegistration(isAutoScan = false) {
+      if (isUserRegistered && registeredPass) {
+        showToast('You are already registered! Viewing your pass.');
+        document.getElementById('pass-section').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+
+      // Check if user profile is already saved in localStorage
+      let userData = null;
+      try {
+        const u = JSON.parse(localStorage.getItem('eventhub_user') || 'null');
+        const p = JSON.parse(localStorage.getItem('eventhub_profile') || 'null');
+        if (u || p) {
+          userData = {
+            name: (u && u.displayName) || (p && p.fullName) || 'Attendee',
+            email: (u && u.email) || (p && p.email) || 'attendee@campus.edu',
+            college: (p && p.college) || 'IIT Bombay / University Campus',
+            whatsapp: (p && p.whatsapp) ? '+91 ' + p.whatsapp : '+91 9876543210'
+          };
+        }
+      } catch(_) {}
+
+      if (userData && userData.name && userData.email) {
+        // Auto-complete registration immediately
+        completeRegistration(userData, isAutoScan);
+      } else {
+        // Open Quick Attendee Details Modal
+        openAttendeeModal();
+      }
+    }
+
+    // Complete Registration & Generate Fresh Confirmation QR (requirement)
+    function completeRegistration(attendee, isAutoScan = false) {
+      const ev = currentEvent;
+
+      // Unique Ticket ID
+      const hashPart = Math.abs(hashCode(attendee.name + attendee.email + ev.id + Date.now())).toString().slice(0, 4);
+      const ticketId = 'EH-' + (ev.id || 'EVT').slice(-6).toUpperCase() + '-' + hashPart;
+
+      // Formatted Verification Payload for Gate Scanner
+      const payload = JSON.stringify({
+        ticketId: ticketId,
+        eventId: ev.id,
+        eventName: ev.name,
+        attendeeName: attendee.name,
+        attendeeEmail: attendee.email,
+        college: attendee.college || 'Campus Delegate',
+        whatsapp: attendee.whatsapp || '',
+        category: ev.category || 'General',
+        issuedAt: new Date().toISOString()
+      });
+
+      const pass = {
+        ticketId: ticketId,
+        eventId: ev.id,
+        eventName: ev.name,
+        eventDate: ev.date,
+        eventTime: ev.startTime,
+        venue: [ev.venue, ev.city].filter(Boolean).join(', '),
+        attendeeName: attendee.name,
+        attendeeEmail: attendee.email,
+        college: attendee.college || 'Campus Delegate',
+        whatsapp: attendee.whatsapp || '',
+        payload: payload,
+        issuedAt: new Date().toISOString()
+      };
+
+      // 1. Save in eventhub_registrations
+      let regMap = {};
+      try { regMap = JSON.parse(localStorage.getItem('eventhub_registrations') || '{}'); } catch(_) {}
+      regMap[ev.id] = pass;
+      localStorage.setItem('eventhub_registrations', JSON.stringify(regMap));
+
+      // 2. Increment attendee count in eventhub_events
+      ev.attendees = (ev.attendees || 0) + 1;
+      let allEvents = [];
+      try { allEvents = JSON.parse(localStorage.getItem('eventhub_events') || '[]'); } catch(_) {}
+      const idx = allEvents.findIndex(e => e.id === ev.id);
+      if (idx !== -1) {
+        allEvents[idx].attendees = ev.attendees;
+        localStorage.setItem('eventhub_events', JSON.stringify(allEvents));
+      }
+
+      // Update state
+      isUserRegistered = true;
+      registeredPass = pass;
+
+      // Update UI
+      updateParticipantCountUI();
+      renderConfirmedPassUI(pass);
+      closeAttendeeModal();
+
+      // Trigger Celebration Confetti
+      try {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } catch(_) {}
+
+      showToast(isAutoScan ? '⚡ Auto-registered successfully from QR Scan!' : '🎉 Registration Confirmed! Fresh QR Pass Generated.');
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    // Hash helper
+    function hashCode(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return hash;
+    }
+
+    // Render Confirmed Pass UI with Fresh Confirmation QR
+    function renderConfirmedPassUI(pass) {
+      document.getElementById('ticket-unregistered-box').style.display = 'none';
+      const confirmedBox = document.getElementById('ticket-confirmed-box');
+      confirmedBox.style.display = 'block';
+
+      document.getElementById('pass-attendee-name').textContent = pass.attendeeName;
+      document.getElementById('pass-attendee-college').textContent = pass.college;
+      document.getElementById('pass-ticket-id').textContent = pass.ticketId;
+
+      document.getElementById('hero-register-text').textContent = '✓ Registered (View Pass)';
+      document.getElementById('hero-register-btn').classList.remove('btn-primary');
+      document.getElementById('hero-register-btn').classList.add('btn-tonal');
+      document.getElementById('btn-view-pass-scroll').style.display = 'inline-flex';
+
+      // Generate Fresh Participant QR Canvas
+      const container = document.getElementById('participant-qr-canvas');
+      container.innerHTML = '';
+      new QRCode(container, {
+        text: pass.payload || pass.ticketId,
+        width: 180,
+        height: 180,
+        colorDark: "#141218",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    // Render Share Event QR Codes
+    function renderShareQRCodes(shareUrl) {
+      const shareHolder = document.getElementById('event-share-qr-canvas');
+      if (shareHolder) {
+        shareHolder.innerHTML = '';
+        new QRCode(shareHolder, {
+          text: shareUrl,
+          width: 140,
+          height: 140,
+          colorDark: "#141218",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+
+      const modalHolder = document.getElementById('modal-qr-canvas');
+      if (modalHolder) {
+        modalHolder.innerHTML = '';
+        new QRCode(modalHolder, {
+          text: shareUrl,
+          width: 200,
+          height: 200,
+          colorDark: "#141218",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      }
+    }
+
+    // Modals & Share actions
+    function openShareModal() {
+      document.getElementById('share-modal').style.display = 'flex';
+      if (window.lucide) window.lucide.createIcons();
+    }
+    function closeShareModal() {
+      document.getElementById('share-modal').style.display = 'none';
+    }
+
+    function openAttendeeModal() {
+      document.getElementById('attendee-modal').style.display = 'flex';
+      if (window.lucide) window.lucide.createIcons();
+    }
+    function closeAttendeeModal() {
+      document.getElementById('attendee-modal').style.display = 'none';
+    }
+
+    function handleAttendeeFormSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('att-name').value.trim();
+      const email = document.getElementById('att-email').value.trim();
+      const college = document.getElementById('att-college').value.trim();
+      const whatsapp = document.getElementById('att-whatsapp').value.trim();
+
+      if (!name || !email) return;
+
+      const attendee = { name, email, college, whatsapp };
+      // Save for future 1-click
+      localStorage.setItem('eventhub_profile', JSON.stringify({ fullName: name, email, college, whatsapp }));
+
+      completeRegistration(attendee, false);
+    }
+
+    // Web Share API
+    async function executeNativeShare() {
+      const shareUrl = getEventShareURL();
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: currentEvent.name,
+            text: `Scan or click to register for ${currentEvent.name} on EventHub!`,
+            url: shareUrl
+          });
+          showToast('Shared successfully!');
+          closeShareModal();
+        } catch(err) {
+          if (err.name !== 'AbortError') copyEventLink();
+        }
+      } else {
+        copyEventLink();
+      }
+    }
+
+    // Copy Link Helper
+    function copyEventLink() {
+      const shareUrl = getEventShareURL();
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        showToast('📋 Direct registration link copied to clipboard!');
+      }).catch(() => {
+        showToast('Link: ' + shareUrl);
+      });
+    }
+
+    function copyVenueAddress() {
+      const addr = [currentEvent.venue, currentEvent.city, currentEvent.state].filter(Boolean).join(', ');
+      navigator.clipboard.writeText(addr).then(() => {
+        showToast('📍 Venue address copied to clipboard!');
+      });
+    }
+
+    // Download QR image
+    function downloadEventQRImage() {
+      const qrCanvas = document.querySelector('#modal-qr-canvas canvas') || document.querySelector('#modal-qr-canvas img');
+      if (!qrCanvas) return;
+      
+      const link = document.createElement('a');
+      link.download = `${(currentEvent.name || 'event').replace(/\s+/g, '_')}_QR.png`;
+      link.href = qrCanvas.tagName === 'CANVAS' ? qrCanvas.toDataURL('image/png') : qrCanvas.src;
+      link.click();
+      showToast('📥 Event QR Code downloaded!');
+    }
+
+    function downloadParticipantPass() {
+      const qrCanvas = document.querySelector('#participant-qr-canvas canvas') || document.querySelector('#participant-qr-canvas img');
+      if (!qrCanvas) return;
+
+      const link = document.createElement('a');
+      link.download = `${registeredPass.ticketId}_Pass.png`;
+      link.href = qrCanvas.tagName === 'CANVAS' ? qrCanvas.toDataURL('image/png') : qrCanvas.src;
+      link.click();
+      showToast('📥 Participant Entry QR Pass downloaded!');
+    }
+
+    // Close on Escape or backdrop click
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeShareModal();
+        closeAttendeeModal();
+      }
+    });
+
+    document.getElementById('share-modal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'share-modal') closeShareModal();
+    });
+    document.getElementById('attendee-modal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'attendee-modal') closeAttendeeModal();
+    });
+
+    // Initialize
+    loadEventData();
+  </script>
+</body>
+</html>

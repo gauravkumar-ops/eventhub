@@ -538,9 +538,22 @@
         attendeeName: data.attendeeName || 'Attendee',
         college: data.college || 'Institution',
         time: timeStr,
-        scannedAt: now.toISOString()
+        scannedAt: now.toISOString(),
+        eventId: data.eventId || null
       };
       localStorage.setItem('eventhub_checkins', JSON.stringify(checkedInMap));
+
+      // If eventId exists, update checkedIn stat in eventhub_events
+      if (data.eventId) {
+        try {
+          const events = JSON.parse(localStorage.getItem('eventhub_events') || '[]');
+          const evIdx = events.findIndex(e => e.id === data.eventId);
+          if (evIdx !== -1) {
+            events[evIdx].checkedIn = (events[evIdx].checkedIn || 0) + 1;
+            localStorage.setItem('eventhub_events', JSON.stringify(events));
+          }
+        } catch(_) {}
+      }
 
       // Add to log
       checkinRecords.unshift({

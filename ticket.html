@@ -547,6 +547,29 @@
     }
 
     function generateQrCodeData(ev, user) {
+      // Check if a registered pass already exists in eventhub_registrations
+      try {
+        const regMap = JSON.parse(localStorage.getItem('eventhub_registrations') || '{}');
+        if (regMap[ev.id]) {
+          const pass = regMap[ev.id];
+          return {
+            ticketId: pass.ticketId,
+            payload: pass.payload || JSON.stringify({
+              ticketId: pass.ticketId,
+              eventId: ev.id,
+              eventName: ev.name,
+              attendeeName: pass.attendeeName || user.name,
+              attendeeEmail: pass.attendeeEmail || user.email,
+              college: pass.college || user.college,
+              whatsapp: pass.whatsapp || user.whatsapp,
+              category: ev.category || 'General',
+              issuedAt: pass.issuedAt || new Date().toISOString()
+            }),
+            customPass: pass
+          };
+        }
+      } catch(_) {}
+
       // Formatted JSON payload for instant camera decoding & verification
       const ticketId = 'EH-' + (ev.id || 'EVT').slice(-6).toUpperCase() + '-' + Math.abs(hashCode(user.name + ev.name)).toString().slice(0, 4);
       
@@ -562,7 +585,7 @@
         issuedAt: new Date().toISOString()
       });
 
-      return { ticketId, payload };
+      return { ticketId, payload, customPass: null };
     }
 
     function hashCode(str) {
@@ -583,7 +606,7 @@
 
       const ev = allEvents[currentEventIndex];
       const user = getUserData();
-      const { ticketId, payload } = generateQrCodeData(ev, user);
+      const { ticketId, payload, customPass } = generateQrCodeData(ev, user);
 
       // Check if ticket has already been checked in
       const checkedInMap = JSON.parse(localStorage.getItem('eventhub_checkins') || '{}');
@@ -592,10 +615,10 @@
       document.getElementById('t-category').textContent = ev.category || 'Event';
       document.getElementById('t-event-name').textContent = ev.name;
       document.getElementById('t-venue').textContent = [ev.venue, ev.city, ev.state].filter(Boolean).join(', ') || 'Campus Venue';
-      document.getElementById('t-name').textContent = user.name;
-      document.getElementById('t-college').textContent = user.college;
+      document.getElementById('t-name').textContent = (customPass && customPass.attendeeName) || user.name;
+      document.getElementById('t-college').textContent = (customPass && customPass.college) || user.college;
       document.getElementById('t-degree').textContent = user.degree;
-      document.getElementById('t-whatsapp').textContent = user.whatsapp;
+      document.getElementById('t-whatsapp').textContent = (customPass && customPass.whatsapp) || user.whatsapp;
       document.getElementById('t-datetime').textContent = (ev.date || '2026-10-24') + ' • ' + (ev.startTime || '09:00 AM');
       document.getElementById('t-hash').textContent = ticketId;
 
