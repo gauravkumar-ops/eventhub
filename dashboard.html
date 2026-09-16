@@ -41,6 +41,10 @@
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabaseClient.js"></script>
+
   <!-- Apply saved theme and sidebar state BEFORE render -->
   <script>
     (function () {
@@ -1775,21 +1779,21 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon-wrap secondary"><i data-lucide="users"></i></div>
-          <div class="stat-value">0</div>
+          <div class="stat-value" id="total-registrations-count">0</div>
           <div class="stat-label">Total Registrations</div>
           <div class="stat-trend"><i data-lucide="trending-up"
               style="width:14px;height:14px;color:var(--md-sys-color-success);"></i> Live attendee count</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon-wrap success"><i data-lucide="scan-line"></i></div>
-          <div class="stat-value">0</div>
+          <div class="stat-value" id="checkins-completed-count">0</div>
           <div class="stat-label">Check-Ins Completed</div>
           <div class="stat-trend"><i data-lucide="check"
               style="width:14px;height:14px;color:var(--md-sys-color-success);"></i> Sub-second verified</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon-wrap tertiary"><i data-lucide="qr-code"></i></div>
-          <div class="stat-value">0</div>
+          <div class="stat-value" id="qr-passes-issued-count">0</div>
           <div class="stat-label">QR Passes Issued</div>
           <div class="stat-trend"><i data-lucide="mail"
               style="width:14px;height:14px;color:var(--md-sys-color-tertiary);"></i> Auto-dispatched</div>
@@ -2437,6 +2441,79 @@
       showToast('📥 Event QR Code downloaded!');
     };
 
+    // 1. Update Live Metric Cards from Supabase
+    async function updateMetrics(eventId) {
+      const client = window.db || window.supabaseClient;
+      if (!client) return;
+
+      try {
+        let regQuery = client.from('tickets').select('*', { count: 'exact', head: true });
+        let checkInQuery = client.from('tickets').select('*', { count: 'exact', head: true }).eq('is_checked_in', true);
+
+        if (eventId && eventId !== 'all') {
+          regQuery = regQuery.eq('event_id', eventId);
+          checkInQuery = checkInQuery.eq('event_id', eventId);
+        }
+
+        const { count: totalReg } = await regQuery;
+        const { count: totalCheckedIn } = await checkInQuery;
+
+        // Update your HTML elements
+        const regEl = document.querySelector('#total-registrations-count');
+        const checkInEl = document.querySelector('#checkins-completed-count');
+        const qrEl = document.querySelector('#qr-passes-issued-count');
+
+        if (regEl && totalReg !== null && totalReg !== undefined) regEl.textContent = totalReg;
+        if (checkInEl && totalCheckedIn !== null && totalCheckedIn !== undefined) checkInEl.textContent = totalCheckedIn;
+        if (qrEl && totalReg !== null && totalReg !== undefined) qrEl.textContent = totalReg;
+      } catch (err) {
+        console.warn("[EventHub] Supabase metrics sync skipped:", err);
+      }
+    }
+    window.updateMetrics = updateMetrics;
+
+    // 2. Verify Scanned QR / Manual Code at Gate
+    async function checkInAttendee(scannedTicketId) {
+      const client = window.db || window.supabaseClient;
+      if (!client) {
+        alert("Database connection is not available.");
+        return;
+      }
+
+      if (!scannedTicketId || !scannedTicketId.trim()) {
+        alert("Please enter a valid Ticket ID.");
+        return;
+      }
+
+      const { data: ticket, error } = await client
+        .from('tickets')
+        .select('*')
+        .eq('id', scannedTicketId.trim())
+        .single();
+
+      if (error || !ticket) {
+        alert("❌ Ticket not found!");
+        return;
+      }
+
+      if (ticket.is_checked_in) {
+        alert(`⚠️ Duplicate! Already checked in at ${new Date(ticket.checked_in_at).toLocaleTimeString()}`);
+        return;
+      }
+
+      // Mark ticket as checked in
+      await client
+        .from('tickets')
+        .update({ is_checked_in: true, checked_in_at: new Date().toISOString() })
+        .eq('id', ticket.id);
+
+      alert(`✅ Admitted: ${ticket.attendee_name}`);
+      if (ticket.event_id) {
+        updateMetrics(ticket.event_id);
+      }
+    }
+    window.checkInAttendee = checkInAttendee;
+
     function showToast(msg) {
       let t = document.getElementById('dash-status-toast');
       if (!t) {
@@ -2453,7 +2530,8 @@
     }
 
     loadEvents();
-    window.addEventListener('pageshow', loadEvents);
+    updateMetrics();
+    window.addEventListener('pageshow', () => { loadEvents(); updateMetrics(); });
   </script>
 
   <!-- Dashboard Share Event QR Modal -->

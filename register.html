@@ -19,6 +19,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabaseClient.js"></script>
+
   <!-- Apply saved theme BEFORE render -->
   <script>
     (function(){
@@ -630,6 +634,18 @@
           <span class="field-error">Select your expected graduation year.</span>
         </div>
 
+        <div class="field" id="field-invitecode">
+          <label class="field-label" for="invitecode">Event Invite / Pass Code <span style="font-size:0.75rem; color:var(--md-sys-color-primary);">(Optional)</span></label>
+          <div class="select-wrap" style="position:relative;">
+            <input class="field-input" type="text" id="invitecode" name="invitecode" placeholder="e.g. VIP-2026-XYZ" style="text-transform:uppercase;" />
+            <i data-lucide="key" class="chevron" style="pointer-events:none;"></i>
+          </div>
+          <div class="phone-hint">
+            <i data-lucide="shield-check" style="width:14px;height:14px;color:var(--md-sys-color-primary);"></i>
+            Enter private pass code to unlock verified ticket
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -841,13 +857,65 @@
         if (!valid) ok = false;
       });
       return ok;
-    }
+    // Supabase Registration and Invite Code Validation
+    async function handleRegistration(eventId, attendeeName, attendeeEmail, enteredCode) {
+      const client = window.db || window.supabaseClient;
+      if (!client) {
+        console.warn("[EventHub] Supabase client is not available.");
+        return null;
+      }
 
-    document.getElementById('submit-btn').addEventListener('click', function() {
+      // 1. Verify code
+      const { data: invite, error: inviteErr } = await client
+        .from('invite_codes')
+        .select('*')
+        .eq('event_id', eventId)
+        .eq('code', enteredCode.trim())
+        .eq('is_used', false)
+        .single();
+
+      if (inviteErr || !invite) {
+        alert("Invalid or already used invite code!");
+        return null;
+      }
+
+      // 2. Create ticket
+      const { data: ticket, error: ticketErr } = await client
+        .from('tickets')
+        .insert([{
+          event_id: eventId,
+          attendee_name: attendeeName,
+          attendee_email: attendeeEmail,
+          invite_code_used: enteredCode.trim()
+        }])
+        .select()
+        .single();
+
+      if (ticketErr || !ticket) {
+        alert("Failed to create ticket: " + (ticketErr?.message || "Unknown error"));
+        return null;
+      }
+
+      // 3. Mark invite code as used
+      await client
+        .from('invite_codes')
+        .update({ is_used: true, used_at: new Date().toISOString() })
+        .eq('id', invite.id);
+
+      // Return ticket ID (pass this to QRCode generator)
+      return ticket.id;
+    }
+    window.handleRegistration = handleRegistration;
+
+    document.getElementById('submit-btn').addEventListener('click', async function() {
       if (!validate()) {
         document.querySelector('.field.has-error')?.scrollIntoView({ behavior:'smooth', block:'center' });
         return;
       }
+
+      const submitBtn = document.getElementById('submit-btn');
+      const originalText = submitBtn.innerHTML;
+
       const data = {};
       allFieldIds.forEach(id => {
         const el = document.getElementById(id);
@@ -855,6 +923,43 @@
       });
       data.savedAt = new Date().toISOString();
       localStorage.setItem('eventhub_profile', JSON.stringify(data));
+
+      // Check if registering for a specific event or with invite code
+      const urlParams = new URLSearchParams(window.location.search);
+      const eventId = urlParams.get('event_id') || urlParams.get('id') || 'default-event';
+      const enteredCode = document.getElementById('invitecode')?.value?.trim();
+
+      const user = JSON.parse(localStorage.getItem('eventhub_user') || '{}');
+      const attendeeName = user.displayName || `${data.degree?.toUpperCase() || 'Student'} (${data.college || 'EventHub User'})`;
+      const attendeeEmail = user.email || (data.whatsapp ? `${data.whatsapp}@eventhub.local` : 'attendee@eventhub.local');
+
+      if (enteredCode) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i data-lucide="loader-2" class="spin"></i> Verifying Code & Issuing Ticket...`;
+        if (window.lucide) window.lucide.createIcons();
+
+        try {
+          const ticketId = await handleRegistration(eventId, attendeeName, attendeeEmail, enteredCode);
+          if (ticketId) {
+            localStorage.setItem('eventhub_last_ticket_id', ticketId);
+            document.getElementById('success-meta').innerHTML = `
+              <strong>Ticket ID:</strong> <code>${ticketId}</code><br>
+              <strong>Institution:</strong> ${data.college} (${data.district}, ${data.state})<br>
+              <strong>Program:</strong> ${data.degree.toUpperCase()} in ${data.specialization}<br>
+              <strong>Department:</strong> ${data.department}<br>
+              <strong>Contact:</strong> +91 ${data.whatsapp} &nbsp;|&nbsp; <strong>Graduation:</strong> ${data.gradyear}
+            `;
+            document.getElementById('success-overlay').classList.add('show');
+            return;
+          }
+        } catch (err) {
+          console.error("Registration error:", err);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+          if (window.lucide) window.lucide.createIcons();
+        }
+      }
 
       document.getElementById('success-meta').innerHTML = `
         <strong>Institution:</strong> ${data.college} (${data.district}, ${data.state})<br>
