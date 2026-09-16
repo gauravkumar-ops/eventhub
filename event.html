@@ -45,6 +45,10 @@
   <!-- Socket.io Real-Time Client -->
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabaseClient.js"></script>
+
   <!-- Apply saved theme BEFORE render -->
   <script>
     (function(){
@@ -741,6 +745,54 @@
       setTimeout(() => t.classList.remove('show'), 3500);
     }
 
+    // Check if current user already registered for this event
+    function checkExistingRegistration() {
+      if (!currentEvent) return false;
+      try {
+        const regMap = JSON.parse(localStorage.getItem('eventhub_registrations') || '{}');
+        const pass = regMap[currentEvent.id];
+        if (pass) {
+          isUserRegistered = true;
+          registeredPass = pass;
+          renderConfirmedPassUI(pass);
+          return true;
+        }
+      } catch (_) {}
+      isUserRegistered = false;
+      registeredPass = null;
+      return false;
+    }
+    window.checkExistingRegistration = checkExistingRegistration;
+
+    // Trigger Attendee Registration flow
+    function triggerAttendeeRegistration(isAutoScan = false) {
+      if (isUserRegistered && registeredPass) {
+        document.getElementById('pass-section')?.scrollIntoView({ behavior: 'smooth' });
+        showToast('✓ You already have an active entry pass for this event!');
+        return;
+      }
+
+      // Check if logged in user or saved profile exists
+      let user = null;
+      try { user = JSON.parse(localStorage.getItem('eventhub_user') || 'null'); } catch (_) {}
+      let profile = null;
+      try { profile = JSON.parse(localStorage.getItem('eventhub_profile') || 'null'); } catch (_) {}
+
+      const name = (user && (user.displayName || user.email?.split('@')[0])) || (profile && (profile.fullName || profile.name)) || '';
+      const email = (user && user.email) || (profile && profile.email) || (profile && profile.whatsapp ? `${profile.whatsapp}@eventhub.local` : '');
+      const college = (profile && (profile.college || profile.institution)) || 'Campus Delegate';
+      const whatsapp = (profile && profile.whatsapp) || '';
+
+      if (name && email) {
+        // Direct seamless 1-click registration
+        completeRegistration({ name, email, college, whatsapp }, isAutoScan);
+      } else {
+        // Open modal to capture attendee details
+        openAttendeeModal();
+      }
+    }
+    window.triggerAttendeeRegistration = triggerAttendeeRegistration;
+
     // Load Event from Storage by ID or Fallback Demo
     function loadEventData() {
       const params = new URLSearchParams(window.location.search);
@@ -1010,7 +1062,38 @@
         localStorage.setItem('eventhub_events', JSON.stringify(allEvents));
       }
 
-      // 3. Post to backend server if online
+      // 3. Sync to Supabase Tickets Table
+      const client = window.db || window.supabaseClient;
+      if (client) {
+        client
+          .from('tickets')
+          .insert([{
+            event_id: ev.id,
+            attendee_name: attendee.name,
+            attendee_email: attendee.email,
+            invite_code_used: 'DIRECT_REGISTER'
+          }])
+          .select()
+          .single()
+          .then(({ data: sbTicket, error: sbErr }) => {
+            if (sbTicket && sbTicket.id) {
+              pass.ticketId = sbTicket.id;
+              pass.payload = JSON.stringify({
+                ticketId: sbTicket.id,
+                eventId: ev.id,
+                eventName: ev.name,
+                attendeeName: attendee.name,
+                attendeeEmail: attendee.email,
+                college: attendee.college || 'Campus Delegate',
+                issuedAt: new Date().toISOString()
+              });
+              renderConfirmedPassUI(pass);
+            }
+          })
+          .catch(console.warn);
+      }
+
+      // 4. Post to backend server if online
       try {
         fetch(`/api/events/${ev.id}/register`, {
           method: 'POST',
