@@ -36,6 +36,10 @@
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabaseClient.js"></script>
+
   <script>
     (function(){
       var saved = localStorage.getItem('eventhub_theme') || 'dark';
@@ -1234,6 +1238,30 @@
       try { events = JSON.parse(localStorage.getItem('eventhub_events') || '[]'); } catch(e){}
       events.unshift(ev);
       localStorage.setItem('eventhub_events', JSON.stringify(events));
+
+      // Sync event to Supabase cloud database so all attendees see the true event
+      var client = window.db || window.supabaseClient;
+      if (client) {
+        client.from('events').upsert([{
+          id:             ev.id,
+          name:           ev.name,
+          description:    ev.description,
+          category:       ev.category,
+          date:           ev.date,
+          start_time:     ev.startTime,
+          end_time:       ev.endTime,
+          venue:          ev.venue,
+          city:           ev.city,
+          state:          ev.state,
+          max_attendees:  ev.maxAttendees,
+          organizer_email:ev.organizerEmail,
+          organizer_phone:ev.organizerPhone,
+          created_at:     ev.createdAt
+        }]).then(function(res) {
+          if (res.error) console.warn('[EventHub] Supabase event sync note:', res.error.message);
+          else console.log('[EventHub] Event successfully synced to Supabase:', ev.id);
+        }).catch(console.warn);
+      }
 
       // Record email notification dispatch in logs
       var notifications = [];

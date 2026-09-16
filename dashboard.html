@@ -2377,7 +2377,23 @@
       const ev = events.find(e => e.id === eventId) || { id: eventId, name: 'Campus Event' };
       dashboardActiveEvent = ev;
 
-      const url = window.location.origin + window.location.pathname.replace('dashboard.html', 'event.html') + '?id=' + ev.id + '&auto=1';
+      const shareParams = new URLSearchParams({
+        id:       ev.id || '',
+        name:     ev.name || '',
+        category: ev.category || '',
+        date:     ev.date || '',
+        start:    ev.startTime || '',
+        end:      ev.endTime || '',
+        venue:    ev.venue || '',
+        city:     ev.city || '',
+        state:    ev.state || '',
+        max:      ev.maxAttendees || '',
+        email:    ev.organizerEmail || '',
+        phone:    ev.organizerPhone || '',
+        desc:     ev.description || '',
+        auto:     '1'
+      });
+      const url = window.location.origin + window.location.pathname.replace('dashboard.html', 'event.html') + '?' + shareParams.toString();
       dashboardActiveUrl = url;
 
       document.getElementById('dash-modal-ev-name').textContent = ev.name;

@@ -793,26 +793,82 @@
     }
     window.triggerAttendeeRegistration = triggerAttendeeRegistration;
 
-    // Load Event from Storage by ID or Fallback Demo
-    function loadEventData() {
+    // Load Event from URL params, Storage, or Supabase Cloud
+    async function loadEventData() {
       const params = new URLSearchParams(window.location.search);
       const eventId = params.get('id');
       const autoRegister = params.get('auto') === '1' || params.get('register') === '1';
 
+      // 1. Check if event info is directly passed in URL parameters
+      if (params.get('name')) {
+        currentEvent = {
+          id:             eventId || ('evt_' + Date.now()),
+          name:           params.get('name'),
+          description:    params.get('desc') || '',
+          category:       params.get('category') || 'Event',
+          date:           params.get('date') || new Date().toISOString().split('T')[0],
+          startTime:      params.get('start') || '09:00',
+          endTime:        params.get('end') || null,
+          venue:          params.get('venue') || 'Campus Venue',
+          city:           params.get('city') || '',
+          state:          params.get('state') || '',
+          maxAttendees:   params.get('max') ? parseInt(params.get('max')) : null,
+          organizerEmail: params.get('email') || 'support@eventhub.io',
+          organizerPhone: params.get('phone') || null,
+          attendees:      0,
+          checkedIn:      0
+        };
+      }
+
+      // 2. Check LocalStorage
       let events = [];
       try {
         events = JSON.parse(localStorage.getItem('eventhub_events') || '[]');
       } catch (_) {}
 
-      if (eventId && events.length > 0) {
+      if (!currentEvent && eventId && events.length > 0) {
         currentEvent = events.find(e => e.id === eventId);
+      }
+
+      // 3. Query Supabase Cloud Database for the event
+      const client = window.db || window.supabaseClient;
+      if (client && eventId) {
+        try {
+          const { data: dbEvent, error } = await client
+            .from('events')
+            .select('*')
+            .eq('id', eventId)
+            .single();
+
+          if (dbEvent && !error) {
+            currentEvent = {
+              id:             dbEvent.id,
+              name:           dbEvent.name,
+              description:    dbEvent.description,
+              category:       dbEvent.category,
+              date:           dbEvent.date,
+              startTime:      dbEvent.start_time || dbEvent.startTime,
+              endTime:        dbEvent.end_time || dbEvent.endTime,
+              venue:          dbEvent.venue,
+              city:           dbEvent.city,
+              state:          dbEvent.state,
+              maxAttendees:   dbEvent.max_attendees || dbEvent.maxAttendees,
+              organizerEmail: dbEvent.organizer_email || dbEvent.organizerEmail,
+              organizerPhone: dbEvent.organizer_phone || dbEvent.organizerPhone,
+              attendees:      dbEvent.attendees || 0,
+              checkedIn:      dbEvent.checked_in || 0
+            };
+          }
+        } catch (err) {
+          console.warn('[EventHub] Supabase event fetch skipped:', err);
+        }
       }
 
       if (!currentEvent && events.length > 0) {
         currentEvent = events[0];
       }
 
-      // Fallback demo event if none exists
+      // Fallback demo event if completely empty
       if (!currentEvent) {
         currentEvent = {
           id: 'evt_demo_01',
@@ -831,6 +887,20 @@
           attendees: 18,
           checkedIn: 4
         };
+      }
+
+      // Sync live attendee count from Supabase tickets table
+      if (client && currentEvent && currentEvent.id) {
+        try {
+          const { count: ticketCount } = await client
+            .from('tickets')
+            .select('*', { count: 'exact', head: true })
+            .eq('event_id', currentEvent.id);
+
+          if (ticketCount !== null && ticketCount !== undefined) {
+            currentEvent.attendees = ticketCount;
+          }
+        } catch (_) {}
       }
 
       renderEventDetails();
@@ -900,10 +970,27 @@
       if (window.lucide) window.lucide.createIcons();
     }
 
-    // Helper: Compute Share URL (with auto=1 parameter for scan auto-registration)
+    // Helper: Compute Share URL with complete event parameters for universal accessibility
     function getEventShareURL() {
       const base = window.location.origin + window.location.pathname;
-      return `${base}?id=${currentEvent.id}&auto=1`;
+      if (!currentEvent) return base;
+      const q = new URLSearchParams({
+        id:       currentEvent.id || '',
+        name:     currentEvent.name || '',
+        category: currentEvent.category || '',
+        date:     currentEvent.date || '',
+        start:    currentEvent.startTime || '',
+        end:      currentEvent.endTime || '',
+        venue:    currentEvent.venue || '',
+        city:     currentEvent.city || '',
+        state:    currentEvent.state || '',
+        max:      currentEvent.maxAttendees || '',
+        email:    currentEvent.organizerEmail || '',
+        phone:    currentEvent.organizerPhone || '',
+        desc:     currentEvent.description || '',
+        auto:     '1'
+      });
+      return `${base}?${q.toString()}`;
     }
 
     // Update Live Participant Space (requirement)
