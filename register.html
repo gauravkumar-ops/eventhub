@@ -857,6 +857,8 @@
         if (!valid) ok = false;
       });
       return ok;
+    }
+
     // Supabase Registration and Invite Code Validation
     async function handleRegistration(eventId, attendeeName, attendeeEmail, enteredCode) {
       const client = window.db || window.supabaseClient;
