@@ -588,16 +588,31 @@ select.field-input::-ms-expand {
   color: var(--md-sys-color-on-surface);
 }
 
-.logo-icon {
-  width: 32px;
-  height: 32px;
+.logo-icon,
+.panel-logo-icon,
+.logo-badge,
+.logo-mark {
+  width: 34px;
+  height: 34px;
   border-radius: var(--md-sys-shape-corner-small);
-  background-color: var(--md-sys-color-primary-container);
-  color: var(--md-sys-color-on-primary-container);
-  display: flex;
+  background-color: transparent;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.logo-img,
+.logo-icon img,
+.panel-logo-icon img,
+.logo-badge img,
+.logo-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
 }
 
 .logo-accent {
