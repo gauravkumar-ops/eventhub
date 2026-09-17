@@ -512,7 +512,10 @@
             </select>
             <i data-lucide="chevron-down" class="chevron"></i>
           </div>
-          <span class="field-error">Please select your institution.</span>
+          <div id="custom-college-wrap" style="display:none; margin-top:10px;">
+            <input class="field-input" type="text" id="custom-college" placeholder="Enter your full college / institution name" />
+          </div>
+          <span class="field-error">Please select or enter your institution.</span>
         </div>
 
       </div>
@@ -728,32 +731,334 @@
     };
 
     const districtColleges = {
-      "Mumbai":["IIT Bombay","VJTI Mumbai","NMIMS Mumbai","University of Mumbai","Jai Hind College","St. Xavier's College","HR College","KJ Somaiya College","TISS Mumbai","Other"],
-      "Pune":["COEP Pune","Symbiosis International University","Savitribai Phule Pune University","Fergusson College","MIT Pune","VIT Pune","Indira College of Engineering","Other"],
-      "Bengaluru Urban":["IISc Bengaluru","RV College of Engineering","PES University","BMS College of Engineering","Christ University","Manipal Institute of Technology (Bengaluru)","Other"],
-      "Chennai":["IIT Madras","Anna University","Loyola College","Madras Christian College","SRM Institute of Science & Technology","VIT Chennai","Other"],
-      "Hyderabad":["IIT Hyderabad","BITS Pilani Hyderabad","IIIT Hyderabad","Osmania University","JNTUH","CVR College of Engineering","Other"],
-      "New Delhi":["IIT Delhi","Delhi University","Jawaharlal Nehru University","Jamia Millia Islamia","IP University","DTU Delhi","NSUT","Ambedkar University Delhi","Other"],
-      "Central Delhi":["Delhi University","Ramjas College","Hindu College","Sri Ram College of Commerce","Other"],
-      "South Delhi":["Jamia Millia Islamia","Jawaharlal Nehru University","Other"],
-      "North Delhi":["Delhi University North Campus","Other"],
-      "Lucknow":["IIT Lucknow","BBAU Lucknow","University of Lucknow","AKTU","Amity University Lucknow","Other"],
-      "Jaipur":["Malaviya National Institute of Technology","University of Rajasthan","Manipal University Jaipur","LNM Institute of Information Technology","Jaipur National University","Other"],
-      "Kolkata":["Jadavpur University","Presidency University","Calcutta University","IIEST Shibpur","St. Xavier's College Kolkata","Other"],
-      "Ahmedabad":["IIT Gandhinagar","DAIICT Gandhinagar","Gujarat University","Nirma University","CEPT University","Other"],
-      "Bengaluru Rural":["Other"],
-      "Kozhikode":["NIT Calicut","University of Calicut","Other"],
-      "Kochi":["CUSAT","Rajagiri College","Other"],
-      "Thiruvananthapuram":["Trivandrum Engineering College","University of Kerala","Other"],
-      "Noida":["Amity University Noida","Galgotias University","Sharda University","GL Bajaj Institute","Other"],
-      "Ghaziabad":["KIET Group of Institutions","Other"],
-      "Nagpur":["VNIT Nagpur","RTM Nagpur University","Other"],
-      "Bhopal":["IIT Bhopal","NIT Bhopal","Barkatullah University","LNCT Bhopal","Other"],
-      "Indore":["IIT Indore","DAVV Indore","Prestige Institute","Other"],
-      "Ranchi":["NIT Jamshedpur","BIT Mesra","Ranchi University","Other"],
-      "Bhubaneswar":["NIT Rourkela","IIT Bhubaneswar","KIIT University","SOA University","Other"],
-      "Chandigarh":["PU Chandigarh","NIPER","UIET Chandigarh","Other"],
-      "Dehradun":["IIT Roorkee","Graphic Era University","Doon University","Other"]
+      // Maharashtra
+      "Mumbai": ["IIT Bombay", "VJTI Mumbai", "NMIMS Mumbai", "University of Mumbai", "Jai Hind College", "St. Xavier's College", "HR College", "KJ Somaiya College", "TISS Mumbai", "ICT Mumbai", "Sardar Patel Institute of Technology (SPIT)", "D.J. Sanghvi College of Engineering", "Mithibai College", "Ruia College", "Other"],
+      "Pune": ["COEP Technological University", "Symbiosis International University", "Savitribai Phule Pune University", "Fergusson College", "MIT World Peace University (MIT-WPU)", "VIT Pune", "Bharati Vidyapeeth", "PICT Pune", "Cummins College of Engineering", "DY Patil International University", "AISSMS Pune", "Other"],
+      "Nagpur": ["VNIT Nagpur", "RTM Nagpur University", "Shri Ramdeobaba College of Engineering (RCOEM)", "G.H. Raisoni College of Engineering", "Government College of Engineering Nagpur", "Yashwantrao Chavan College of Engineering (YCCE)", "LAD College", "Other"],
+      "Nashik": ["K.K. Wagh Institute of Engineering Education", "Sandip University", "MET League of Colleges", "Yashwantrao Chavan Maharashtra Open University (YCMOU)", "KTHM College", "Government Polytechnic Nashik", "Other"],
+      "Aurangabad": ["Dr. Babasaheb Ambedkar Marathwada University (BAMU)", "Government College of Engineering Aurangabad (GECA)", "MGM University", "Jawaharlal Nehru Engineering College (JNEC)", "Deogiri College", "MIT Aurangabad", "Other"],
+      "Solapur": ["Punyashlok Ahilyadevi Holkar Solapur University", "Walchand Institute of Technology (WIT Solapur)", "DBF Dayanand College of Arts & Science", "NK Orchid College of Engineering", "Sangameshwar College", "Other"],
+      "Kolhapur": ["Shivaji University", "Rajarambapu Institute of Technology", "Kolhapur Institute of Technology (KIT)", "D.Y. Patil College of Engineering & Technology", "Gopal Krishna Gokhale College", "Other"],
+      "Thane": ["University of Mumbai Thane Sub-Campus", "KC College of Engineering", "VPM's Maharshi Parshuram College", "Shivajirao S. Jondhle College of Engineering", "Datta Meghe College of Engineering", "Other"],
+      "Amravati": ["Sant Gadge Baba Amravati University", "Government College of Engineering Amravati (GCOEA)", "Prof Ram Meghe Institute of Technology", "Shri Shivaji Science College", "HVPM COET Amravati", "Other"],
+      "Navi Mumbai": ["D.Y. Patil University", "Pillai College of Engineering", "Bharati Vidyapeeth College of Engineering", "SIES Graduate School of Technology", "Terna Engineering College", "Fr. C. Rodrigues Institute of Technology (FCRIT)", "Other"],
+
+      // Delhi
+      "Central Delhi": ["Delhi University", "Hindu College", "St. Stephen's College", "Ramjas College", "Sri Ram College of Commerce (SRCC)", "Zakir Husain Delhi College", "Maulana Azad Medical College", "Other"],
+      "East Delhi": ["University College of Medical Sciences (UCMS)", "Maharaja Agrasen College", "Ambedkar Institute of Advanced Communication", "Shyam Lal College", "East Delhi Campus DU", "Other"],
+      "New Delhi": ["IIT Delhi", "National Institute of Fashion Technology (NIFT)", "AIIMS New Delhi", "Lady Shri Ram College (LSR)", "Sri Venkateswara College", "Miranda House", "Lady Irwin College", "Other"],
+      "North Delhi": ["Delhi University North Campus", "Delhi School of Economics", "Kirori Mal College", "Hansraj College", "Daulat Ram College", "Indraprastha College for Women", "FMS Delhi", "Other"],
+      "North East Delhi": ["Dr. Akhilesh Das Gupta Institute (ADGITM)", "Northern India Engineering College", "Dr. Bhim Rao Ambedkar College", "Other"],
+      "North West Delhi": ["Delhi Technological University (DTU)", "Maharaja Agrasen Institute of Technology (MAIT)", "Keshav Mahavidyalaya", "Sri Guru Tegh Bahadur Khalsa College", "Other"],
+      "South Delhi": ["Jawaharlal Nehru University (JNU)", "Jamia Millia Islamia", "IIIT Delhi", "Shaheed Bhagat Singh College", "Gargi College", "Jamia Hamdard University", "PGDAV College", "Other"],
+      "South East Delhi": ["Faculty of Engineering & Tech Jamia Millia", "Govind Ballabh Pant Institute of Technology", "Acharya Narendra Dev College", "DESU Technical Institute", "Other"],
+      "South West Delhi": ["Netaji Subhas University of Technology (NSUT Main)", "Guru Gobind Singh Indraprastha University (GGSIPU)", "Deen Dayal Upadhyaya College", "Bhagwan Parshuram Institute (BPIT)", "Other"],
+      "West Delhi": ["Bharati Vidyapeeth (BVICAM)", "Shivaji College", "Rajdhani College", "Vivekananda Institute of Professional Studies (VIPS)", "SPM College", "Other"],
+      "Shahdara": ["Shyam Lal College Shahdara", "Vivekananda College", "Dr. B.R. Ambedkar Centre for Biomedical Research", "Other"],
+
+      // Karnataka
+      "Bengaluru Urban": ["IISc Bengaluru", "IIIT Bangalore", "RV College of Engineering (RVCE)", "PES University", "BMS College of Engineering (BMSCE)", "Christ University", "MS Ramaiah Institute of Technology (MSRIT)", "Dayananda Sagar College of Engineering", "Bangalore University", "Mount Carmel College", "St. Joseph's University", "New Horizon College of Engineering", "Other"],
+      "Bengaluru Rural": ["Gitam University Bengaluru", "Reva University", "Presidency University Bangalore", "Sai Vidya Institute of Technology", "Devanahalli Institute of Technology", "East West Institute of Technology", "Other"],
+      "Mysuru": ["University of Mysore", "National Institute of Engineering (NIE Mysuru)", "Sri Jayachamarajendra College of Engineering (SJCE / JSS STU)", "Vidyavardhaka College of Engineering (VVCE)", "Maharani's Science College", "Amrita School of Arts and Sciences", "Other"],
+      "Hubli-Dharwad": ["IIT Dharwad", "IIIT Dharwad", "Karnatak University Dharwad", "KLE Technological University (BVBCET)", "SDM College of Engineering & Technology", "BVB College of Engineering", "Other"],
+      "Mangaluru": ["NITK Surathkal", "Manipal Academy of Higher Education (MAHE)", "Mangalore University", "St. Aloysius University", "Canara Engineering College", "Sahyadri College of Engineering", "NMAM Institute of Technology (Nitte)", "Other"],
+      "Belagavi": ["Visvesvaraya Technological University (VTU)", "KLE Academy of Higher Education", "KLS Gogte Institute of Technology (GIT Belagavi)", "Angadi Institute of Technology", "Lingaraj College", "Other"],
+      "Davangere": ["Davangere University", "Bapuji Institute of Engineering and Technology (BIET)", "University B.D.T. College of Engineering (UBDTCE)", "GM Institute of Technology (GMIT)", "Other"],
+      "Kalaburagi": ["Central University of Karnataka (CUK)", "Gulbarga University", "PDA College of Engineering", "Sharnbasva University", "Khaja Banda Nawaz University", "Other"],
+      "Ballari": ["Vijayanagara Sri Krishnadevaraya University", "Ballari Institute of Technology & Management (BITM)", "RYM Engineering College", "Veerashaiva College", "Other"],
+      "Shivamogga": ["Kuvempu University", "Jawaharlal Nehru National College of Engineering (JNNCE)", "Sahyadri Science College", "PES Institute of Technology Shivamogga", "Other"],
+
+      // Tamil Nadu
+      "Chennai": ["IIT Madras", "Anna University (CEG Campus)", "Loyola College", "Madras Christian College (MCC)", "SRM Institute of Science & Technology", "VIT Chennai", "Stella Maris College", "Presidency College Chennai", "SSN College of Engineering", "Madras Institute of Technology (MIT Chromepet)", "Sathyabama Institute", "Hindustan Institute of Technology", "Other"],
+      "Coimbatore": ["PSG College of Technology", "Coimbatore Institute of Technology (CIT)", "Kumaraguru College of Technology (KCT)", "Amrita Vishwa Vidyapeetham", "Government College of Technology (GCT)", "Bharathiar University", "Sri Krishna College of Engg & Tech (SKCET)", "Karunya University", "Other"],
+      "Madurai": ["Madurai Kamaraj University", "Thiagarajar College of Engineering (TCE)", "American College Madurai", "Lady Doak College", "Velammal College of Engineering", "Fatima College", "Other"],
+      "Tiruchirappalli": ["NIT Trichy", "Bharathidasan University", "National College Trichy", "St. Joseph's College Tiruchirappalli", "Saranathan College of Engineering", "SASTRA Deemed University", "Jamal Mohamed College", "Other"],
+      "Salem": ["Periyar University", "Government College of Engineering Salem", "Sona College of Technology", "Vinayaka Mission's Research Foundation", "Sri Ganesh College of Arts and Science", "Other"],
+      "Tirunelveli": ["Manonmaniam Sundaranar University", "Government College of Engineering Tirunelveli", "National Engineering College", "St. Xavier's College Tirunelveli", "Francis Xavier Engineering College", "Other"],
+      "Vellore": ["Vellore Institute of Technology (VIT Vellore)", "Thiruvalluvar University", "Christian Medical College (CMC Vellore)", "Thanthai Periyar Government Institute of Tech", "Voorhees College", "Other"],
+      "Erode": ["Bannari Amman Institute of Technology (BIT)", "Kongu Engineering College", "Nandha Engineering College", "Erode Arts and Science College", "Velalar College of Engineering", "Other"],
+      "Thoothukudi": ["V.O. Chidambaram College", "St. Mary's College Thoothukudi", "Government Polytechnic Thoothukudi", "National Engineering College Kovilpatti", "Kamaraj College", "Other"],
+      "Dindigul": ["Gandhigram Rural Institute", "PSNA College of Engineering and Technology", "SSM Institute of Engineering and Technology", "GTN Arts College", "Mother Teresa Women's University", "Other"],
+
+      // Uttar Pradesh
+      "Lucknow": ["IIM Lucknow", "IIIT Lucknow", "University of Lucknow", "Dr. A.P.J. Abdul Kalam Technical University (AKTU)", "Babasaheb Bhimrao Ambedkar University (BBAU)", "King George's Medical University (KGMU)", "Amity University Lucknow", "Integral University", "SRMU Lucknow", "Other"],
+      "Kanpur": ["IIT Kanpur", "Harcourt Butler Technical University (HBTU)", "CSJM University Kanpur", "Pranveer Singh Institute of Technology (PSIT)", "UIET Kanpur", "Christ Church College", "Other"],
+      "Agra": ["Dr. B.R. Ambedkar University Agra", "Dayalbagh Educational Institute (DEI)", "Agra College", "St. John's College Agra", "Anand Engineering College", "RBS Engineering Technical Campus", "Other"],
+      "Varanasi": ["Banaras Hindu University (BHU / IIT BHU)", "Mahatma Gandhi Kashi Vidyapith", "Sampurnanand Sanskrit University", "Ashoka Institute of Technology", "Microtek College of Management", "Other"],
+      "Prayagraj": ["MNNIT Allahabad (NIT Prayagraj)", "University of Allahabad", "IIIT Allahabad", "United College of Engineering & Research", "Shambhunath Institute of Engineering", "Ewing Christian College", "Other"],
+      "Meerut": ["Chaudhary Charan Singh University (CCSU)", "Meerut Institute of Engineering & Technology (MIET)", "Shobhit University", "Subharti University", "Vidya Knowledge Park", "Dewan VS Institute", "Other"],
+      "Ghaziabad": ["KIET Group of Institutions", "ABES Engineering College", "Ajay Kumar Garg Engineering College (AKGEC)", "IMS Ghaziabad", "Raj Kumar Goel Institute (RKGIT)", "SRM University Delhi-NCR", "Other"],
+      "Noida": ["Amity University Noida", "Jaypee Institute of Information Technology (JIIT)", "Galgotias University", "Sharda University", "GL Bajaj Institute of Technology", "JSS Academy of Technical Education", "Bennett University", "Other"],
+      "Aligarh": ["Aligarh Muslim University (AMU / Z.H. College of Engg)", "Mangalayatan University", "Dharam Samaj Degree College", "Sri Sai Ayurvedic College", "Other"],
+      "Bareilly": ["M.J.P. Rohilkhand University", "Invertis University", "Future Institute of Engineering", "Shri Ram Murti Smarak College (SRMS)", "Bareilly College", "Other"],
+
+      // West Bengal
+      "Kolkata": ["IIT Kharagpur (Kolkata Campus)", "Jadavpur University", "University of Calcutta", "Presidency University", "St. Xavier's College Kolkata", "IIEST Shibpur", "Maulana Abul Kalam Azad University (MAKAUT)", "Scottish Church College", "Heritage Institute of Technology", "Techno India University", "Other"],
+      "Howrah": ["IIEST Shibpur", "Techno International Batanagar", "Bijoy Krishna Girls' College", "Narasinha Dutt College", "MCKV Institute of Engineering", "Other"],
+      "Darjeeling": ["University of North Bengal", "St. Joseph's College Darjeeling", "Salesian College Sonada", "Kurseong College", "Southfield College", "Other"],
+      "Asansol": ["Kazi Nazrul University", "Asansol Engineering College", "Asansol Girls' College", "Banwarilal Bhalotia College (BB College)", "BC College Asansol", "Other"],
+      "Siliguri": ["Siliguri Institute of Technology (SIT)", "North Bengal University Siliguri Campus", "APC Roy Government College", "Siliguri College", "Other"],
+      "Durgapur": ["NIT Durgapur", "Dr. B.C. Roy Engineering College", "Bengal College of Engineering & Technology", "National Power Training Institute (NPTI)", "Durgapur Government College", "Other"],
+      "Bardhaman": ["University of Burdwan", "University Institute of Technology (UIT BU)", "Burdwan Raj College", "MUC Women's College", "Other"],
+      "Malda": ["University of Gour Banga", "Malda College", "IMPS College of Engineering", "Malda Polytechnic", "Other"],
+      "Cooch Behar": ["Cooch Behar Panchanan Barma University", "Cooch Behar Government Engineering College", "ABN Seal College", "Dinhata College", "Other"],
+      "Jalpaiguri": ["Jalpaiguri Government Engineering College (JGEC)", "Ananda Chandra College", "North Bengal St. Xavier's College Rajganj", "Prasannadeb Women's College", "Other"],
+
+      // Gujarat
+      "Ahmedabad": ["IIT Gandhinagar", "IIM Ahmedabad", "Gujarat University", "Nirma University", "CEPT University", "LD College of Engineering", "St. Xavier's College Ahmedabad", "Silver Oak University", "Indus University", "VGEC Chandkheda", "Other"],
+      "Surat": ["SVNIT Surat (NIT Surat)", "Veer Narmad South Gujarat University (VNSGU)", "Sarvajanik College of Engg & Tech (SCET)", "Sardar Vallabhbhai Patel Institute", "Auro University", "Other"],
+      "Vadodara": ["Maharaja Sayajirao University of Baroda (MSU)", "Parul University", "ITM (SLS) Baroda University", "Navrachana University", "Babaria Institute of Technology (BITS Edu)", "Other"],
+      "Rajkot": ["Saurashtra University", "Marwadi University", "RK University", "Atmiya University", "Government Engineering College Rajkot (GEC)", "VVP Engineering College", "Other"],
+      "Bhavnagar": ["Maharaja Krishnakumarsinhji Bhavnagar University", "Shantilal Shah Engineering College", "Sir P.P. Institute of Science", "Samaldas Arts College", "Other"],
+      "Jamnagar": ["Gujarat Ayurved University", "Government Engineering College Jamnagar", "MP Shah Medical College", "CC Shah College of Commerce", "Other"],
+      "Gandhinagar": ["IIT Gandhinagar", "DAIICT (Dhirubhai Ambani IICT)", "National Forensic Sciences University (NFSU)", "Pandit Deendayal Energy University (PDEU)", "Rashtriya Raksha University", "Swarrnim University", "Other"],
+      "Anand": ["Sardar Patel University (SPU Vallabh Vidyanagar)", "Birla Vishvakarma Mahavidyalaya (BVM)", "GCET (G.H. Patel College of Engg)", "Anand Agricultural University", "Charusat University (CHARUSAT Changa)", "Other"],
+      "Junagadh": ["Bhakta Kavi Narasinh Mehta University", "Junagadh Agricultural University", "Noble University", "Bahauddin Science College", "Other"],
+      "Navsari": ["Navsari Agricultural University", "S.B. Garda Arts College", "Mahatma Gandhi Institute of Technical Education", "Other"],
+
+      // Rajasthan
+      "Jaipur": ["Malaviya National Institute of Technology (MNIT Jaipur)", "University of Rajasthan", "Manipal University Jaipur", "LNMIIT Jaipur", "Jaipur National University", "JECRC University", "Poornima University", "Vivekananda Global University (VGU)", "Banasthali Vidyapith", "Other"],
+      "Jodhpur": ["IIT Jodhpur", "AIIMS Jodhpur", "National Law University Jodhpur (NLUJ)", "Jai Narain Vyas University (JNVU)", "MBM University Jodhpur", "FDDI Jodhpur", "Other"],
+      "Udaipur": ["Mohanlal Sukhadia University (MLSU)", "Maharana Pratap University (MPUAT / CTAE)", "Sir Padampat Singhania University", "Pacific University Udaipur", "Geetanjali University", "Other"],
+      "Kota": ["Rajasthan Technical University (RTU Kota)", "University of Kota", "Career Point University", "Vardhaman Mahaveer Open University (VMOU)", "Government Engineering College Kota", "Other"],
+      "Ajmer": ["Central University of Rajasthan (CURAJ)", "Maharshi Dayanand Saraswati University (MDSU)", "Government Engineering College Ajmer", "Sophia Girls' College", "Bhagwant University", "Other"],
+      "Bikaner": ["Maharaja Ganga Singh University (MGSU)", "Bikaner Technical University (BTU)", "Government Engineering College Bikaner (ECB)", "Swami Keshwanand Agricultural University", "Other"],
+      "Alwar": ["Raj Rishi Bhartrihari Matsya University", "Lords University Alwar", "Northern Institute of Learning", "St. Margaret Engineering College", "Other"],
+      "Bharatpur": ["Maharaja Surajmal Brij University", "Government Engineering College Bharatpur", "MSJ Government College", "Other"],
+      "Sikar": ["Pandit Deendayal Upadhyaya Shekhawati University", "Sobhasaria Group of Institutions", "Mody University (Lakshmangarh)", "Shri Kalyan Government College", "Other"],
+      "Pali": ["Government College Pali", "Bangur Government College", "SPPU Pali Engineering College", "Other"],
+
+      // Andhra Pradesh
+      "Visakhapatnam": ["Andhra University", "GITAM Deemed to be University", "Indian Institute of Petroleum and Energy (IIPE)", "Gayatri Vidya Parishad (GVPCE)", "ANITS Visakhapatnam", "Vignan's Institute of Info Tech", "Raghu Engineering College", "Other"],
+      "Vijayawada": ["KL University (KLEF)", "Andhra Loyola College", "SRM University-AP (Amaravati)", "VIT-AP University", "VR Siddhartha Engineering College (VRSEC)", "PVPSIT Vijayawada", "PB Siddhartha College", "Other"],
+      "Guntur": ["Acharya Nagarjuna University", "Vignan's Foundation (VFSTR Vadlamudi)", "RVR & JC College of Engineering", "Bapatla Engineering College", "Vasireddy Venkatadri Institute (VVIT)", "Other"],
+      "Nellore": ["Vikrama Simhapuri University", "Narayana Engineering College Nellore", "Geethanjali Institute of Science (GIST)", "Priyadarshini College of Engineering", "Rao & Naidu Degree College", "Other"],
+      "Kurnool": ["IIITDM Kurnool", "Rayalaseema University", "G. Pulla Reddy Engineering College (GPREC)", "Santhiram Engineering College", "KSRM College", "Other"],
+      "Kakinada": ["JNTU Kakinada (JNTUK)", "Aditya Engineering College", "Pragati Engineering College", "Ideal Institute of Technology", "P.R. Government College", "Other"],
+      "Rajamahendravaram": ["Adikavi Nannaya University (AKNU)", "Godavari Institute of Engineering (GIET)", "Government College (Autonomous) Rajahmundry", "BVC Engineering College", "Other"],
+      "Tirupati": ["IIT Tirupati", "IISER Tirupati", "Sri Venkateswara University (SVU)", "Sri Padmavati Mahila Visvavidyalayam (SPMVV)", "Sree Vidyanikethan (Mohan Babu University)", "SV Engineering College", "Other"],
+      "Anantapur": ["JNTU Anantapur (JNTUA)", "Sri Krishnadevaraya University (SKU)", "G. Pullaiah College of Engineering", "Anantha Lakshmi Institute of Tech", "Government Arts College Anantapur", "Other"],
+      "Kadapa": ["Yogi Vemana University", "KSRM College of Engineering", "Annamacharya Institute (AITS Rajampet)", "K.O.R.M. College of Engineering", "Other"],
+
+      // Telangana
+      "Hyderabad": ["IIT Hyderabad", "BITS Pilani Hyderabad", "IIIT Hyderabad", "Osmania University", "JNTU Hyderabad (JNTUH)", "University of Hyderabad (HCU)", "Mahindra University", "CBIT Hyderabad", "Vasavi College of Engineering", "VNR Vignana Jyothi Institute (VNR VJIET)", "CVR College of Engineering", "Gokaraju Rangaraju Institute (GRIET)", "Muffakham Jah College (MJCET)", "Anurag University", "Vardhaman College of Engineering", "Other"],
+      "Warangal": ["National Institute of Technology (NIT Warangal)", "Kakatiya University", "Kakatiya Institute of Technology & Science (KITS Warangal)", "SR University (SR Engineering College)", "Vaagdevi College of Engineering", "Chaitanya Deemed University", "Ganapathi Engineering College", "University Arts & Science College Subedari", "Other"],
+      "Nizamabad": ["Telangana University", "Kshatriya College of Engineering (KCEA Armoor)", "Vijay Rural Engineering College (VREC)", "Kakatiya Institute of Technology for Women", "Girraj Government College", "Nishitha Degree College", "Other"],
+      "Karimnagar": ["Satavahana University", "JNTUH College of Engineering Jagtial", "Kamala Institute of Technology & Science (KITS Singapur)", "Jyothishmathi Institute of Technology (JITS)", "Vaageswari College of Engineering", "Sree Chaitanya College of Engineering", "SRR Government Arts & Science College", "Other"],
+      "Khammam": ["Swarna Bharathi Institute (SBIT Khammam)", "Bomma Institute of Technology and Science", "Sai Spurthi Institute of Technology (SSIT Sathupally)", "Mother Teresa Institute of Science & Tech", "SR&BGNR Government Arts & Science College", "KLR College of Engineering Palwancha", "Vijaya Engineering College", "Other"],
+      "Mahbubnagar": ["Palamuru University", "Jayamukhi Institute of Technology", "Sree Visvesvaraya Institute of Tech", "NTR Government Degree College for Women", "MVS Government Arts & Science College", "Other"],
+      "Nalgonda": ["Mahatma Gandhi University Nalgonda", "Nagarjuna Government College", "Ramananda Tirtha Engineering College", "Swami Ramananda Tirtha Institute", "KNGD College Nalgonda", "Other"],
+      "Adilabad": ["Rajiv Gandhi University of Knowledge Technologies (RGUKT / IIIT Basar)", "Government Degree College Adilabad", "Nishitha Degree College Adilabad", "Sanjay Gandhi Government Polytechnic", "Other"],
+      "Medak": ["IIT Hyderabad (Kandi Campus)", "BVRIT Hyderabad (Narsapur)", "Geethanjali College of Engineering", "Tara Government Degree College Sangareddy", "MNR Medical College & Technical Campus", "Other"],
+      "Rangareddy": ["Anurag Group of Institutions (Venkatapur)", "Vardhaman College of Engineering (Shamshabad)", "Guru Nanak Institutions Technical Campus (GNITC)", "Sreenidhi Institute of Science (SNIST)", "CVR College of Engineering (Vastunagar)", "Vignan Institute of Tech (VBIT)", "Other"],
+
+      // Madhya Pradesh
+      "Bhopal": ["IISER Bhopal", "MANIT Bhopal (NIT Bhopal)", "IIIT Bhopal", "Barkatullah University", "Rajiv Gandhi Proudyogiki Vishwavidyalaya (RGPV)", "AIIMS Bhopal", "LNCT Bhopal", "Jagran Lakecity University", "Oriental Institute (OIST Bhopal)", "Technocrats Institute (TIT Bhopal)", "Other"],
+      "Indore": ["IIT Indore", "IIM Indore", "Devi Ahilya Vishwavidyalaya (DAVV / IET DAVV)", "SGSITS Indore", "Medicaps University", "Prestige Institute of Management (PIMR)", "SVVV Indore", "Acropolis Institute of Technology", "Other"],
+      "Gwalior": ["IIITM Gwalior (ABV-IIITM)", "Jiwaji University", "Madhav Institute of Technology & Science (MITS)", "ITM University Gwalior", "Amity University Gwalior", "RJIT Tekanpur", "Other"],
+      "Jabalpur": ["IIITDM Jabalpur", "Rani Durgavati Vishwavidyalaya (RDVV)", "Jabalpur Engineering College (JEC)", "JNKVV Jabalpur", "Gyan Ganga Institute (GGITS)", "St. Aloysius College Jabalpur", "Other"],
+      "Ujjain": ["Vikram University", "Mahakal Institute of Technology (MIT Ujjain)", "Ujjain Engineering College (UEC)", "Avantika University", "Pt. JNIBMT Ujjain", "Other"],
+      "Sagar": ["Dr. Harisingh Gour University (Central University)", "Infinity Management and Engineering College", "BT Institute of Excellence", "Government Autonomous Science College Sagar", "Other"],
+      "Ratlam": ["Government Arts and Science College Ratlam", "Royal College Ratlam", "Shaheed Narendra Singh College", "Brahm Shakti College", "Other"],
+      "Satna": ["AKS University Satna", "Mahatma Gandhi Chitrakoot Gramodaya", "Govt Autonomous PG College Satna", "Rajiv Gandhi Computer College", "Other"],
+      "Dewas": ["Prestige Institute of Management Dewas", "Government College Dewas", "KP College Dewas", "BCG College", "Other"],
+      "Murwara": ["Katni Arts & Commerce College", "Silicobyte Katni Degree College", "Government Tilak College Katni", "Bardiya Mahavidyalaya", "Other"],
+
+      // Bihar
+      "Patna": ["IIT Patna", "NIT Patna", "AIIMS Patna", "Patna University", "Aryabhatta Knowledge University (AKU)", "Chanakya National Law University (CNLU)", "BIT Mesra Patna Campus", "St. Xavier's College Patna", "College of Commerce Arts & Science", "Patna Science College", "Other"],
+      "Gaya": ["Central University of South Bihar (CUSB)", "Magadh University", "Gaya College", "Gaya College of Engineering (GCE Gaya)", "Anugrah Memorial College", "Other"],
+      "Muzaffarpur": ["B.R. Ambedkar Bihar University (BRABU)", "Muzaffarpur Institute of Technology (MIT Muzaffarpur)", "Langat Singh College (LS College)", "Ramdayalu Singh College", "Other"],
+      "Bhagalpur": ["IIIT Bhagalpur", "Tilka Manjhi Bhagalpur University (TMBU)", "Bhagalpur College of Engineering (BCE)", "Marwari College Bhagalpur", "TNB College", "Other"],
+      "Darbhanga": ["Lalit Narayan Mithila University (LNMU)", "Darbhanga College of Engineering (DCE)", "Kameshwar Singh Sanskrit University", "C.M. Science College", "Millat College", "Other"],
+      "Purnia": ["Purnea University", "Purnea College", "Government Engineering College Purnia", "Millia Institute of Technology (MIT)", "Other"],
+      "Arrah": ["Veer Kunwar Singh University (VKSU)", "Harish Chandra College", "Maharaja College Arrah", "HD Jain College", "Other"],
+      "Begusarai": ["G.D. College Begusarai", "SBSS College", "RRSD College of Engineering Begusarai", "Cooper College", "Other"],
+      "Katihar": ["Katihar Engineering College (KEC)", "DS College Katihar", "Katihar Medical College", "KB Jha College", "Other"],
+      "Munger": ["Munger University", "RD & DJ College Munger", "Jamalpur IRIMEE Campus", "Government Polytechnic Munger", "Other"],
+
+      // Punjab
+      "Ludhiana": ["Punjab Agricultural University (PAU)", "Guru Nanak Dev Engineering College (GNDEC)", "Christian Medical College (CMC Ludhiana)", "Dayanand Medical College (DMC)", "SCD Government College", "PCTE Group of Institutes", "Other"],
+      "Amritsar": ["Guru Nanak Dev University (GNDU)", "IIM Amritsar", "Khalsa College Amritsar", "BBK DAV College for Women", "Amritsar Group of Colleges (AGC)", "Other"],
+      "Jalandhar": ["NIT Jalandhar (Dr. B.R. Ambedkar NIT)", "DAV University", "Lovely Professional University (LPU)", "DAV College Jalandhar", "Doaba College", "Apeejay Institute of Management", "Other"],
+      "Patiala": ["Thapar Institute of Engineering & Technology (TIET)", "Punjabi University Patiala", "Rajiv Gandhi National Law University (RGNUL)", "Government Mohindra College", "Multani Mal Modi College", "Other"],
+      "Bathinda": ["Central University of Punjab (CUP Bathinda)", "AIIMS Bathinda", "Maharaja Ranjit Singh Punjab Technical University (MRSPTU)", "Giani Zail Singh Campus (GZSCCET)", "Baba Farid Group of Institutions", "Other"],
+      "Hoshiarpur": ["Panjab University Swami Sarvanand Giri Regional Centre", "DAV College Hoshiarpur", "Government College Hoshiarpur", "Rayat Bahra Group Hoshiarpur", "Other"],
+      "Mohali": ["IISER Mohali", "NIPER Mohali", "Chandigarh Group of Colleges (CGC Landran)", "CGC Jhanjeri", "Plaksha University", "Rayat Bahra University", "ISB Mohali Campus", "Other"],
+      "Gurdaspur": ["Beant College of Engineering (BCET Gurdaspur)", "Pandit Mohan Lal SD College", "Government College Gurdaspur", "SSM College Dinanagar", "Other"],
+      "Firozpur": ["Shaheed Bhagat Singh State University (SBSSU)", "RSD College", "Dev Samaj College for Women", "Guru Nanak College Ferozepur", "Other"],
+      "Moga": ["ISF College of Pharmacy", "Baba Kundan Singh Law College", "DM College Moga", "Lala Lajpat Rai Institute of Engg", "Other"],
+
+      // Haryana
+      "Gurugram": ["Management Development Institute (MDI Gurgaon)", "Gurugram University", "The NorthCap University (NCU)", "SGT University", "Amity University Gurugram", "BML Munjal University", "KR Mangalam University", "Dronacharya College of Engineering", "Starex University", "Other"],
+      "Faridabad": ["J.C. Bose University (YMCA Faridabad)", "Manav Rachna International Institute (MRIIRS)", "Lingaya's Vidyapeeth", "Echelon Institute of Technology", "DAV Centenary College", "Other"],
+      "Panipat": ["Geeta University (Geeta Engg College)", "Panipat Institute of Engg & Tech (PIET)", "Arya College Panipat", "I.B. PG College", "SD College Panipat", "Other"],
+      "Ambala": ["Sanatan Dharma College (SD College Ambala)", "Maharishi Markandeshwar University (MMU Mullana)", "Government College Ambala Cantt", "GMN College", "Other"],
+      "Yamunanagar": ["JMIT Radaur (Jai Parkash Mukand Lal Institute)", "Guru Nanak Khalsa College", "Yamuna Group of Institutions", "MLN College", "Other"],
+      "Rohtak": ["Maharshi Dayanand University (MDU Rohtak)", "Pt. B.D. Sharma PGIMS Rohtak", "IIM Rohtak", "UIET MDU Rohtak", "Vaish College of Engineering", "Other"],
+      "Hisar": ["CCSHAU Hisar (Haryana Agricultural University)", "Guru Jambheshwar University (GJUS&T)", "LUVAS Hisar", "Dayanand College Hisar", "CR Law College", "Other"],
+      "Karnal": ["National Dairy Research Institute (NDRI Karnal)", "Kalpana Chawla Government Medical College", "Dyal Singh College Karnal", "Budha College", "Doon Valley Institute", "Other"],
+      "Sonipat": ["Ashoka University", "O.P. Jindal Global University (JGU)", "DCRUST Murthal", "SRM University Delhi-NCR Sonepat", "IIIT Sonepat", "Rishihood University", "Other"],
+      "Rewari": ["Indira Gandhi University (IGU Meerpur)", "Ahir College Rewari", "Somany Institute of Technology", "Government College for Women Rewari", "Other"],
+
+      // Kerala
+      "Thiruvananthapuram": ["University of Kerala", "IISER Thiruvananthapuram", "IIST (Indian Institute of Space Science)", "College of Engineering Trivandrum (CET)", "Government Engineering College Barton Hill", "Mar Ivanios College", "University College Thiruvananthapuram", "SCT College of Engineering", "Other"],
+      "Kochi": ["Cochin University of Science & Technology (CUSAT)", "Model Engineering College (MEC Thrikkakara)", "Rajagiri School of Engineering (RSET)", "SCMS School of Engineering", "Sacred Heart College Thevara", "St. Teresa's College", "FISAT Kochi", "Other"],
+      "Kozhikode": ["NIT Calicut", "IIM Kozhikode", "University of Calicut", "Farook College", "Government Engineering College Kozhikode", "St. Joseph's College Devagiri", "KMCT College of Engineering", "Other"],
+      "Thrissur": ["Kerala Agricultural University (KAU)", "Government Engineering College Thrissur (GECT)", "St. Thomas College Thrissur", "Vimala College", "Jyothi Engineering College Cheruthuruthy", "Other"],
+      "Kollam": ["TKM College of Engineering (TKMCE)", "Fatima Mata National College", "SN College Kollam", "Bishop Jerome Institute", "Younus College of Engineering", "Other"],
+      "Palakkad": ["IIT Palakkad", "Government Engineering College Sreekrishnapuram (GEC)", "NSS College of Engineering Palakkad", "Victoria College Palakkad", "Mercy College", "Other"],
+      "Alappuzha": ["Sanatana Dharma College (SD College)", "St. Joseph's College for Women", "College of Engineering Cherthala", "Carmel College of Engineering", "Bishop Moore College", "Other"],
+      "Malappuram": ["Aligarh Muslim University Centre Malappuram", "MEA Engineering College", "MES Keveeyam College Valanchery", "Government College Malappuram", "PSMO College", "Other"],
+      "Kannur": ["Kannur University", "Government Engineering College Kannur (GCEK)", "Sir Syed College Taliparamba", "KMM Government Women's College", "St. Joseph's College Pilathara", "Other"],
+      "Kottayam": ["Mahatma Gandhi University (MG University)", "IIIT Kottayam", "Rajiv Gandhi Institute of Technology (RIT)", "CMS College Kottayam", "Saintgits College of Engineering", "Amal Jyothi College of Engg", "Other"],
+
+      // Odisha
+      "Bhubaneswar": ["IIT Bhubaneswar", "AIIMS Bhubaneswar", "NISER Bhubaneswar", "Utkal University", "KIIT Deemed University", "SOA University (Siksha 'O' Anusandhan)", "OUTR (Odisha University of Tech / CETB)", "CV Raman Global University", "Silicon University (SiliconTech)", "IIIT Bhubaneswar", "Other"],
+      "Cuttack": ["National Law University Odisha (NLUO)", "Ravenshaw University", "Sri Sri University", "SCB Medical College", "Stewart Science College", "Ajay Binay Institute of Tech (ABIT)", "Other"],
+      "Rourkela": ["NIT Rourkela", "Biju Patnaik University of Technology (BPUT)", "Rourkela Institute of Management (RIMS)", "Government Autonomous College Rourkela", "Ispat Autonomous College", "Other"],
+      "Brahmapur": ["Berhampur University", "Parala Maharaja Engineering College (PMEC)", "MKCG Medical College", "Khallikote Unitary University", "Roland Institute of Technology", "Other"],
+      "Sambalpur": ["IIM Sambalpur", "Sambalpur University", "Veer Surendra Sai University (VSSUT Burla)", "VIMSAR Burla", "Gangadhar Meher University (GMU)", "Silicon Institute Sambalpur", "Other"],
+      "Puri": ["Shri Jagannath Sanskrit University", "SCS Autonomous College Puri", "Puri Government Polytechnic", "Gopabandhu Ayurvedic Mahavidyalaya", "Other"],
+      "Balasore": ["Fakir Mohan University", "Fakir Mohan Autonomous College", "Balasore College of Engineering (BCET)", "Remuna Degree College", "Other"],
+      "Baripada": ["Maharaja Sriram Chandra Bhanja Deo University", "MPC Autonomous College", "Mayurbhanj Ayurvedic College", "Seemanta Engineering College", "Other"],
+      "Bhadrak": ["Bhadrak Autonomous College", "Trupti Institute of Management", "Charampa Degree College", "Dhamnagar College", "Other"],
+      "Jeypore": ["Central University of Odisha (CUO Koraput)", "Vikram Deb University (VD College Jeypore)", "Jeypore College of Pharmacy", "Gopal Krishna College (GKCET)", "Other"],
+
+      // Assam
+      "Guwahati": ["IIT Guwahati", "Gauhati University", "Assam Engineering College (AEC)", "Cotton University", "Royal Global University", "Girijananda Chowdhury University (GIMT)", "IIIT Guwahati", "Assam Down Town University", "B. Borooah College", "Other"],
+      "Silchar": ["NIT Silchar", "Assam University Silchar", "Silchar Medical College", "Cachar College", "Gurucharan College", "Triguna Sen School of Technology", "Other"],
+      "Dibrugarh": ["Dibrugarh University", "Assam Medical College (AMC Dibrugarh)", "DHSK College", "DUIET Dibrugarh", "Other"],
+      "Jorhat": ["Assam Agricultural University (AAU)", "Jorhat Engineering College (JEC)", "Kaziranga University", "JB College Jorhat", "JIST Jorhat", "Other"],
+      "Nagaon": ["Mahapurusha Srimanta Sankaradeva Viswavidyalaya", "Nowgong College", "Anandaram Dhekial Phookan College", "Nowgong Girls' College", "Other"],
+      "Tinsukia": ["Tinsukia College", "Women's College Tinsukia", "Digboi College", "Doomdooma College", "Other"],
+      "Tezpur": ["Tezpur University (Central University)", "Darrang College", "Tezpur College", "Tezpur Medical College", "Other"],
+      "Bongaigaon": ["Bongaigaon College", "Birjhora Science College", "CIT Kokrajhar/Bongaigaon", "Bongaigaon Polytechnic", "Other"],
+      "Dhubri": ["Bhola Nath College (BN College)", "Dhubri Medical College", "Pramathesh Barua College", "Chilarai College", "Other"],
+      "North Lakhimpur": ["Lakhimpur University (North Lakhimpur College)", "Lakhimpur Medical College", "Lakhimpur Commerce College", "Other"],
+
+      // Jharkhand
+      "Ranchi": ["IIM Ranchi", "Birla Institute of Technology Mesra (BIT Mesra)", "Ranchi University", "NUSRL Ranchi", "IIIT Ranchi", "Central University of Jharkhand (CUJ)", "St. Xavier's College Ranchi", "RIMS Ranchi", "Marwari College Ranchi", "Other"],
+      "Jamshedpur": ["XLRI Jamshedpur", "NIT Jamshedpur", "Arka Jain University", "Kolhan University Jamshedpur Campus", "Jamshedpur Co-operative College", "Karim City College", "Jamshedpur Women's University", "Other"],
+      "Dhanbad": ["IIT (ISM) Dhanbad", "BIT Sindri (Birsa Institute of Technology)", "BBMK University (BBMKU)", "Guru Nanak College Dhanbad", "PK Roy Memorial College", "Other"],
+      "Bokaro": ["Bokaro Steel City College", "GGSESTC Kandra Bokaro", "Chas College Bokaro", "Bokaro Mahila College", "Other"],
+      "Deoghar": ["AIIMS Deoghar", "BIT Mesra Deoghar Extension", "AS College Deoghar", "Deoghar College", "Rama Devi Bajla College", "Other"],
+      "Hazaribagh": ["Vinoba Bhave University (VBU)", "St. Columba's College Hazaribagh", "University Law College VBU", "Annada College", "UCET Hazaribagh", "Other"],
+      "Giridih": ["Giridih College", "RK Mahila College", "Sri Ramkrishna Ashram College", "BLS College", "Other"],
+      "Ramgarh": ["Ramgarh Engineering College", "Ramgarh College", "Radhagovind University", "Chhotanagpur College", "Other"],
+      "Medininagar": ["Nilamber-Pitamber University (NPU)", "GLA College Medininagar", "YSNM College", "Ganesh Lal Agrawal College", "Other"],
+      "Phusro": ["Bermo College", "KB College Bermo", "JSM College Phusro", "Other"],
+
+      // Chhattisgarh
+      "Raipur": ["NIT Raipur", "AIIMS Raipur", "IIIT Naya Raipur", "Pt. Ravishankar Shukla University (PRSU)", "Hidayatullah National Law University (HNLU)", "Rungta College Raipur", "Amity University Chhattisgarh", "Kalinga University", "MATS University", "Other"],
+      "Bhilai": ["IIT Bhilai", "CSVTU Bhilai (Swami Vivekanand Technical University)", "Bhilai Institute of Technology (BIT Durg/Bhilai)", "SSIPMT Bhilai", "Rungta Group of Institutions", "Other"],
+      "Bilaspur": ["Guru Ghasidas Central University (GGU)", "Atal Bihari Vajpayee Vishwavidyalaya", "Government Engineering College Bilaspur (GEC)", "CV Raman University Kota", "DP Vipra College", "Other"],
+      "Korba": ["Government Engineering College Korba", "Korba Computer College", "KNKP College", "Other"],
+      "Rajnandgaon": ["Government Shivnath Science College", "Digvijay Autonomous College", "Royal College of Education", "Other"],
+      "Durg": ["Bhilai Institute of Technology Durg (BIT)", "Hemchand Yadav Vishwavidyalaya (Durg University)", "Government Science College Durg", "Other"],
+      "Jagdalpur": ["Bastar University (Shaheed Mahendra Karma)", "Government Kaktiya PG College", "Government Engineering College Jagdalpur", "Other"],
+      "Ambikapur": ["Sant Gahira Guru University (Sarguja University)", "Rajiv Gandhi Government PG College", "Government Engineering College Ambikapur", "Other"],
+      "Chirmiri": ["Government Lahiri PG College", "Chirmiri College", "Model Degree College Koriya", "Other"],
+      "Dhamtari": ["Government PG College Dhamtari", "BCS Government PG College", "Genesis Institute of Technology", "Other"],
+
+      // Himachal Pradesh
+      "Shimla": ["Himachal Pradesh University (HPU Shimla)", "Jaypee University (JUIT Waknaghat/Shimla)", "St. Bede's College Shimla", "UIIT Shimla", "Government College Sanjauli", "Other"],
+      "Mandi": ["IIT Mandi", "Sardar Patel University Mandi", "JNGEC Sundernagar", "Vallabh Government College Mandi", "Abhilashi University", "Other"],
+      "Solan": ["Shoolini University", "Dr. Y.S. Parmar University of Horticulture (Nauni)", "Bahra University", "Jaypee University of Info Tech (JUIT)", "Maharaja Agrasen University", "LR Group Solan", "Other"],
+      "Dharamshala": ["Central University of Himachal Pradesh (CUHP)", "Government PG College Dharamshala", "Regional Centre HPU Dharamshala", "Other"],
+      "Palampur": ["CSK HP Agricultural University (CSK HPKV)", "Sri Sai University Palampur", "Government College Palampur", "KLB DAV College", "Other"],
+      "Baddi": ["Baddi University of Emerging Sciences", "Maharaja Agrasen University Baddi", "IEC University Baddi", "Bhoojia Dental College", "Other"],
+      "Nahan": ["Dr. YSP Government Medical College Nahan", "Government PG College Nahan", "HIMT Nahan", "Other"],
+      "Paonta Sahib": ["IIM Sirmaur (Paonta Sahib)", "Guru Nanak Mission Group", "Government Degree College Paonta Sahib", "Other"],
+      "Sundernagar": ["Jawaharlal Nehru Government Engineering College (JNGEC)", "Government Polytechnic Sundernagar", "MLSM College Sundernagar", "Other"],
+      "Chamba": ["Pt. JLN Government Medical College Chamba", "Government PG College Chamba", "Millennium Polytechnic Chamba", "Other"],
+
+      // Uttarakhand
+      "Dehradun": ["IIT Roorkee (Dehradun Campus)", "UPES Dehradun", "Graphic Era University (GEU / GEHU)", "Forest Research Institute (FRI)", "IMS Unison University", "DIT University", "Doon University", "Uttaranchal University", "DAV PG College Dehradun", "Other"],
+      "Haridwar": ["Gurukula Kangri Vishwavidyalaya (GKV)", "Dev Sanskriti Vishwavidyalaya", "Haridwar University (RCE Roorkee)", "Chinmaya Degree College", "SMJN PG College", "Other"],
+      "Roorkee": ["IIT Roorkee", "Quantum University Roorkee", "COER University (College of Engineering Roorkee)", "Roorkee Institute of Technology (RIT)", "BSM PG College", "Other"],
+      "Haldwani": ["Uttarakhand Open University (UOU)", "Graphic Era Hill University Haldwani", "Government Medical College Haldwani", "MBPG College Haldwani", "Amrapali Group Haldwani", "Other"],
+      "Rudrapur": ["Sardar Bhagwan Singh University Rudrapur", "Radhey Hari Government PG College", "Devsthali Vidyapeeth", "Other"],
+      "Kashipur": ["IIM Kashipur", "Radhey Hari PG College", "Kashipur Group of Institutions", "Gyanarthi Media College", "Other"],
+      "Rishikesh": ["AIIMS Rishikesh", "Pt. Lalit Mohan Sharma PG College (Sri Dev Suman University)", "Omkarananda Institute (OIMT)", "Other"],
+      "Nainital": ["Kumaun University Nainital", "DSB Campus Nainital", "Birla Institute of Applied Sciences (Bhimtal)", "Other"],
+      "Mussoorie": ["LBSNAA Mussoorie", "Mussoorie Post Graduate College", "St. George's College Mussoorie", "Other"],
+      "Almora": ["Soban Singh Jeena University (SSJ University)", "Kumaun University Almora Campus", "SSJ Government PG College", "Other"],
+
+      // Goa
+      "North Goa": ["BITS Pilani Goa Campus", "Goa University (Taleigao)", "Goa College of Engineering (GEC Farmagudi)", "NIT Goa (Ponda)", "Dhempe College Miramar", "St. Xavier's College Mapusa", "Don Bosco College Panaji", "Other"],
+      "South Goa": ["NIT Goa (Cuncolim)", "Padre Conceicao College of Engg (PCCE Verna)", "Don Bosco College of Engineering (Fatorda)", "Chowgule College Margao", "MES College Vasco", "Shree Rayeshwar Institute (Shiroda)", "Other"],
+
+      // Chandigarh
+      "Chandigarh": ["Panjab University (PU Chandigarh)", "Punjab Engineering College (PEC)", "PGIMER Chandigarh", "UIET Chandigarh", "MCM DAV College for Women", "DAV College Sector 10", "PGGC Sector 11", "SD College Sector 32", "Other"],
+
+      // Puducherry
+      "Puducherry": ["Pondicherry University (Central University)", "JIPMER Puducherry", "Puducherry Technological University (PTU / PEC)", "Sri Manakula Vinayagar Engineering College (SMVEC)", "Tagore Arts College", "Other"],
+      "Karaikal": ["NIT Puducherry (Karaikal)", "PKIET Karaikal", "Arignar Anna Government Arts College", "Other"],
+      "Yanam": ["Dr. S.R.K. Government Arts College Yanam", "Regency Institute of Technology", "Community College Yanam", "Other"],
+      "Mahe": ["Mahatma Gandhi Government Arts College Mahe", "Rajiv Gandhi Ayurveda College Mahe", "Other"],
+
+      // Arunachal Pradesh
+      "Itanagar": ["Rajiv Gandhi University (RGU Itanagar)", "NIT Arunachal Pradesh (Yupia/Jote)", "Dera Natung Government College (DNGC)", "Himalayan University", "Don Bosco College Itanagar", "Other"],
+      "Naharlagun": ["TRIHMS Naharlagun", "Rajiv Gandhi Government Polytechnic", "Government College Naharlagun", "Other"],
+      "Pasighat": ["NERIST (Nirjuli/Pasighat)", "Jawaharlal Nehru College (JNC Pasighat)", "College of Horticulture (CAU)", "Apex Professional University", "Other"],
+      "Bomdila": ["Government College Bomdila", "Central Institute of Himalayan Culture Studies (CIHCS Dahung)", "Other"],
+
+      // Manipur
+      "Imphal East": ["Manipur University (Canchipur)", "NIT Manipur (Langol)", "Central Agricultural University (CAU)", "JNIMS Imphal", "Standard College Kongba", "Other"],
+      "Imphal West": ["IIIT Manipur", "RIMS Imphal", "Dhanamanjuri University (DM College)", "Oriental College Imphal", "Imphal College", "Other"],
+      "Bishnupur": ["CI College Bishnupur", "Moirang College", "Biramangol College", "Other"],
+      "Thoubal": ["Thoubal College", "Waikhom Mani Girls' College", "YK College Wangjing", "Other"],
+      "Churachandpur": ["Churachandpur College", "Rayburn College", "Lamka College", "Other"],
+
+      // Meghalaya
+      "East Khasi Hills": ["North-Eastern Hill University (NEHU Shillong)", "IIM Shillong", "NIT Meghalaya", "St. Anthony's College Shillong", "St. Edmund's College", "Lady Keane College", "Martin Luther Christian University (MLCU)", "EFLU Shillong", "Other"],
+      "West Khasi Hills": ["Nongstoin College", "Tirot Sing Memorial College Mairang", "Ri-Mawi College", "Other"],
+      "Ri Bhoi": ["University of Science and Technology Meghalaya (USTM)", "Ri-Bhoi College Nongpoh", "Mahatma Gandhi University Khanapara", "Other"],
+      "East Jaintia Hills": ["Jaintia Eastern College Khliehriat", "Sutnga College", "Other"],
+      "West Jaintia Hills": ["Kiang Nangbah Government College Jowai", "Thomas Jones Synod College", "Jowai Polytechnic", "Other"],
+
+      // Mizoram
+      "Aizawl": ["Mizoram University (MZU Central University)", "NIT Mizoram", "Pachhunga University College (PUC)", "ICFAI University Mizoram", "Aizawl West College", "Government Aizawl College", "Zirtiri Science College", "Other"],
+      "Lunglei": ["Government Lunglei College", "J. Buana College", "HATIM Lunglei", "Government Polytechnic Lunglei", "Other"],
+      "Champhai": ["Government Champhai College", "Champhai District Institute", "Other"],
+      "Kolasib": ["Government Kolasib College", "Kolasib Technical Institute", "Other"],
+      "Serchhip": ["Government Serchhip College", "Institute of Rural Development Serchhip", "Other"],
+
+      // Nagaland
+      "Kohima": ["Nagaland University (Meriema)", "Kohima Science College Jotsoma", "St. Joseph's College Jakhama", "Baptist College Kohima", "Model Christian College", "Other"],
+      "Dimapur": ["NIT Nagaland (Chumukedima)", "ICFAI University Nagaland", "Tetso College Dimapur", "Dimapur Government College", "St. John College Dimapur", "NIELIT Dimapur", "Other"],
+      "Mokokchung": ["Nagaland University (Lumami/Mokokchung)", "Fazl Ali College Mokokchung", "Jubilee Memorial College", "Other"],
+      "Tuensang": ["Sao Chang Government College Tuensang", "Loyem Memorial College", "Other"],
+      "Mon": ["Wangkhao Government College Mon", "Mon District Institute", "Other"],
+
+      // Sikkim
+      "East Sikkim": ["Sikkim University (Central University Gangtok)", "Sikkim Manipal University (SMU / SMIT Majitar)", "SRM University Sikkim", "Nar Bahadur Bhandari Degree College (Tadong)", "Damber Singh College", "Other"],
+      "West Sikkim": ["Government College Gyalshing (Geyzing)", "West Point Degree College", "Other"],
+      "North Sikkim": ["Mangan Government College", "Phodong Institute", "Other"],
+      "South Sikkim": ["Namchi Government College (Kamrang)", "NIT Sikkim (Ravangla)", "Medhavi Skills University", "Other"],
+
+      // Tripura
+      "West Tripura": ["NIT Agartala", "Tripura University (Suryamaninagar)", "IIIT Agartala", "Maharaja Bir Bikram College (MBB)", "Women's College Agartala", "Tripura Institute of Technology (TIT)", "ICFAI University Tripura", "Other"],
+      "Sepahijala": ["Kabi Nazrul Mahavidyalaya Sonamura", "Government Degree College Bishalgarh", "Sepahijala Polytechnic", "Other"],
+      "Khowai": ["Dasaratha Deb Memorial College Khowai", "Government Degree College Teliamura", "Other"],
+      "Gomati": ["Netaji Subhash Mahavidyalaya Udaipur", "Gomati District Polytechnic", "Amarpur Government Degree College", "Other"],
+      "South Tripura": ["Iswar Chandra Vidyasagar College Belonia (ICV)", "Government Degree College Sabroom", "Government Degree College Santirbazar", "Other"],
+
+      // Ladakh
+      "Leh": ["University of Ladakh (Leh Campus)", "Eliezer Joldan Memorial College (EJM Leh)", "Central Institute of Buddhist Studies (CIBS)", "Government Polytechnic Leh", "Other"],
+      "Kargil": ["University of Ladakh (Kargil Campus)", "Government Degree College Kargil (GDC)", "Government Degree College Drass", "Government Polytechnic Kargil", "Other"],
+
+      // Jammu & Kashmir
+      "Jammu": ["IIT Jammu", "IIM Jammu", "Central University of Jammu", "University of Jammu", "GCET Jammu (Government College of Engg)", "MIET Jammu (Model Institute)", "GGM Science College", "MAM College Jammu", "ASCOMS Jammu", "Other"],
+      "Srinagar": ["NIT Srinagar", "University of Kashmir (Hazratbal)", "Cluster University Srinagar", "Sri Pratap College (SP College)", "Amar Singh College", "Government College for Women M.A. Road", "Islamia College of Science & Commerce", "SSM College of Engineering", "Other"],
+      "Anantnag": ["Government Degree College Anantnag (Khanabal)", "South Campus University of Kashmir", "Government Women's College Anantnag", "GMC Anantnag", "Other"],
+      "Baramulla": ["North Campus University of Kashmir", "Government Degree College Baramulla", "Government Women's College Baramulla", "SSM Institute of Tech", "Other"],
+      "Udhampur": ["Government Degree College Udhampur", "Government College for Women Udhampur", "Udhampur University Campus", "Other"],
+      "Rajouri": ["Baba Ghulam Shah Badshah University (BGSBU)", "Government PG College Rajouri", "GMC Rajouri", "Government Degree College Thannamandi", "Other"],
+      "Pulwama": ["Islamic University of Science & Tech (IUST Awantipora)", "Government Degree College Pulwama", "Government Degree College Tral", "AIIMS Awantipora Campus", "Other"],
+      "Sopore": ["Government Degree College Sopore", "Faculty of Agriculture SKUAST-K Wadura", "MET College Sopore", "Other"],
+      "Kathua": ["Government Degree College Kathua", "Kathua Campus University of Jammu", "Government Women's College Kathua", "UIET Kathua", "Other"],
+      "Poonch": ["Government Degree College Poonch", "Poonch Campus University of Jammu", "Government Degree College Mendhar", "Other"]
     };
 
     const specializationMap = {
@@ -775,9 +1080,15 @@
     document.getElementById('state').addEventListener('change', function() {
       const distSel = document.getElementById('district');
       const colSel  = document.getElementById('college');
+      const customWrap = document.getElementById('custom-college-wrap');
+      const customInp  = document.getElementById('custom-college');
+      
       distSel.innerHTML = '<option value="">Select District</option>';
       colSel.innerHTML  = '<option value="">Select College</option>';
       colSel.disabled = true;
+      if (customWrap) customWrap.style.display = 'none';
+      if (customInp) customInp.value = '';
+
       if (this.value && stateDistricts[this.value]) {
         stateDistricts[this.value].forEach(d => {
           const o = document.createElement('option'); o.value = d; o.textContent = d;
@@ -790,19 +1101,45 @@
 
     document.getElementById('district').addEventListener('change', function() {
       const colSel = document.getElementById('college');
+      const customWrap = document.getElementById('custom-college-wrap');
+      const customInp  = document.getElementById('custom-college');
       colSel.innerHTML = '<option value="">Select College</option>';
-      const list = districtColleges[this.value] || ["Other"];
+      if (customWrap) customWrap.style.display = 'none';
+      if (customInp) customInp.value = '';
+
+      const list = districtColleges[this.value] || [
+        "Government Degree College",
+        "Government Polytechnic College",
+        "National Institute / University Campus",
+        "Other"
+      ];
       list.forEach(c => {
         const o = document.createElement('option'); o.value = c; o.textContent = c;
         colSel.appendChild(o);
       });
       if (!list.includes('Other')) {
-        const o = document.createElement('option'); o.value = 'Other'; o.textContent = 'Other';
+        const o = document.createElement('option'); o.value = 'Other'; o.textContent = 'Other (Specify College)';
         colSel.appendChild(o);
       }
       colSel.disabled = false;
       updateProgress();
     });
+
+    document.getElementById('college').addEventListener('change', function() {
+      const customWrap = document.getElementById('custom-college-wrap');
+      const customInp  = document.getElementById('custom-college');
+      if (this.value === 'Other') {
+        if (customWrap) customWrap.style.display = 'block';
+        if (customInp) {
+          customInp.focus();
+        }
+      } else {
+        if (customWrap) customWrap.style.display = 'none';
+      }
+      updateProgress();
+    });
+
+    document.getElementById('custom-college')?.addEventListener('input', updateProgress);
 
     document.getElementById('degree').addEventListener('change', function() {
       const specSel = document.getElementById('specialization');
@@ -827,7 +1164,11 @@
       allFieldIds.forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-        const val = el.value.trim();
+        let val = el.value.trim();
+        if (id === 'college' && val === 'Other') {
+          const customInp = document.getElementById('custom-college');
+          val = customInp ? customInp.value.trim() : '';
+        }
         if (id === 'whatsapp') { if (/^\d{10}$/.test(val)) filled++; }
         else { if (val) filled++; }
       });
@@ -851,7 +1192,11 @@
         const el    = document.getElementById(id);
         const field = document.getElementById('field-' + id);
         if (!el || !field) return;
-        const val = el.value.trim();
+        let val = el.value.trim();
+        if (id === 'college' && val === 'Other') {
+          const customInp = document.getElementById('custom-college');
+          val = customInp ? customInp.value.trim() : '';
+        }
         const valid = id === 'whatsapp' ? /^\d{10}$/.test(val) : val !== '';
         field.classList.toggle('has-error', !valid);
         if (!valid) ok = false;
@@ -923,6 +1268,12 @@
         const el = document.getElementById(id);
         if (el) data[id] = el.value.trim();
       });
+
+      if (data.college === 'Other') {
+        const customName = document.getElementById('custom-college')?.value?.trim();
+        data.college = customName || 'Other Institution';
+      }
+
       data.savedAt = new Date().toISOString();
       localStorage.setItem('eventhub_profile', JSON.stringify(data));
 
@@ -1008,7 +1359,24 @@
           document.getElementById('district').value = p.district;
           document.getElementById('district').dispatchEvent(new Event('change'));
         }
-        if (p.college) document.getElementById('college').value = p.college;
+        if (p.college) {
+          const colSelect = document.getElementById('college');
+          let matched = false;
+          for (let opt of colSelect.options) {
+            if (opt.value === p.college) {
+              colSelect.value = p.college;
+              matched = true;
+              break;
+            }
+          }
+          if (!matched) {
+            colSelect.value = 'Other';
+            const customWrap = document.getElementById('custom-college-wrap');
+            const customInp  = document.getElementById('custom-college');
+            if (customWrap) customWrap.style.display = 'block';
+            if (customInp) customInp.value = p.college;
+          }
+        }
         if (p.degree) {
           document.getElementById('degree').value = p.degree;
           document.getElementById('degree').dispatchEvent(new Event('change'));
