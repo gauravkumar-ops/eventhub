@@ -1531,58 +1531,6 @@ img, video, canvas, svg {
   gap: 8px;
 }
 
-/* Slider / Switch Toggle */
-.feature-shift-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--md-sys-color-surface-container-high);
-  border: 1px solid var(--md-sys-color-outline);
-  color: var(--md-sys-color-on-surface);
-  border-radius: var(--md-sys-shape-corner-full);
-  padding: 6px 14px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized);
-}
-
-.feature-shift-toggle-btn:hover {
-  background: var(--md-sys-color-primary-container);
-  color: var(--md-sys-color-on-primary-container);
-  border-color: var(--md-sys-color-primary);
-  transform: translateY(-1px);
-}
-
-.feature-shift-toggle-btn .toggle-switch-track {
-  width: 34px;
-  height: 18px;
-  background: var(--md-sys-color-surface-container-highest);
-  border-radius: 20px;
-  position: relative;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  transition: background var(--md-sys-motion-duration-short4) ease;
-}
-
-.feature-shift-toggle-btn .toggle-switch-thumb {
-  width: 14px;
-  height: 14px;
-  background: var(--md-sys-color-primary);
-  border-radius: 50%;
-  position: absolute;
-  top: 1px;
-  left: 2px;
-  transition: transform var(--md-sys-motion-duration-medium1) var(--md-sys-motion-easing-spring-expressive);
-}
-
-html.features-active .feature-shift-toggle-btn .toggle-switch-track {
-  background: var(--md-sys-color-primary);
-}
-html.features-active .feature-shift-toggle-btn .toggle-switch-thumb {
-  transform: translateX(14px);
-  background: var(--md-sys-color-on-primary);
-}
-
 /* Carousel Slider Track */
 .feature-slider-track-wrap {
   position: relative;
@@ -1691,19 +1639,6 @@ html.features-active .feature-shift-toggle-btn .toggle-switch-thumb {
   height: 16px;
 }
 
-/* Page Shift Animation for Left-Side Features */
-body.features-drawer-open .main,
-html.features-active .main {
-  transform: translateX(18px);
-  transition: transform var(--md-sys-motion-duration-medium3) var(--md-sys-motion-easing-spring-expressive);
-}
-
-@media (min-width: 769px) {
-  html.features-active .main {
-    transform: none;
-  }
-}
-
 /* Drawer Backdrop for Mobile */
 .features-drawer-backdrop {
   position: fixed;
@@ -1717,8 +1652,12 @@ html.features-active .main {
   transition: opacity var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
 }
 
-html.features-active .features-drawer-backdrop,
-body.features-drawer-open .features-drawer-backdrop,
+@media (min-width: 769px) {
+  .features-drawer-backdrop {
+    display: none !important;
+  }
+}
+
 html.sidebar-open .features-drawer-backdrop,
 body.sidebar-open .features-drawer-backdrop {
   opacity: 1;
@@ -1763,30 +1702,10 @@ body.sidebar-open .features-drawer-backdrop {
     flex-shrink: 0;
   }
 
-  .feature-shift-toggle-btn {
-    padding: 5px 10px;
-    font-size: 0.75rem;
-    gap: 6px;
-  }
-
-  .feature-shift-toggle-btn .toggle-switch-track {
-    width: 28px;
-    height: 16px;
-  }
-
-  .feature-shift-toggle-btn .toggle-switch-thumb {
-    width: 12px;
-    height: 12px;
-    top: 1px;
-    left: 2px;
-  }
-
-  html.features-active .feature-shift-toggle-btn .toggle-switch-thumb {
-    transform: translateX(12px);
-  }
-
   .slider-nav-arrow {
-    display: none;
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
   }
 
   .feature-slider-track {

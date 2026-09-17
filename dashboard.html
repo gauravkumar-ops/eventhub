@@ -97,7 +97,7 @@
       height: 100vh;
       overflow-y: auto;
       overflow-x: hidden;
-      z-index: 100;
+      z-index: 250;
       transition: width var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized),
         padding var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-emphasized);
     }
@@ -1352,7 +1352,7 @@
         width: 280px !important;
         max-width: 85vw !important;
         transform: translateX(-100%) !important;
-        z-index: 200 !important;
+        z-index: 250 !important;
         box-shadow: 10px 0 35px rgba(0, 0, 0, 0.55) !important;
         transition: transform var(--md-sys-motion-duration-medium3) var(--md-sys-motion-easing-emphasized) !important;
         padding: 24px 16px !important;
@@ -1614,8 +1614,8 @@
   </div>
   <div class="sp-saved-toast" id="sp-saved-toast">✓ Settings updated successfully</div>
 
-  <!-- ── BACKDROP OVERLAY FOR LEFT-SIDE FEATURES SHIFT ── -->
-  <div class="features-drawer-backdrop" id="features-drawer-backdrop" onclick="closeFeaturesDrawer()"></div>
+  <!-- ── BACKDROP OVERLAY FOR MOBILE SIDEBAR DRAWER ── -->
+  <div class="features-drawer-backdrop" id="features-drawer-backdrop" onclick="closeSidebar()"></div>
 
   <!-- ── MAIN CONTENT ── -->
   <div class="main" id="main-content-region">
@@ -1623,24 +1623,14 @@
     <!-- Top App Bar with Chipset Navigation -->
     <header class="topbar">
       <div class="topbar-left">
-        <!-- Mobile/Tablet Toggle Button to Shift into Features -->
+        <!-- Mobile/Tablet Toggle Button to Open/Close Sidebar -->
         <button class="sidebar-toggle-btn mobile-menu-toggle-btn" id="mobile-sidebar-toggle"
-          onclick="toggleFeaturesShift()" aria-label="Toggle Features Side"
+          onclick="toggleSidebar()" aria-label="Toggle Sidebar Menu"
           style="display:none; width:38px; height:38px; background:var(--md-sys-color-surface-container-high); border:1px solid var(--md-sys-color-outline-variant); border-radius:50%;">
           <i data-lucide="menu" id="mobile-menu-icon"></i>
         </button>
 
         <div class="topbar-title">Organizer Console</div>
-
-        <!-- Interactive Slide to Features Toggle Button -->
-        <button class="feature-shift-toggle-btn" id="topbar-features-slider-btn" onclick="toggleFeaturesShift()"
-          title="Slide and shift page towards features side">
-          <i data-lucide="sliders-horizontal" style="width:14px;height:14px;color:var(--md-sys-color-primary);"></i>
-          <span>Features Side</span>
-          <div class="toggle-switch-track">
-            <div class="toggle-switch-thumb"></div>
-          </div>
-        </button>
 
         <div class="topbar-chipset">
           <button class="m3-chip active"
@@ -1702,21 +1692,14 @@
         </a>
       </div>
 
-      <!-- ── INTERACTIVE FEATURE SLIDER (PAGE SHIFTER) ── -->
+      <!-- ── INTERACTIVE FEATURE SLIDER ── -->
       <section class="dashboard-features-slider-section" id="dashboard-features-slider">
         <div class="feature-slider-header">
           <div class="feature-slider-title">
             <i data-lucide="sparkles"></i>
-            <span>Features Hub — Interactive Slider</span>
+            <span>Features Hub — Quick Navigation</span>
           </div>
           <div class="feature-slider-controls">
-            <button class="feature-shift-toggle-btn" onclick="toggleFeaturesShift()"
-              title="Click to shift page towards features side">
-              <span>Shift to Features</span>
-              <div class="toggle-switch-track">
-                <div class="toggle-switch-thumb"></div>
-              </div>
-            </button>
             <button class="slider-nav-arrow" onclick="scrollFeatureSlider(-200)" aria-label="Slide Left">
               <i data-lucide="chevron-left"></i>
             </button>
@@ -2054,36 +2037,27 @@
       }
     });
 
-    // Sidebar Rail toggle logic & Left Side Shift
+    // Sidebar Rail toggle logic & Mobile Drawer
     window.toggleSidebar = function () {
-      const isCollapsed = document.documentElement.classList.toggle('sidebar-collapsed');
-      localStorage.setItem('eventhub_sidebar_collapsed', isCollapsed ? 'true' : 'false');
-      updateSidebarToggleIcon(isCollapsed);
-    };
-
-    // Features Shift Slider Toggle
-    window.toggleFeaturesShift = function () {
       const isMobile = window.innerWidth <= 768;
       if (isMobile) {
-        const isOpen = document.documentElement.classList.toggle('features-active');
-        document.body.classList.toggle('features-drawer-open', isOpen);
+        const isOpen = document.documentElement.classList.toggle('sidebar-open');
+        document.body.classList.toggle('sidebar-open', isOpen);
       } else {
-        // Desktop: expand sidebar if collapsed, and highlight feature panel
-        const wasCollapsed = document.documentElement.classList.contains('sidebar-collapsed');
-        if (wasCollapsed) {
-          document.documentElement.classList.remove('sidebar-collapsed');
-          localStorage.setItem('eventhub_sidebar_collapsed', 'false');
-          updateSidebarToggleIcon(false);
-        }
-        document.documentElement.classList.toggle('features-active');
+        const isCollapsed = document.documentElement.classList.toggle('sidebar-collapsed');
+        localStorage.setItem('eventhub_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+        updateSidebarToggleIcon(isCollapsed);
       }
       if (window.lucide) window.lucide.createIcons();
     };
 
-    window.closeFeaturesDrawer = function () {
-      document.documentElement.classList.remove('features-active');
-      document.body.classList.remove('features-drawer-open');
+    window.closeSidebar = function () {
+      document.documentElement.classList.remove('sidebar-open', 'features-active');
+      document.body.classList.remove('sidebar-open', 'features-drawer-open');
     };
+
+    window.closeFeaturesDrawer = window.closeSidebar;
+    window.toggleFeaturesShift = window.toggleSidebar;
 
     window.scrollFeatureSlider = function (offset) {
       const track = document.getElementById('feature-slider-track');
@@ -2098,17 +2072,8 @@
       const activeCard = event.currentTarget;
       if (activeCard) activeCard.classList.add('active');
 
-      // Shift page smoothly towards left-side features
       const isMobile = window.innerWidth <= 768;
-      if (isMobile) {
-        document.documentElement.classList.add('features-active');
-        document.body.classList.add('features-drawer-open');
-      } else {
-        document.documentElement.classList.remove('sidebar-collapsed');
-        localStorage.setItem('eventhub_sidebar_collapsed', 'false');
-        updateSidebarToggleIcon(false);
-        document.documentElement.classList.add('features-active');
-      }
+      if (isMobile) window.closeSidebar();
 
       // Feature specific action
       setTimeout(() => {
@@ -2119,16 +2084,14 @@
         } else if (featureKey === 'my-events') {
           const el = document.getElementById('my-events-card');
           if (el) el.scrollIntoView({ behavior: 'smooth' });
-          if (isMobile) window.closeFeaturesDrawer();
         } else if (featureKey === 'scanner') {
           window.location.href = 'scanner.html';
         } else if (featureKey === 'academic') {
           window.location.href = 'register.html';
         } else if (featureKey === 'settings') {
           window.openSettings();
-          if (isMobile) window.closeFeaturesDrawer();
         }
-      }, 250);
+      }, 100);
     };
 
     function updateSidebarToggleIcon(isCollapsed) {
