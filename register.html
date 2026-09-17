@@ -224,6 +224,16 @@
     .req { color: var(--md-sys-color-error); }
 
     .select-wrap { position: relative; }
+    select.field-input {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      padding-right: 44px !important;
+      cursor: pointer;
+    }
+    select.field-input::-ms-expand {
+      display: none;
+    }
     .select-wrap .chevron {
       position: absolute;
       right: 16px;
@@ -231,8 +241,12 @@
       transform: translateY(-50%);
       width: 18px;
       height: 18px;
-      color: var(--md-sys-color-outline);
+      color: var(--md-sys-color-on-surface-variant);
       pointer-events: none;
+      transition: color var(--transition), transform var(--transition);
+    }
+    .select-wrap:focus-within .chevron {
+      color: var(--md-sys-color-primary);
     }
 
     .phone-wrap {
