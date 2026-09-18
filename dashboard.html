@@ -2242,24 +2242,74 @@
       };
     }
 
+    function isCurrentUserCreator(ev) {
+      if (!ev) return false;
+      try {
+        const myCreated = JSON.parse(localStorage.getItem('eventhub_my_created_events') || '[]');
+        if (myCreated.includes(ev.id)) return true;
+      } catch (_) {}
+
+      let user = null;
+      try { user = JSON.parse(localStorage.getItem('eventhub_user') || 'null'); } catch (_) {}
+      let profile = null;
+      try { profile = JSON.parse(localStorage.getItem('eventhub_profile') || 'null'); } catch (_) {}
+      
+      const userEmail = (user && user.email) || (profile && profile.email) || '';
+      const userId = (user && (user.uid || user.id)) || (profile && profile.id) || '';
+
+      if (userEmail) {
+        if (ev.creatorEmail && ev.creatorEmail.toLowerCase() === userEmail.toLowerCase()) return true;
+        if (ev.organizerEmail && ev.organizerEmail.toLowerCase() === userEmail.toLowerCase()) return true;
+      }
+      if (userId && ev.creatorId && ev.creatorId === userId) return true;
+
+      return false;
+    }
+
+    function isEventExpired(ev) {
+      if (!ev || !ev.date) return false;
+      try {
+        const timePart = ev.endTime || ev.startTime || '23:59:59';
+        const timeStr = timePart.length === 5 ? timePart + ':00' : timePart;
+        const eventDateTime = new Date(`${ev.date}T${timeStr}`);
+        if (isNaN(eventDateTime.getTime())) {
+          const d = new Date(ev.date + 'T23:59:59');
+          return !isNaN(d.getTime()) && Date.now() > d.getTime();
+        }
+        return Date.now() > eventDateTime.getTime();
+      } catch (_) {
+        return false;
+      }
+    }
+
     function loadEvents() {
       let events = [];
       try { events = JSON.parse(localStorage.getItem('eventhub_events') || '[]'); } catch (e) { }
 
+      // Filter out expired events for non-creators (attendees), but keep them visible to the creator
+      const visibleEvents = events.filter(function (ev) {
+        const isCreator = isCurrentUserCreator(ev);
+        const isExpired = isEventExpired(ev);
+        if (isExpired && !isCreator) {
+          return false;
+        }
+        return true;
+      });
+
       const statEl = document.getElementById('stat-events-val');
-      if (statEl) statEl.textContent = events.length;
+      if (statEl) statEl.textContent = visibleEvents.length;
 
       const cntEl = document.getElementById('events-count');
-      if (cntEl) cntEl.textContent = events.length;
+      if (cntEl) cntEl.textContent = visibleEvents.length;
 
       const chipCnt = document.getElementById('chip-events-cnt');
-      if (chipCnt) chipCnt.textContent = events.length;
+      if (chipCnt) chipCnt.textContent = visibleEvents.length;
 
       const emptyEl = document.getElementById('events-empty');
       const listEl = document.getElementById('events-list');
       if (!emptyEl || !listEl) return;
 
-      if (events.length === 0) {
+      if (visibleEvents.length === 0) {
         emptyEl.style.display = '';
         listEl.style.display = 'none';
         return;
@@ -2269,13 +2319,24 @@
       listEl.style.display = 'flex';
       listEl.innerHTML = '';
 
-      events.forEach(function (ev) {
+      visibleEvents.forEach(function (ev) {
         const dt = fmtDate(ev.date);
         const timeStr = fmt12(ev.startTime) + (ev.endTime ? ' – ' + fmt12(ev.endTime) : '');
         const location = [ev.venue, ev.city, ev.state].filter(Boolean).join(', ');
 
+        const isCreator = isCurrentUserCreator(ev);
+        const isExpired = isEventExpired(ev);
+
+        const statusBadge = isExpired
+          ? `<span style="font-size:0.75rem; background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3); padding:2px 8px; border-radius:999px; font-weight:700; display:inline-flex; align-items:center; gap:4px;"><i data-lucide="clock-alert" style="width:12px;height:12px;"></i> Expired (Past)</span>`
+          : `<span style="font-size:0.75rem; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3); padding:2px 8px; border-radius:999px; font-weight:700; display:inline-flex; align-items:center; gap:4px;">● Published</span>`;
+
+        const creatorBadge = isCreator
+          ? `<span style="font-size:0.75rem; background:rgba(99,102,241,0.15); color:var(--md-sys-color-primary); border:1px solid rgba(99,102,241,0.3); padding:2px 8px; border-radius:999px; font-weight:700; display:inline-flex; align-items:center; gap:4px;"><i data-lucide="crown" style="width:12px;height:12px;"></i> Your Event</span>`
+          : `<span style="font-size:0.75rem; background:rgba(124,58,237,0.1); color:var(--md-sys-color-tertiary); padding:2px 8px; border-radius:999px; font-weight:600; display:inline-flex; align-items:center; gap:4px;"><i data-lucide="ticket" style="width:12px;height:12px;"></i> Registered Pass</span>`;
+
         const isNotified = ev.emailDispatched || ev.organizerEmail;
-        const notificationBadge = isNotified
+        const notificationBadge = (isNotified && isCreator)
           ? `<span style="font-size:0.75rem; background:rgba(124,58,237,0.15); color:var(--md-sys-color-primary); padding:2px 8px; border-radius:999px; font-weight:600; display:inline-flex; align-items:center; gap:4px;"><i data-lucide="mail-check" style="width:12px;height:12px;"></i> Summary Sent</span>`
           : '';
 
@@ -2283,17 +2344,26 @@
         const maxCapacity = ev.maxAttendees;
         const capacityLabel = maxCapacity ? `${attendeeCount} / ${maxCapacity} Registered` : `${attendeeCount} Registered`;
 
+        const deleteButtonHtml = isCreator
+          ? `<button onclick="openDeleteModal('${ev.id}')" class="btn btn-ghost btn-sm" style="color:var(--md-sys-color-error); border:1px solid rgba(239,68,68,0.3); height:32px; padding:0 10px; font-size:0.8rem;" title="Delete this event">
+              <i data-lucide="trash-2" style="width:14px;height:14px;"></i> Delete
+            </button>`
+          : '';
+
         const card = document.createElement('div');
-        card.className = 'ev-card';
+        card.className = 'ev-card' + (isExpired ? ' expired-card' : '');
+        if (isExpired) card.style.opacity = '0.82';
+
         card.innerHTML = `
           <div class="ev-card-inner">
-            <div class="ev-date-box">
+            <div class="ev-date-box" style="${isExpired ? 'background:var(--md-sys-color-surface-container);' : ''}">
               <span class="ev-month">${dt.mon}</span>
               <span class="ev-day">${dt.day}</span>
             </div>
             <div class="ev-body">
               <div class="ev-name" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 ${ev.name || 'Untitled Event'}
+                ${creatorBadge}
                 ${notificationBadge}
                 <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; font-weight:700; font-size:0.75rem; display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:999px;">
                   <i data-lucide="users" style="width:12px;height:12px;"></i> ${capacityLabel}
@@ -2308,15 +2378,16 @@
           </div>
           <div class="ev-footer" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-              <span style="color:var(--md-sys-color-success); font-weight:600; font-size:0.8rem;">● Published</span>
+              ${statusBadge}
               <span style="color:var(--md-sys-color-outline);">•</span>
               <a href="event.html?id=${ev.id}" style="color:var(--md-sys-color-primary); font-weight:600; font-size:0.82rem; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
-                <i data-lucide="external-link" style="width:13px;height:13px;"></i> Public Page
+                <i data-lucide="external-link" style="width:13px;height:13px;"></i> View Page
               </a>
               <span style="color:var(--md-sys-color-outline);">•</span>
-              <a href="ticket.html" style="color:var(--md-sys-color-primary); font-weight:600; font-size:0.82rem; text-decoration:none;">Passes 🎟️</a>
+              <a href="ticket.html?id=${ev.id}" style="color:var(--md-sys-color-primary); font-weight:600; font-size:0.82rem; text-decoration:none;">Passes 🎟️</a>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
+              ${deleteButtonHtml}
               <button onclick="openDashboardShareModal('${ev.id}')" class="btn btn-tonal btn-sm" style="height:32px; padding:0 12px; font-size:0.8rem;">
                 <i data-lucide="qr-code" style="width:14px;height:14px;"></i> Share QR
               </button>
@@ -2331,6 +2402,91 @@
 
       if (window.lucide) window.lucide.createIcons();
     }
+
+    // Delete Event Logic
+    let eventToDeleteId = null;
+
+    window.openDeleteModal = function(eventId) {
+      let events = [];
+      try { events = JSON.parse(localStorage.getItem('eventhub_events') || '[]'); } catch(e){}
+      const ev = events.find(e => e.id === eventId);
+      if (!ev) return;
+
+      if (!isCurrentUserCreator(ev)) {
+        showToast('⚠️ Only the event creator can delete this event.');
+        return;
+      }
+
+      eventToDeleteId = eventId;
+      document.getElementById('delete-modal-ev-name').textContent = ev.name || 'this event';
+      document.getElementById('dash-delete-modal').style.display = 'flex';
+      if (window.lucide) window.lucide.createIcons();
+    };
+
+    window.closeDeleteModal = function() {
+      eventToDeleteId = null;
+      document.getElementById('dash-delete-modal').style.display = 'none';
+    };
+
+    window.executeDeleteEvent = async function() {
+      if (!eventToDeleteId) return;
+      const id = eventToDeleteId;
+      const deleteBtn = document.getElementById('btn-confirm-delete-action');
+      if (deleteBtn) {
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Deleting...';
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      // 1. Remove from local storage
+      try {
+        let events = JSON.parse(localStorage.getItem('eventhub_events') || '[]');
+        events = events.filter(e => e.id !== id);
+        localStorage.setItem('eventhub_events', JSON.stringify(events));
+
+        let myCreated = JSON.parse(localStorage.getItem('eventhub_my_created_events') || '[]');
+        myCreated = myCreated.filter(eId => eId !== id);
+        localStorage.setItem('eventhub_my_created_events', JSON.stringify(myCreated));
+
+        let regMap = JSON.parse(localStorage.getItem('eventhub_registrations') || '{}');
+        delete regMap[id];
+        localStorage.setItem('eventhub_registrations', JSON.stringify(regMap));
+      } catch (_) {}
+
+      // 2. Delete from Supabase Cloud Database if connected
+      const client = window.db || window.supabaseClient;
+      if (client) {
+        try {
+          await client.from('tickets').delete().eq('event_id', id);
+          await client.from('events').delete().eq('id', id);
+        } catch (err) {
+          console.warn('[EventHub] Supabase deletion notice:', err);
+        }
+      }
+
+      // 3. Delete from local server backend if running
+      try {
+        await fetch(`/api/events/${id}`, { method: 'DELETE' });
+      } catch (_) {}
+
+      // 4. Broadcast deletion across open tabs
+      if (typeof BroadcastChannel !== 'undefined') {
+        try {
+          const ch = new BroadcastChannel('eventhub_sync');
+          ch.postMessage({ type: 'event_deleted', eventId: id });
+        } catch (_) {}
+      }
+
+      closeDeleteModal();
+      if (deleteBtn) {
+        deleteBtn.disabled = false;
+        deleteBtn.innerHTML = '<i data-lucide="trash-2"></i> Delete Event';
+      }
+
+      showToast('🗑️ Event successfully deleted!');
+      loadEvents();
+      updateMetrics();
+    };
 
     // Dashboard Event QR Share Modal Logic
     let dashboardActiveEvent = null;
@@ -2560,6 +2716,25 @@
       <button class="btn btn-ghost" onclick="copyDashboardLink()" style="width:100%;">
         <i data-lucide="copy"></i> Copy Direct Registration Link
       </button>
+    </div>
+  </div>
+
+  <!-- Dashboard Delete Event Confirmation Modal -->
+  <div id="dash-delete-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background-color:var(--md-sys-color-surface-container-high); border:1px solid var(--md-sys-color-outline); border-radius:var(--md-sys-shape-corner-extra-large); max-width:440px; width:100%; padding:28px 24px; box-shadow:0 24px 64px rgba(0,0,0,0.6); animation:scaleUp 0.25s cubic-bezier(0.2,0,0,1);">
+      <div style="width:48px; height:48px; border-radius:50%; background:rgba(239,68,68,0.15); color:#ef4444; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
+        <i data-lucide="alert-triangle" style="width:24px;height:24px;"></i>
+      </div>
+      <h3 style="font-family:var(--md-sys-typescale-brand-font); font-size:1.25rem; font-weight:800; color:var(--md-sys-color-on-surface); margin:0 0 8px;">Delete Event?</h3>
+      <p style="color:var(--md-sys-color-on-surface-variant); font-size:0.9rem; line-height:1.5; margin:0 0 24px;">
+        Are you sure you want to permanently delete <strong id="delete-modal-ev-name" style="color:var(--md-sys-color-on-surface);">this event</strong>? This action cannot be undone and will cancel all active attendee QR passes.
+      </p>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+        <button class="btn btn-primary" id="btn-confirm-delete-action" onclick="executeDeleteEvent()" style="background:#ef4444; border-color:#ef4444; color:#ffffff;">
+          <i data-lucide="trash-2"></i> Delete Event
+        </button>
+      </div>
     </div>
   </div>
 </body>

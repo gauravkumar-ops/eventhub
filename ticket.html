@@ -670,6 +670,22 @@
       return hash;
     }
 
+    function isEventExpired(ev) {
+      if (!ev || !ev.date) return false;
+      try {
+        const timePart = ev.endTime || ev.startTime || '23:59:59';
+        const timeStr = timePart.length === 5 ? timePart + ':00' : timePart;
+        const eventDateTime = new Date(`${ev.date}T${timeStr}`);
+        if (isNaN(eventDateTime.getTime())) {
+          const d = new Date(ev.date + 'T23:59:59');
+          return !isNaN(d.getTime()) && Date.now() > d.getTime();
+        }
+        return Date.now() > eventDateTime.getTime();
+      } catch (_) {
+        return false;
+      }
+    }
+
     function renderActiveTicket() {
       if (allEvents.length === 0) {
         document.getElementById('ticket-card').style.display = 'none';
@@ -687,6 +703,7 @@
       // Check if ticket has already been checked in
       const checkedInMap = JSON.parse(localStorage.getItem('eventhub_checkins') || '{}');
       const isCheckedIn = !!checkedInMap[ticketId];
+      const isExpired = isEventExpired(ev);
 
       document.getElementById('t-category').textContent = ev.category || 'Event';
       document.getElementById('t-event-name').textContent = ev.name;
@@ -705,8 +722,17 @@
         statusBadge.innerHTML = `<i data-lucide="check-check" style="width:16px;height:16px;"></i> Checked In (${checkedInMap[ticketId].time || 'Verified'})`;
         approvalState.textContent = '✓ Admitted at Gate';
         approvalState.style.color = 'var(--md-sys-color-primary)';
+      } else if (isExpired) {
+        statusBadge.className = 'status-badge';
+        statusBadge.style.background = 'rgba(239,68,68,0.15)';
+        statusBadge.style.color = '#ef4444';
+        statusBadge.innerHTML = `<i data-lucide="clock-alert" style="width:16px;height:16px;"></i> Event Concluded`;
+        approvalState.textContent = '● Event Expired';
+        approvalState.style.color = '#ef4444';
       } else {
         statusBadge.className = 'status-badge';
+        statusBadge.style.background = '';
+        statusBadge.style.color = '';
         statusBadge.innerHTML = `<i data-lucide="shield-check" style="width:16px;height:16px;"></i> Verified Attendee`;
         approvalState.textContent = '● Approved for Entry';
         approvalState.style.color = 'var(--md-sys-color-success)';

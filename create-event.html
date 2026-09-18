@@ -1223,6 +1223,13 @@
       if (!city)  { showErr('City is required.'); return; }
       if (!email) { showErr('Organizer notification email is required for the event summary.'); return; }
 
+      var curUser = null;
+      try { curUser = JSON.parse(localStorage.getItem('eventhub_user') || 'null'); } catch(e){}
+      var curProfile = null;
+      try { curProfile = JSON.parse(localStorage.getItem('eventhub_profile') || 'null'); } catch(e){}
+      var creatorEmail = (curUser && curUser.email) || (curProfile && curProfile.email) || email;
+      var creatorId = (curUser && (curUser.uid || curUser.id)) || (curProfile && curProfile.id) || creatorEmail;
+
       var ev = {
         id:             'evt_' + Date.now(),
         name:           name,
@@ -1237,6 +1244,8 @@
         maxAttendees:   maxA ? parseInt(maxA) : null,
         organizerEmail: email,
         organizerPhone: phone || null,
+        creatorEmail:   creatorEmail,
+        creatorId:      creatorId,
         reminderTiming: timing,
         emailDispatched: sendEmail,
         smsDispatched:   sendSms,
@@ -1249,6 +1258,14 @@
       try { events = JSON.parse(localStorage.getItem('eventhub_events') || '[]'); } catch(e){}
       events.unshift(ev);
       localStorage.setItem('eventhub_events', JSON.stringify(events));
+
+      // Track creator ownership locally
+      var myCreated = [];
+      try { myCreated = JSON.parse(localStorage.getItem('eventhub_my_created_events') || '[]'); } catch(e){}
+      if (!myCreated.includes(ev.id)) {
+        myCreated.unshift(ev.id);
+        localStorage.setItem('eventhub_my_created_events', JSON.stringify(myCreated));
+      }
 
       // Sync event to Supabase cloud database so all attendees see the true event
       var client = window.db || window.supabaseClient;
@@ -1267,6 +1284,7 @@
           max_attendees:  ev.maxAttendees,
           organizer_email:ev.organizerEmail,
           organizer_phone:ev.organizerPhone,
+          creator_email:  creatorEmail,
           created_at:     ev.createdAt
         }]).then(function(res) {
           if (res.error) console.warn('[EventHub] Supabase event sync note:', res.error.message);
