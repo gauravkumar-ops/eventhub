@@ -564,6 +564,9 @@
 
             <!-- Actions -->
             <div style="display:flex; gap:8px; justify-content:center; margin-top:16px; flex-wrap:wrap;">
+              <a class="btn btn-primary btn-sm" id="btn-open-full-ticket" href="ticket.html">
+                <i data-lucide="ticket"></i> View Full Pass
+              </a>
               <button class="btn btn-tonal btn-sm" onclick="downloadParticipantPass()">
                 <i data-lucide="download"></i> Download Pass
               </button>
@@ -820,6 +823,16 @@
           attendees:      0,
           checkedIn:      0
         };
+
+        // Cache into local events list so other pages on this device (dashboard, tickets) know about it
+        try {
+          let list = JSON.parse(localStorage.getItem('eventhub_events') || '[]');
+          const exists = list.some(e => e.id === currentEvent.id || e.name === currentEvent.name);
+          if (!exists) {
+            list.unshift(currentEvent);
+            localStorage.setItem('eventhub_events', JSON.stringify(list));
+          }
+        } catch (_) {}
       }
 
       // 2. Check LocalStorage
@@ -860,6 +873,16 @@
               attendees:      dbEvent.attendees || 0,
               checkedIn:      dbEvent.checked_in || 0
             };
+
+            // Cache to local events
+            try {
+              let list = JSON.parse(localStorage.getItem('eventhub_events') || '[]');
+              const exists = list.some(e => e.id === currentEvent.id);
+              if (!exists) {
+                list.unshift(currentEvent);
+                localStorage.setItem('eventhub_events', JSON.stringify(list));
+              }
+            } catch (_) {}
           }
         } catch (err) {
           console.warn('[EventHub] Supabase event fetch skipped:', err);
@@ -1270,6 +1293,26 @@
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
       });
+
+      // Wire up dedicated Full Ticket Pass URL
+      const ticketLink = document.getElementById('btn-open-full-ticket');
+      if (ticketLink && currentEvent) {
+        const tParams = new URLSearchParams({
+          ticketId: pass.ticketId,
+          eventId: currentEvent.id || '',
+          eventName: currentEvent.name || '',
+          attendeeName: pass.attendeeName || '',
+          college: pass.college || '',
+          whatsapp: pass.whatsapp || '',
+          category: currentEvent.category || '',
+          date: currentEvent.date || '',
+          time: currentEvent.startTime || '',
+          venue: currentEvent.venue || '',
+          city: currentEvent.city || '',
+          state: currentEvent.state || ''
+        });
+        ticketLink.href = 'ticket.html?' + tParams.toString();
+      }
 
       if (window.lucide) window.lucide.createIcons();
     }

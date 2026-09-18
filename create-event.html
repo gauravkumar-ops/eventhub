@@ -1147,7 +1147,16 @@
       } else { vr.style.display = 'none'; }
 
       // Live sidebar QR preview
-      var previewUrl = window.location.origin + window.location.pathname.replace('create-event.html', 'event.html') + '?preview=1&auto=1';
+      var previewParams = new URLSearchParams({
+        name:     name || 'Campus Event',
+        category: selCat || 'Event',
+        date:     date || '',
+        start:    start || '',
+        venue:    venue || '',
+        city:     city || '',
+        auto:     '1'
+      });
+      var previewUrl = window.location.origin + window.location.pathname.replace('create-event.html', 'event.html') + '?' + previewParams.toString();
       var sidebarQrEl = document.getElementById('sidebar-live-qr-holder');
       if (sidebarQrEl && typeof QRCode !== 'undefined' && (!sidebarQrEl.dataset.initialized || name !== sidebarQrEl.dataset.lastName)) {
         sidebarQrEl.innerHTML = '';
@@ -1322,12 +1331,33 @@
         smsNote.style.display = 'none';
       }
 
-      // Generate unique QR for event registration
+      function getFullEventShareURL(targetEv) {
+        var base = window.location.origin + window.location.pathname.replace('create-event.html', 'event.html');
+        var params = new URLSearchParams({
+          id:       targetEv.id || '',
+          name:     targetEv.name || '',
+          category: targetEv.category || '',
+          date:     targetEv.date || '',
+          start:    targetEv.startTime || '',
+          end:      targetEv.endTime || '',
+          venue:    targetEv.venue || '',
+          city:     targetEv.city || '',
+          state:    targetEv.state || '',
+          max:      targetEv.maxAttendees || '',
+          email:    targetEv.organizerEmail || '',
+          phone:    targetEv.organizerPhone || '',
+          desc:     targetEv.description || '',
+          auto:     '1'
+        });
+        return base + '?' + params.toString();
+      }
+
+      // Generate unique QR for event registration with self-contained payload
       window.lastCreatedEvent = ev;
-      var eventRegUrl = window.location.origin + window.location.pathname.replace('create-event.html', 'event.html') + '?id=' + ev.id + '&auto=1';
+      var eventRegUrl = getFullEventShareURL(ev);
       window.lastCreatedEventUrl = eventRegUrl;
       
-      document.getElementById('modal-view-event-btn').href = 'event.html?id=' + ev.id;
+      document.getElementById('modal-view-event-btn').href = eventRegUrl;
 
       var qrContainer = document.getElementById('modal-ev-qr-canvas');
       if (qrContainer) {
@@ -1352,7 +1382,7 @@
 
     window.shareCreatedEventQR = async function() {
       var ev = window.lastCreatedEvent;
-      var url = window.lastCreatedEventUrl || (window.location.origin + '/event.html?id=' + (ev ? ev.id : ''));
+      var url = window.lastCreatedEventUrl || (window.location.origin + '/event.html');
       if (navigator.share) {
         try {
           await navigator.share({

@@ -40,6 +40,10 @@
   <!-- Fast, robust QR code generator library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabaseClient.js"></script>
+
   <!-- Apply saved theme BEFORE render -->
   <script>
     (function(){
@@ -519,13 +523,27 @@
 
   <script>
     let activeQrCode = null;
+    let customUrlPass = null;
+    let customUrlEvent = null;
 
     // Load available events
     function getStoredEvents() {
+      let evs = [];
       try {
-        const evs = JSON.parse(localStorage.getItem('eventhub_events') || '[]');
-        if (evs.length > 0) return evs;
+        evs = JSON.parse(localStorage.getItem('eventhub_events') || '[]');
       } catch(_) {}
+      
+      if (customUrlEvent) {
+        const existingIdx = evs.findIndex(e => e.id === customUrlEvent.id || e.name === customUrlEvent.name);
+        if (existingIdx !== -1) {
+          evs[existingIdx] = Object.assign({}, evs[existingIdx], customUrlEvent);
+        } else {
+          evs.unshift(customUrlEvent);
+        }
+      }
+
+      if (evs.length > 0) return evs;
+
       // Default fallback demo event
       return [{
         id: 'evt_demo_01',
@@ -541,18 +559,28 @@
     }
 
     function getUserData() {
+      if (customUrlPass) {
+        return {
+          name: customUrlPass.attendeeName || 'Campus Attendee',
+          email: customUrlPass.attendeeEmail || 'attendee@eventhub.local',
+          college: customUrlPass.college || 'Campus Delegate',
+          degree: customUrlPass.degree || 'DELEGATE PASS',
+          whatsapp: customUrlPass.whatsapp || '+91 9876543210'
+        };
+      }
+
       const user = JSON.parse(localStorage.getItem('eventhub_user') || '{}');
       const profile = JSON.parse(localStorage.getItem('eventhub_profile') || '{}');
       return {
-        name: user.displayName || user.email?.split('@')[0] || 'Alex Johnson',
-        email: user.email || 'alex.johnson@campus.edu',
+        name: user.displayName || user.email?.split('@')[0] || profile.fullName || 'Alex Johnson',
+        email: user.email || profile.email || 'alex.johnson@campus.edu',
         college: profile.college || 'IIT Bombay',
         degree: (profile.degree ? profile.degree.toUpperCase() : 'B.TECH') + (profile.specialization ? ' • ' + profile.specialization : ' • Computer Science'),
         whatsapp: profile.whatsapp ? '+91 ' + profile.whatsapp : '+91 9876543210'
       };
     }
 
-    let allEvents = getStoredEvents();
+    let allEvents = [];
     let currentEventIndex = 0;
 
     function renderEventSelector() {
@@ -573,7 +601,26 @@
     }
 
     function generateQrCodeData(ev, user) {
-      // Check if a registered pass already exists in eventhub_registrations
+      // 1. Direct custom pass from URL
+      if (customUrlPass && (customUrlPass.eventId === ev.id || customUrlPass.eventName === ev.name || allEvents.length === 1)) {
+        return {
+          ticketId: customUrlPass.ticketId,
+          payload: customUrlPass.payload || JSON.stringify({
+            ticketId: customUrlPass.ticketId,
+            eventId: ev.id,
+            eventName: ev.name,
+            attendeeName: customUrlPass.attendeeName,
+            attendeeEmail: customUrlPass.attendeeEmail,
+            college: customUrlPass.college,
+            whatsapp: customUrlPass.whatsapp,
+            category: ev.category || 'General',
+            issuedAt: customUrlPass.issuedAt || new Date().toISOString()
+          }),
+          customPass: customUrlPass
+        };
+      }
+
+      // 2. Check if a registered pass already exists in eventhub_registrations
       try {
         const regMap = JSON.parse(localStorage.getItem('eventhub_registrations') || '{}');
         if (regMap[ev.id]) {
@@ -596,7 +643,7 @@
         }
       } catch(_) {}
 
-      // Formatted JSON payload for instant camera decoding & verification
+      // 3. Formatted JSON payload for instant camera decoding & verification
       const ticketId = 'EH-' + (ev.id || 'EVT').slice(-6).toUpperCase() + '-' + Math.abs(hashCode(user.name + ev.name)).toString().slice(0, 4);
       
       const payload = JSON.stringify({
@@ -630,6 +677,9 @@
         return;
       }
 
+      document.getElementById('ticket-card').style.display = 'block';
+      document.getElementById('empty-tickets').style.display = 'none';
+
       const ev = allEvents[currentEventIndex];
       const user = getUserData();
       const { ticketId, payload, customPass } = generateQrCodeData(ev, user);
@@ -643,7 +693,7 @@
       document.getElementById('t-venue').textContent = [ev.venue, ev.city, ev.state].filter(Boolean).join(', ') || 'Campus Venue';
       document.getElementById('t-name').textContent = (customPass && customPass.attendeeName) || user.name;
       document.getElementById('t-college').textContent = (customPass && customPass.college) || user.college;
-      document.getElementById('t-degree').textContent = user.degree;
+      document.getElementById('t-degree').textContent = (customPass && customPass.degree) || user.degree;
       document.getElementById('t-whatsapp').textContent = (customPass && customPass.whatsapp) || user.whatsapp;
       document.getElementById('t-datetime').textContent = (ev.date || '2026-10-24') + ' • ' + (ev.startTime || '09:00 AM');
       document.getElementById('t-hash').textContent = ticketId;
@@ -677,12 +727,105 @@
       if (window.lucide) window.lucide.createIcons();
     }
 
+    async function initializeTicketPage() {
+      const params = new URLSearchParams(window.location.search);
+      const ticketIdParam = params.get('ticketId') || params.get('ticket') || params.get('passId');
+      const eventIdParam = params.get('eventId') || params.get('id');
+      const passParam = params.get('pass');
+
+      // Check if raw pass object is in URL
+      if (passParam) {
+        try {
+          customUrlPass = JSON.parse(decodeURIComponent(passParam));
+        } catch(_) {
+          try { customUrlPass = JSON.parse(atob(passParam)); } catch(__){}
+        }
+      }
+
+      // If URL has specific ticket / event details
+      if (params.get('eventName') || params.get('name') || ticketIdParam || eventIdParam) {
+        const evName = params.get('eventName') || (params.get('attendeeName') ? params.get('name') : '') || 'Campus Event';
+        const attName = params.get('attendeeName') || params.get('name') || '';
+
+        if (!customUrlPass && (ticketIdParam || attName)) {
+          customUrlPass = {
+            ticketId: ticketIdParam || ('EH-' + (eventIdParam || 'EVT').slice(-6).toUpperCase() + '-' + Math.floor(1000 + Math.random() * 9000)),
+            eventId: eventIdParam || 'evt_url',
+            eventName: evName,
+            attendeeName: attName || 'Campus Attendee',
+            attendeeEmail: params.get('email') || params.get('attendeeEmail') || '',
+            college: params.get('college') || 'Campus Participant',
+            degree: params.get('degree') || 'VERIFIED PASS',
+            whatsapp: params.get('whatsapp') || '+91 9876543210',
+            issuedAt: new Date().toISOString()
+          };
+        }
+
+        if (params.get('eventName') || params.get('venue') || params.get('date')) {
+          customUrlEvent = {
+            id: eventIdParam || (customUrlPass ? customUrlPass.eventId : 'evt_' + Date.now()),
+            name: params.get('eventName') || evName,
+            category: params.get('category') || 'Event',
+            date: params.get('date') || new Date().toISOString().split('T')[0],
+            startTime: params.get('time') || params.get('start') || '09:00 AM',
+            endTime: params.get('end') || null,
+            venue: params.get('venue') || 'Campus Venue',
+            city: params.get('city') || '',
+            state: params.get('state') || ''
+          };
+        }
+      }
+
+      // Try fetching from Supabase if ticketId or eventId is available
+      const client = window.db || window.supabaseClient;
+      if (client && (ticketIdParam || eventIdParam)) {
+        try {
+          if (ticketIdParam) {
+            const { data: ticketRow } = await client.from('tickets').select('*').eq('id', ticketIdParam).single();
+            if (ticketRow) {
+              customUrlPass = {
+                ticketId: ticketRow.id,
+                eventId: ticketRow.event_id,
+                attendeeName: ticketRow.attendee_name,
+                attendeeEmail: ticketRow.attendee_email,
+                college: ticketRow.college || 'Campus Delegate',
+                whatsapp: ticketRow.whatsapp,
+                issuedAt: ticketRow.created_at
+              };
+              if (ticketRow.event_id) {
+                const { data: evRow } = await client.from('events').select('*').eq('id', ticketRow.event_id).single();
+                if (evRow) {
+                  customUrlEvent = {
+                    id: evRow.id,
+                    name: evRow.name,
+                    category: evRow.category,
+                    date: evRow.date,
+                    startTime: evRow.start_time,
+                    venue: evRow.venue,
+                    city: evRow.city,
+                    state: evRow.state
+                  };
+                }
+              }
+            }
+          }
+        } catch(err) {
+          console.warn('[EventHub] Ticket lookup from Supabase note:', err);
+        }
+      }
+
+      allEvents = getStoredEvents();
+      currentEventIndex = 0;
+
+      renderEventSelector();
+      renderActiveTicket();
+    }
+
     window.printOrSavePass = function() {
       window.print();
     };
 
-    renderEventSelector();
-    renderActiveTicket();
+    initializeTicketPage();
   </script>
 </body>
 </html>
