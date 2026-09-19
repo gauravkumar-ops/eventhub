@@ -1641,20 +1641,25 @@
       .ev-card-right {
         width: 100% !important;
         justify-content: flex-end !important;
-        padding-top: 10px !important;
+        padding-top: 12px !important;
         border-top: 1px dashed var(--md-sys-color-outline-variant) !important;
       }
 
       .ev-card-right .m3-connected-pills {
         width: 100% !important;
+        display: flex !important;
         justify-content: space-between !important;
+        gap: 6px !important;
       }
 
       .ev-card-right .m3-pill-btn {
         flex: 1 1 0 !important;
-        padding: 6px 8px !important;
-        font-size: 0.75rem !important;
+        min-width: 0 !important;
+        height: 38px !important;
+        padding: 6px 10px !important;
+        font-size: 0.78rem !important;
         justify-content: center !important;
+        gap: 6px !important;
       }
 
       /* Profile Overview and Quick Actions on Mobile */
@@ -2675,8 +2680,9 @@
         const capacityLabel = maxCapacity ? `${attendeeCount} / ${maxCapacity} Registered` : `${attendeeCount} Registered`;
 
         const deleteButtonHtml = isCreator
-          ? `<button onclick="openDeleteModal('${ev.id}')" class="m3-pill-btn danger m3-pill-icon-btn" data-tooltip="Delete Event" aria-label="Delete Event">
+          ? `<button onclick="openDeleteModal('${ev.id}')" class="m3-pill-btn danger m3-pill-icon-btn" data-tooltip="Delete Event" aria-label="Delete Event" title="Delete Event">
               <i data-lucide="trash-2"></i>
+              <span class="m3-pill-label-mobile">Delete</span>
             </button>`
           : '';
 
@@ -2721,8 +2727,9 @@
           <div class="ev-card-right">
             <div class="m3-connected-pills">
               ${deleteButtonHtml}
-              <button onclick="openDashboardShareModal('${ev.id}')" class="m3-pill-btn m3-pill-icon-btn" data-tooltip="Share QR Code" aria-label="Share QR Code">
+              <button onclick="openDashboardShareModal('${ev.id}')" class="m3-pill-btn m3-pill-icon-btn" data-tooltip="Share QR Code" aria-label="Share QR Code" title="Share QR Code">
                 <i data-lucide="qr-code"></i>
+                <span class="m3-pill-label-mobile">Share</span>
               </button>
               <a href="scanner.html?eventId=${ev.id}" class="m3-pill-btn primary" data-tooltip="Open Gate Scanner" aria-label="Gate Scanner">
                 <i data-lucide="scan-line"></i>

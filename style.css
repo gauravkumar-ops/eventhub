@@ -1743,9 +1743,16 @@ img, video, canvas, svg {
   justify-content: center;
 }
 
-.m3-pill-icon-btn svg {
-  width: 16px;
-  height: 16px;
+.m3-pill-label-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .m3-pill-label-mobile {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
 }
 
 /* Tooltip on hover for icon pills */
