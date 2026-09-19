@@ -738,16 +738,16 @@
         approvalState.style.color = 'var(--md-sys-color-success)';
       }
 
-      // Generate QR Canvas
+      // Generate QR Canvas (Optimized for instant camera focus & decoding)
       const container = document.getElementById('qr-canvas-holder');
       container.innerHTML = '';
       new QRCode(container, {
         text: payload,
-        width: 180,
-        height: 180,
-        colorDark: "#141218",
+        width: 220,
+        height: 220,
+        colorDark: "#000000",
         colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
+        correctLevel: QRCode.CorrectLevel.M
       });
 
       if (window.lucide) window.lucide.createIcons();

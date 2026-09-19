@@ -185,12 +185,15 @@
 
     #camera-reader {
       width: 100% !important;
+      min-height: 280px;
       border: none !important;
     }
 
     #camera-reader video {
+      width: 100% !important;
+      height: 100% !important;
       border-radius: var(--md-sys-shape-corner-large);
-      object-fit: cover;
+      object-fit: contain !important;
     }
 
     /* Laser Scanning Animation Overlay */
@@ -202,7 +205,8 @@
       height: 3px;
       background: linear-gradient(90deg, transparent, var(--md-sys-color-primary), transparent);
       box-shadow: 0 0 14px var(--md-sys-color-primary);
-      z-index: 10;
+      z-index: 2;
+      pointer-events: none;
       animation: scanLaser 2.2s ease-in-out infinite;
       display: none;
     }
@@ -403,8 +407,12 @@
           <button class="btn btn-outline" id="btn-stop-camera" onclick="stopScanner()" style="display:none;">
             <i data-lucide="square"></i> Stop Camera
           </button>
-          <a href="ticket.html" class="btn btn-tonal">
-            <i data-lucide="qr-code"></i> Open Participant Ticket
+          <label class="btn btn-tonal" style="cursor:pointer; margin:0;" title="Upload pass screenshot or QR image">
+            <i data-lucide="image"></i> Scan Image File
+            <input type="file" id="qr-file-input" accept="image/*" style="display:none;" onchange="handleQrFileUpload(event)" />
+          </label>
+          <a href="ticket.html" class="btn btn-ghost">
+            <i data-lucide="qr-code"></i> View Ticket
           </a>
         </div>
       </div>
@@ -742,15 +750,9 @@
         const cameraConfig = selectedCameraId ? selectedCameraId : { facingMode: "environment" };
 
         const qrConfig = {
-          fps: 20,
-          qrbox: (viewfinderWidth, viewfinderHeight) => {
-            const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-            return {
-              width: Math.floor(minEdge * 0.75),
-              height: Math.floor(minEdge * 0.75)
-            };
-          },
-          aspectRatio: 1.0,
+          fps: 25,
+          aspectRatio: undefined, // allow dynamic aspect ratio
+          disableFlip: false,
           experimentalFeatures: {
             useBarCodeDetectorIfSupported: true
           }
@@ -760,17 +762,19 @@
           cameraConfig,
           qrConfig,
           (decodedText) => {
-            processScannedCode(decodedText);
-            // Pause briefly to prevent rapid duplicate multi-reads
-            try {
-              html5QrCode.pause();
-              setTimeout(() => {
-                try { html5QrCode.resume(); } catch(_) {}
-              }, 2000);
-            } catch(_) {}
+            if (decodedText) {
+              processScannedCode(decodedText);
+              // Pause briefly to prevent rapid duplicate multi-reads
+              try {
+                html5QrCode.pause();
+                setTimeout(() => {
+                  try { html5QrCode.resume(); } catch(_) {}
+                }, 2000);
+              } catch(_) {}
+            }
           },
           (errorMessage) => {
-            // ignore frame decode noise
+            // ignore continuous decode frames
           }
         );
         isScanning = true;
@@ -797,6 +801,39 @@
           document.getElementById('btn-stop-camera').style.display = 'none';
           isScanning = false;
         });
+      }
+    };
+
+    // File-based QR Code scanning
+    window.handleQrFileUpload = async function(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const formatsToSupport = [
+        Html5QrcodeSupportedFormats.QR_CODE,
+        Html5QrcodeSupportedFormats.CODE_128,
+        Html5QrcodeSupportedFormats.CODE_39,
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.DATA_MATRIX
+      ];
+
+      try {
+        const scannerForFile = new Html5Qrcode("camera-reader", {
+          formatsToSupport: formatsToSupport,
+          verbose: false
+        });
+        const decodedText = await scannerForFile.scanFile(file, true);
+        if (decodedText) {
+          processScannedCode(decodedText);
+        }
+      } catch (err) {
+        console.warn("File scan error:", err);
+        alert("Could not detect a clear QR or barcode in that image. Try adjusting camera angle, lighting, or brightness.");
+      } finally {
+        e.target.value = '';
       }
     };
 
