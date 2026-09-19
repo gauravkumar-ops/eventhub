@@ -388,17 +388,25 @@
         </div>
       </div>
 
-      <!-- Scanner Controls -->
-      <div class="scanner-controls">
-        <button class="btn btn-primary" id="btn-start-camera" onclick="startScanner()">
-          <i data-lucide="play"></i> Start Camera
-        </button>
-        <button class="btn btn-outline" id="btn-stop-camera" onclick="stopScanner()" style="display:none;">
-          <i data-lucide="square"></i> Stop Camera
-        </button>
-        <a href="ticket.html" class="btn btn-tonal">
-          <i data-lucide="qr-code"></i> Open Participant Ticket
-        </a>
+      <!-- Camera selection and controls -->
+      <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <select id="camera-select" class="field-input" style="flex:1; padding: 8px 12px; font-size: 0.875rem; border-radius: 9999px;">
+            <option value="">Default Back / Environment Camera</option>
+          </select>
+        </div>
+
+        <div class="scanner-controls">
+          <button class="btn btn-primary" id="btn-start-camera" onclick="startScanner()">
+            <i data-lucide="play"></i> Start Camera
+          </button>
+          <button class="btn btn-outline" id="btn-stop-camera" onclick="stopScanner()" style="display:none;">
+            <i data-lucide="square"></i> Stop Camera
+          </button>
+          <a href="ticket.html" class="btn btn-tonal">
+            <i data-lucide="qr-code"></i> Open Participant Ticket
+          </a>
+        </div>
       </div>
 
       <!-- Live Scan Decision Feedback Banner -->
@@ -410,7 +418,7 @@
       <div style="margin-top:10px;">
         <label class="field-label" for="manual-ticket-input">Manual Ticket / Pass Code Verification</label>
         <div class="manual-entry-box">
-          <input class="field-input" type="text" id="manual-ticket-input" placeholder="e.g. EH-948271 or Pass ID" style="text-transform:uppercase;" />
+          <input class="field-input" type="text" id="manual-ticket-input" placeholder="e.g. EH-948271 or Pass ID" style="text-transform:uppercase;" onkeydown="if(event.key==='Enter') handleManualVerify();" />
           <button class="btn btn-tonal" onclick="handleManualVerify()">
             <i data-lucide="check"></i> Verify
           </button>
@@ -454,6 +462,33 @@
     let html5QrCode = null;
     let isScanning = false;
     let checkinRecords = [];
+    let availableCameras = [];
+
+    // Populate camera dropdown
+    async function initCameraOptions() {
+      try {
+        if (Html5Qrcode && Html5Qrcode.getCameras) {
+          const devices = await Html5Qrcode.getCameras();
+          const select = document.getElementById('camera-select');
+          if (devices && devices.length > 0) {
+            availableCameras = devices;
+            select.innerHTML = '';
+            devices.forEach((camera, i) => {
+              const opt = document.createElement('option');
+              opt.value = camera.id;
+              opt.text = camera.label || `Camera ${i + 1}`;
+              // Default to rear/back camera if available
+              if (camera.label && (camera.label.toLowerCase().includes('back') || camera.label.toLowerCase().includes('environment') || camera.label.toLowerCase().includes('rear'))) {
+                opt.selected = true;
+              }
+              select.appendChild(opt);
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Could not enumerate cameras:', err);
+      }
+    }
 
     // Load checkin history
     function loadCheckinHistory() {
@@ -486,7 +521,7 @@
         row.innerHTML = `
           <div>
             <div class="log-user-name">${item.attendeeName || 'Attendee'}</div>
-            <div class="log-user-meta">${item.college || 'Campus'} • ${item.ticketId || 'PASS'}</div>
+            <div class="log-user-meta">${item.college || 'Campus'} • ${item.eventName ? item.eventName + ' • ' : ''}<code>${item.ticketId || 'PASS'}</code></div>
           </div>
           <div class="log-time">${item.time}</div>
         `;
@@ -521,21 +556,73 @@
       } catch(_) {}
     }
 
-    // Handle Scanned Payload
+    // Helper: Find registration match by ID, pass code, or ticketId
+    function findRegisteredAttendee(queryId) {
+      const q = String(queryId || '').trim().toUpperCase();
+      if (!q) return null;
+
+      try {
+        const regMap = JSON.parse(localStorage.getItem('eventhub_registrations') || '{}');
+        for (const [eventId, pass] of Object.entries(regMap)) {
+          if (!pass) continue;
+          if (
+            (pass.ticketId && pass.ticketId.toUpperCase() === q) ||
+            (pass.passId && pass.passId.toUpperCase() === q) ||
+            (eventId && eventId.toUpperCase() === q)
+          ) {
+            return {
+              ticketId: pass.ticketId || q,
+              attendeeName: pass.attendeeName || 'Registered Student',
+              attendeeEmail: pass.attendeeEmail || '',
+              college: pass.college || 'Verified Campus ID',
+              eventName: pass.eventName || 'Campus Event',
+              eventId: eventId
+            };
+          }
+        }
+      } catch(_) {}
+
+      return null;
+    }
+
+    // Handle Scanned Payload (Supports full JSON QR, 1D Barcodes, and plain Pass IDs)
     function processScannedCode(rawText) {
+      if (!rawText || !rawText.trim()) return;
       let data = {};
+      let ticketId = '';
+      
       try {
         data = JSON.parse(rawText);
+        ticketId = (data.ticketId || '').trim();
       } catch(e) {
+        ticketId = rawText.trim();
+      }
+
+      // Check if this ID exists in saved registrations
+      const matched = findRegisteredAttendee(ticketId);
+      if (matched) {
         data = {
-          ticketId: rawText.trim(),
-          attendeeName: 'Attendee (' + rawText.trim().slice(-4) + ')',
+          ticketId: matched.ticketId,
+          attendeeName: data.attendeeName || matched.attendeeName,
+          college: data.college || matched.college,
+          eventName: data.eventName || matched.eventName,
+          eventId: data.eventId || matched.eventId,
+          attendeeEmail: data.attendeeEmail || matched.attendeeEmail
+        };
+        ticketId = matched.ticketId;
+      } else if (!data.attendeeName) {
+        data = {
+          ticketId: ticketId,
+          attendeeName: 'Attendee (' + (ticketId.length > 4 ? ticketId.slice(-4) : ticketId) + ')',
           college: 'Campus Delegate',
           eventName: 'Campus Event'
         };
       }
 
-      const ticketId = data.ticketId || ('EH-' + Math.random().toString(36).substring(2, 8).toUpperCase());
+      if (!ticketId) {
+        ticketId = 'EH-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      }
+
       const checkedInMap = JSON.parse(localStorage.getItem('eventhub_checkins') || '{}');
       const banner = document.getElementById('scan-feedback');
 
@@ -547,9 +634,9 @@
           <div style="font-weight:800; font-size:1.05rem; display:flex; align-items:center; gap:8px;">
             <i data-lucide="alert-triangle"></i> DUPLICATE ENTRY DETECTED!
           </div>
-          <div style="font-size:0.875rem;">
+          <div style="font-size:0.875rem; margin-top:4px;">
             This pass (<strong>${ticketId}</strong>) was already scanned at <strong>${checkedInMap[ticketId].time}</strong>.<br>
-            Attendee: <strong>${checkedInMap[ticketId].attendeeName}</strong>
+            Attendee: <strong>${checkedInMap[ticketId].attendeeName}</strong> &nbsp;•&nbsp; Event: <strong>${checkedInMap[ticketId].eventName || 'General'}</strong>
           </div>
         `;
         if (window.lucide) window.lucide.createIcons();
@@ -563,6 +650,7 @@
       checkedInMap[ticketId] = {
         attendeeName: data.attendeeName || 'Attendee',
         college: data.college || 'Institution',
+        eventName: data.eventName || 'Campus Event',
         time: timeStr,
         scannedAt: now.toISOString(),
         eventId: data.eventId || null
@@ -586,6 +674,7 @@
         ticketId: ticketId,
         attendeeName: data.attendeeName || 'Verified Attendee',
         college: data.college || 'Campus',
+        eventName: data.eventName || 'Campus Event',
         time: timeStr
       });
       localStorage.setItem('eventhub_checkin_history', JSON.stringify(checkinRecords));
@@ -596,9 +685,10 @@
         <div style="font-weight:800; font-size:1.15rem; display:flex; align-items:center; gap:8px;">
           <i data-lucide="check-circle-2"></i> ENTRY APPROVED!
         </div>
-        <div style="font-size:0.9rem; line-height:1.5;">
+        <div style="font-size:0.9rem; line-height:1.5; margin-top:4px;">
           Attendee: <strong>${data.attendeeName || 'Registered Student'}</strong><br>
-          Institution: <strong>${data.college || 'Institution'}</strong> &nbsp;•&nbsp; Pass: <code>${ticketId}</code>
+          Institution: <strong>${data.college || 'Institution'}</strong> &nbsp;•&nbsp; Event: <strong>${data.eventName || 'Campus Event'}</strong><br>
+          Pass: <code>${ticketId}</code>
         </div>
       `;
       
@@ -611,45 +701,84 @@
       const input = document.getElementById('manual-ticket-input');
       const val = input.value.trim();
       if (!val) return;
-      processScannedCode(JSON.stringify({
-        ticketId: val,
-        attendeeName: 'Student Attendee',
-        college: 'Verified Campus ID'
-      }));
+      processScannedCode(val);
       input.value = '';
     };
 
     // Camera Lifecycle
-    window.startScanner = function() {
-      document.getElementById('camera-placeholder').style.display = 'none';
-      document.getElementById('viewfinder-box').classList.add('active');
-      document.getElementById('btn-start-camera').style.display = 'none';
-      document.getElementById('btn-stop-camera').style.display = 'inline-flex';
+    window.startScanner = async function() {
+      const placeholder = document.getElementById('camera-placeholder');
+      const viewfinder = document.getElementById('viewfinder-box');
+      const btnStart = document.getElementById('btn-start-camera');
+      const btnStop = document.getElementById('btn-stop-camera');
+      const camSelect = document.getElementById('camera-select');
 
-      html5QrCode = new Html5Qrcode("camera-reader");
-      html5QrCode.start(
-        { facingMode: "environment" },
-        {
-          fps: 15,
-          qrbox: { width: 250, height: 250 }
-        },
-        (decodedText) => {
-          processScannedCode(decodedText);
-          // Pause briefly to prevent rapid duplicate multi-reads
-          html5QrCode.pause();
-          setTimeout(() => {
-            try { html5QrCode.resume(); } catch(_) {}
-          }, 2000);
-        },
-        (errorMessage) => {
-          // ignore frame decode noise
+      placeholder.style.display = 'none';
+      viewfinder.classList.add('active');
+      btnStart.style.display = 'none';
+      btnStop.style.display = 'inline-flex';
+
+      // Support 1D barcodes and 2D QR codes
+      const formatsToSupport = [
+        Html5QrcodeSupportedFormats.QR_CODE,
+        Html5QrcodeSupportedFormats.CODE_128,
+        Html5QrcodeSupportedFormats.CODE_39,
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.DATA_MATRIX
+      ];
+
+      try {
+        if (!html5QrCode) {
+          html5QrCode = new Html5Qrcode("camera-reader", {
+            formatsToSupport: formatsToSupport,
+            verbose: false
+          });
         }
-      ).catch(err => {
-        console.warn("Camera access error:", err);
-        alert("Camera permission denied or camera not found. You can still use manual pass code verification.");
+
+        const selectedCameraId = camSelect.value;
+        const cameraConfig = selectedCameraId ? selectedCameraId : { facingMode: "environment" };
+
+        const qrConfig = {
+          fps: 20,
+          qrbox: (viewfinderWidth, viewfinderHeight) => {
+            const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+            return {
+              width: Math.floor(minEdge * 0.75),
+              height: Math.floor(minEdge * 0.75)
+            };
+          },
+          aspectRatio: 1.0,
+          experimentalFeatures: {
+            useBarCodeDetectorIfSupported: true
+          }
+        };
+
+        await html5QrCode.start(
+          cameraConfig,
+          qrConfig,
+          (decodedText) => {
+            processScannedCode(decodedText);
+            // Pause briefly to prevent rapid duplicate multi-reads
+            try {
+              html5QrCode.pause();
+              setTimeout(() => {
+                try { html5QrCode.resume(); } catch(_) {}
+              }, 2000);
+            } catch(_) {}
+          },
+          (errorMessage) => {
+            // ignore frame decode noise
+          }
+        );
+        isScanning = true;
+      } catch (err) {
+        console.warn("Camera start error:", err);
+        alert("Camera error: " + (err.message || "Camera permission denied or camera not found.") + "\n\nYou can still use manual pass code verification.");
         stopScanner();
-      });
-      isScanning = true;
+      }
     };
 
     window.stopScanner = function() {
@@ -660,7 +789,14 @@
           document.getElementById('btn-start-camera').style.display = 'inline-flex';
           document.getElementById('btn-stop-camera').style.display = 'none';
           isScanning = false;
-        }).catch(err => console.error(err));
+        }).catch(err => {
+          console.error(err);
+          document.getElementById('camera-placeholder').style.display = 'block';
+          document.getElementById('viewfinder-box').classList.remove('active');
+          document.getElementById('btn-start-camera').style.display = 'inline-flex';
+          document.getElementById('btn-stop-camera').style.display = 'none';
+          isScanning = false;
+        });
       }
     };
 
@@ -674,6 +810,7 @@
       }
     };
 
+    initCameraOptions();
     loadCheckinHistory();
     if (window.lucide) window.lucide.createIcons();
   </script>
