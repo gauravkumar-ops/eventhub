@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Organizer Dashboard — EventHub</title>
   <meta name="description" content="Manage your campus events, monitor live participant registrations, share registration QR passes, and oversee gate attendance." />
   <meta name="robots" content="noindex, nofollow" />
@@ -1301,37 +1302,58 @@
     /* Responsive & Mobile Optimizations */
     @media (max-width: 900px) {
       .topbar {
-        padding: 12px 18px;
-        gap: 12px;
+        padding: 12px 14px;
+        gap: 8px;
       }
 
       .content {
-        padding: 20px 16px;
+        padding: 16px 12px;
       }
 
       .welcome-banner {
         flex-direction: column;
         align-items: flex-start;
-        padding: 24px 20px;
-        gap: 16px;
+        padding: 20px 16px;
+        gap: 14px;
+        border-radius: var(--md-sys-shape-corner-large);
+        margin-bottom: 20px;
       }
 
       .welcome-banner .btn {
         width: 100%;
+        justify-content: center;
+      }
+
+      .welcome-text h2 {
+        font-size: 1.35rem;
+      }
+
+      .welcome-text p {
+        font-size: 0.85rem;
       }
 
       .stats-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+        gap: 10px;
+        margin-bottom: 20px;
       }
 
       .stat-card {
-        padding: 18px 16px;
+        padding: 14px 12px;
+        border-radius: var(--md-sys-shape-corner-medium);
+      }
+
+      .stat-card .stat-num {
+        font-size: 1.5rem;
+      }
+
+      .stat-card .stat-title {
+        font-size: 0.72rem;
       }
 
       .profile-dropdown {
-        width: calc(100vw - 32px);
-        max-width: 340px;
+        width: calc(100vw - 24px);
+        max-width: 320px;
         right: 0;
       }
 
@@ -1344,6 +1366,11 @@
     @media (max-width: 768px) {
       body {
         padding-bottom: 80px;
+        display: block;
+      }
+
+      html.sidebar-collapsed {
+        --sidebar-w: 0px !important;
       }
 
       .sidebar {
@@ -1354,10 +1381,11 @@
         width: 280px !important;
         max-width: 85vw !important;
         transform: translateX(-100%) !important;
-        z-index: 250 !important;
+        z-index: 9999 !important;
         box-shadow: 10px 0 35px rgba(0, 0, 0, 0.55) !important;
         transition: transform var(--md-sys-motion-duration-medium3) var(--md-sys-motion-easing-emphasized) !important;
         padding: 24px 16px !important;
+        display: flex !important;
       }
 
       html.sidebar-open .sidebar,
@@ -1367,33 +1395,33 @@
         transform: translateX(0) !important;
       }
 
-      /* On mobile, ensure the full feature names and labels are visible when opened */
-      html.sidebar-collapsed .sidebar-header {
+      /* In mobile mode, always expand labels when drawer is opened */
+      .sidebar .sidebar-header {
         justify-content: space-between !important;
         padding: 0 6px !important;
-        margin-bottom: 28px !important;
+        margin-bottom: 24px !important;
       }
-      html.sidebar-collapsed .sidebar-logo-text {
+      .sidebar .sidebar-logo-text {
         display: inline-block !important;
       }
-      html.sidebar-collapsed .nav-section-label {
+      .sidebar .nav-section-label {
         opacity: 1 !important;
         height: auto !important;
-        margin: 20px 0 8px !important;
+        margin: 16px 0 8px !important;
         padding: 0 12px !important;
         border-bottom: none !important;
         font-size: 0.6875rem !important;
       }
-      html.sidebar-collapsed .nav-item {
+      .sidebar .nav-item {
         justify-content: flex-start !important;
-        padding: 11px 16px !important;
+        padding: 10px 14px !important;
         gap: 12px !important;
       }
-      html.sidebar-collapsed .nav-item span.nav-text,
-      html.sidebar-collapsed .signout-btn span.nav-text {
+      .sidebar .nav-item span.nav-text,
+      .sidebar .signout-btn span.nav-text {
         display: inline-block !important;
       }
-      html.sidebar-collapsed .signout-btn {
+      .sidebar .signout-btn {
         justify-content: flex-start !important;
         padding: 10px 14px !important;
         gap: 10px !important;
@@ -1404,17 +1432,23 @@
       }
 
       .topbar-chipset {
-        display: none;
+        display: none !important;
+      }
+
+      .main {
+        width: 100% !important;
+        max-width: 100% !important;
       }
     }
 
     @media (max-width: 480px) {
       .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
       }
 
       .topbar-title {
-        font-size: 1.15rem;
+        font-size: 1.05rem;
       }
 
       .user-pill span#user-name-top {
@@ -2269,14 +2303,37 @@
     function isEventExpired(ev) {
       if (!ev || !ev.date) return false;
       try {
-        const timePart = ev.endTime || ev.startTime || '23:59:59';
-        const timeStr = timePart.length === 5 ? timePart + ':00' : timePart;
-        const eventDateTime = new Date(`${ev.date}T${timeStr}`);
-        if (isNaN(eventDateTime.getTime())) {
-          const d = new Date(ev.date + 'T23:59:59');
-          return !isNaN(d.getTime()) && Date.now() > d.getTime();
+        const now = new Date();
+        const eventDate = new Date(ev.date + 'T00:00:00');
+        if (isNaN(eventDate.getTime())) return false;
+
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const evDateOnly = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+
+        if (evDateOnly.getTime() > todayStart.getTime()) return false;
+
+        if (evDateOnly.getTime() < todayStart.getTime()) {
+          if (ev.endTime && ev.startTime && ev.endTime < ev.startTime) {
+            const yesterday = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
+            if (evDateOnly.getTime() === yesterday.getTime()) {
+              const [endH, endM] = ev.endTime.split(':').map(Number);
+              const endDateTime = new Date(todayStart.getFullYear(), todayStart.getMonth(), todayStart.getDate(), endH || 0, endM || 0);
+              return now.getTime() > endDateTime.getTime();
+            }
+          }
+          return true;
         }
-        return Date.now() > eventDateTime.getTime();
+
+        if (ev.endTime) {
+          const [endH, endM] = ev.endTime.split(':').map(Number);
+          if (ev.startTime && ev.endTime < ev.startTime) {
+            return false;
+          }
+          const endDateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endH || 0, endM || 0);
+          return now.getTime() > endDateTime.getTime();
+        }
+
+        return false;
       } catch (_) {
         return false;
       }
