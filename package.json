@@ -1,7 +1,7 @@
 {
   "name": "eventhub",
   "version": "1.0.0",
-  "description": "Real-time Event Management & Registration Platform with Socket.io WebSockets and Dynamic QR Generation",
+  "description": "Real-time Event Management & Registration Platform with Notifications, Socket.io and Dynamic QR Generation",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -9,8 +9,11 @@
     "dev": "node server.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.48.1",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
     "express": "^4.19.2",
+    "nodemailer": "^6.10.0",
     "qrcode": "^1.5.3",
     "socket.io": "^4.7.5"
   }

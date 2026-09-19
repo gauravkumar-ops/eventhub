@@ -1317,6 +1317,26 @@
             updateParticipantCountUI(false);
           }
         }).catch(() => { /* Offline fallback handled seamlessly */ });
+
+        // Dispatch registration confirmation email / SMS
+        if (attendee.email || attendee.whatsapp) {
+          fetch('/api/notifications/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to_email: attendee.email,
+              phone: attendee.whatsapp,
+              event_name: ev.name,
+              event_date: ev.date,
+              event_time: ev.startTime || 'TBA',
+              event_venue: ev.venue || 'Campus Venue',
+              category: ev.category || 'Event',
+              event_url: window.location.origin + '/ticket.html?ticketId=' + (pass.ticketId || '') + '&eventId=' + ev.id,
+              organizer_name: attendee.name,
+              type: 'registration'
+            })
+          }).catch(console.warn);
+        }
       } catch (_) {}
 
       // 4. Broadcast real-time update to all open tabs/windows

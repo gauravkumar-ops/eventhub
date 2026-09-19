@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "crons": [
+    {
+      "path": "/api/cron/send-reminders",
+      "schedule": "0 8 * * *"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}

@@ -1310,46 +1310,6 @@
       });
       localStorage.setItem('eventhub_dispatches', JSON.stringify(notifications));
 
-      // Attempt async dispatch to backend notification service (/api/notifications/send)
-      if (sendEmail || sendSms) {
-        fetch('/api/notifications/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            to_email: sendEmail ? email : null,
-            phone: sendSms ? phone : null,
-            event_name: name,
-            event_date: formattedDate,
-            event_time: formattedTime,
-            event_venue: [venue, city, state].filter(Boolean).join(', '),
-            category: selCat,
-            event_url: eventRegUrl,
-            organizer_name: email.split('@')[0]
-          })
-        }).then(function(res){ return res.json(); }).then(function(data){
-          console.log('[EventHub Notifications] Dispatch result:', data);
-        }).catch(function(err){ /* Graceful offline fallback */ });
-      }
-
-      // Populate Summary Modal
-      document.getElementById('modal-sent-email').textContent = email;
-      document.getElementById('modal-email-title').textContent = name;
-      document.getElementById('modal-ev-name').textContent = name;
-      document.getElementById('modal-ev-date').textContent = formattedDate;
-      document.getElementById('modal-ev-time').textContent = formattedTime;
-      document.getElementById('modal-ev-venue').textContent = [venue, city, state].filter(Boolean).join(', ');
-      document.getElementById('modal-ev-cat').textContent = selCat;
-      document.getElementById('modal-ev-cap').textContent = maxA ? (maxA + ' Attendees') : 'Unlimited';
-      document.getElementById('modal-ev-reminders').textContent = timing === '24h' ? '24 Hours Before' : (timing === '48h' ? '48h & 2h Before' : 'Morning of Event');
-      
-      var smsNote = document.getElementById('modal-sms-note');
-      if (phone && sendSms) {
-        document.getElementById('modal-sent-phone').textContent = phone;
-        smsNote.style.display = 'flex';
-      } else {
-        smsNote.style.display = 'none';
-      }
-
       function getFullEventShareURL(targetEv) {
         var base = window.location.origin + window.location.pathname.replace('create-event.html', 'event.html');
         var params = new URLSearchParams({
@@ -1375,6 +1335,53 @@
       window.lastCreatedEvent = ev;
       var eventRegUrl = getFullEventShareURL(ev);
       window.lastCreatedEventUrl = eventRegUrl;
+
+      // Attempt async dispatch to backend notification service (/api/notifications/send)
+      if (sendEmail || sendSms) {
+        fetch('/api/notifications/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to_email: sendEmail ? email : null,
+            phone: sendSms ? phone : null,
+            event_name: name,
+            event_date: formattedDate,
+            event_time: formattedTime,
+            event_venue: [venue, city, state].filter(Boolean).join(', '),
+            category: selCat,
+            event_url: eventRegUrl,
+            organizer_name: email.split('@')[0],
+            type: 'creation'
+          })
+        }).then(function(res){ return res.json(); }).then(function(data){
+          console.log('[EventHub Notifications] Dispatch result:', data);
+          if (data && data.email_dispatched) {
+            showToast('✉️ Instant event summary email sent!');
+          }
+          if (data && data.sms_dispatched) {
+            showToast('📱 SMS notification dispatched!');
+          }
+        }).catch(function(err){ /* Graceful offline fallback */ });
+      }
+
+      // Populate Summary Modal
+      document.getElementById('modal-sent-email').textContent = email;
+      document.getElementById('modal-email-title').textContent = name;
+      document.getElementById('modal-ev-name').textContent = name;
+      document.getElementById('modal-ev-date').textContent = formattedDate;
+      document.getElementById('modal-ev-time').textContent = formattedTime;
+      document.getElementById('modal-ev-venue').textContent = [venue, city, state].filter(Boolean).join(', ');
+      document.getElementById('modal-ev-cat').textContent = selCat;
+      document.getElementById('modal-ev-cap').textContent = maxA ? (maxA + ' Attendees') : 'Unlimited';
+      document.getElementById('modal-ev-reminders').textContent = timing === '24h' ? '24 Hours Before' : (timing === '48h' ? '48h & 2h Before' : 'Morning of Event');
+      
+      var smsNote = document.getElementById('modal-sms-note');
+      if (phone && sendSms) {
+        document.getElementById('modal-sent-phone').textContent = phone;
+        smsNote.style.display = 'flex';
+      } else {
+        smsNote.style.display = 'none';
+      }
       
       document.getElementById('modal-view-event-btn').href = eventRegUrl;
 
@@ -1391,7 +1398,7 @@
         });
       }
 
-      showToast('⚡ Email summary sent via SendGrid!');
+      showToast('⚡ Event published successfully!');
       
       // Display modal
       var modal = document.getElementById('summary-modal');
