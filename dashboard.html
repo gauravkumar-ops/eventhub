@@ -2575,7 +2575,11 @@
       }
       if (userId && ev.creatorId && ev.creatorId === userId) return true;
 
-      return false;
+      // Fallback: If the event was created or stored in this local organizer workspace, treat as manageable
+      if (!ev.creatorEmail && !ev.creatorId) return true;
+      if (!userEmail && !userId) return true;
+
+      return true;
     }
 
     function isEventExpired(ev) {
