@@ -1757,8 +1757,7 @@
       <i data-lucide="calendar-plus"></i>
       <span class="nav-text">Create Event</span>
     </div>
-    <div class="nav-item" onclick="document.getElementById('my-events-card').scrollIntoView({behavior:'smooth'})"
-      data-tooltip="My Events">
+    <div class="nav-item" onclick="navigateToMyEvents()" data-tooltip="My Events">
       <i data-lucide="calendar"></i>
       <span class="nav-text">My Events</span>
     </div>
@@ -1942,7 +1941,7 @@
         <div class="topbar-chipset">
           <div class="m3-connected-pills">
             <button class="m3-pill-btn active"
-              onclick="document.getElementById('my-events-card').scrollIntoView({behavior:'smooth'})"
+              onclick="navigateToMyEvents()"
               data-tooltip="View Events List">
               <i data-lucide="calendar"></i>
               <span>Events (<span id="chip-events-cnt">0</span>)</span>
@@ -2355,12 +2354,20 @@
     };
 
     window.closeSidebar = function () {
-      document.documentElement.classList.remove('sidebar-open', 'features-active');
-      document.body.classList.remove('sidebar-open', 'features-drawer-open');
+      document.documentElement.classList.remove('sidebar-open', 'features-active', 'features-drawer-open');
+      document.body.classList.remove('sidebar-open', 'features-drawer-open', 'features-active');
     };
 
     window.closeFeaturesDrawer = window.closeSidebar;
     window.toggleFeaturesShift = window.toggleSidebar;
+
+    window.navigateToMyEvents = function () {
+      window.closeSidebar();
+      const el = document.getElementById('my-events-card');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
 
     window.scrollFeatureSlider = function (offset) {
       const track = document.getElementById('feature-slider-track');
@@ -2375,8 +2382,7 @@
       const activeCard = window.event ? window.event.currentTarget : null;
       if (activeCard) activeCard.classList.add('active');
 
-      const isMobile = window.innerWidth <= 768;
-      if (isMobile) window.closeSidebar();
+      window.closeSidebar();
 
       // Feature specific action
       setTimeout(() => {
@@ -2385,8 +2391,7 @@
         } else if (featureKey === 'create-event') {
           window.location.href = 'create-event.html';
         } else if (featureKey === 'my-events') {
-          const el = document.getElementById('my-events-card');
-          if (el) el.scrollIntoView({ behavior: 'smooth' });
+          window.navigateToMyEvents();
         } else if (featureKey === 'scanner') {
           window.location.href = 'scanner.html';
         } else if (featureKey === 'academic') {
@@ -2394,7 +2399,7 @@
         } else if (featureKey === 'settings') {
           window.openSettings();
         }
-      }, 100);
+      }, 50);
     };
 
     function updateSidebarToggleIcon(isCollapsed) {
@@ -2419,6 +2424,7 @@
   <!-- ── SETTINGS PANEL & EVENTS LOGIC ── -->
   <script>
     window.openSettings = function () {
+      window.closeSidebar();
       document.getElementById('settings-panel').classList.add('open');
       document.getElementById('settings-overlay').classList.add('open');
       populateSettings();
