@@ -770,17 +770,128 @@
     /* Event Cards in Dashboard */
     .ev-card {
       display: flex;
-      align-items: center;
-      padding: 16px 28px;
-      border-bottom: 1px solid var(--md-sys-color-outline-variant);
-      gap: 16px;
+      flex-direction: column;
+      padding: 0;
+      background-color: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: var(--md-sys-shape-corner-large);
+      overflow: hidden;
+      margin-bottom: 14px;
       transition: transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-spring-expressive),
-        background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized);
+        border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized),
+        box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-emphasized);
     }
 
     .ev-card:hover {
+      border-color: var(--md-sys-color-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .ev-card-inner {
+      display: flex;
+      align-items: center;
+      padding: 18px 24px;
+      gap: 18px;
+    }
+
+    .ev-card-header-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+
+    .ev-date-box {
+      width: 54px;
+      height: 56px;
+      border-radius: var(--md-sys-shape-corner-medium);
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid var(--md-sys-color-outline-variant);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .ev-month {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+
+    .ev-day {
+      font-size: 1.25rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .ev-cat-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: var(--md-sys-shape-corner-full);
       background-color: var(--md-sys-color-surface-container-high);
-      transform: translateX(4px);
+      color: var(--md-sys-color-on-surface-variant);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      white-space: nowrap;
+    }
+
+    .ev-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ev-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .ev-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.8125rem;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-top: 6px;
+    }
+
+    .ev-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 24px;
+      background-color: var(--md-sys-color-surface-container);
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .ev-footer-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 0.8125rem;
+    }
+
+    .ev-footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
     }
 
     /* M3 Settings Modal Sheet with Spring Motion */
