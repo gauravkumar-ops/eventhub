@@ -459,9 +459,11 @@
         </div>
 
         <div class="attendee-info-grid">
-          <div class="info-item">
-            <span class="info-lbl">Attendee Name</span>
-            <span class="info-val" id="t-name">Alex Johnson</span>
+          <div class="info-item" style="grid-column: span 2; background: var(--md-sys-color-surface-container); padding: 10px 14px; border-radius: var(--md-sys-shape-corner-medium); border-left: 4px solid var(--md-sys-color-primary);">
+            <span class="info-lbl" style="display:flex; align-items:center; gap:5px;">
+              <i data-lucide="user" style="width:13px;height:13px; color:var(--md-sys-color-primary);"></i> Attendee Full Name
+            </span>
+            <span class="info-val" id="t-name" style="font-size:1.15rem; font-weight:800; color:var(--md-sys-color-primary);">Alex Johnson</span>
           </div>
           <div class="info-item">
             <span class="info-lbl">Institution / College</span>
@@ -558,7 +560,24 @@
       }];
     }
 
-    function getUserData() {
+    function getUserData(evId) {
+      // 1. Check if there is a specific registration for this event
+      if (evId) {
+        try {
+          const regMap = JSON.parse(localStorage.getItem('eventhub_registrations') || '{}');
+          if (regMap[evId]) {
+            const pass = regMap[evId];
+            return {
+              name: pass.attendeeName || 'Registered Attendee',
+              email: pass.attendeeEmail || 'attendee@campus.edu',
+              college: pass.college || 'Campus Delegate',
+              degree: pass.degree || 'REGISTERED ATTENDEE',
+              whatsapp: pass.whatsapp || '+91 9876543210'
+            };
+          }
+        } catch(_) {}
+      }
+
       if (customUrlPass) {
         return {
           name: customUrlPass.attendeeName || 'Campus Attendee',
@@ -571,12 +590,19 @@
 
       const user = JSON.parse(localStorage.getItem('eventhub_user') || '{}');
       const profile = JSON.parse(localStorage.getItem('eventhub_profile') || '{}');
+      
+      const resolvedName = user.displayName || user.name || profile.fullName || profile.name || (user.email ? user.email.split('@')[0] : '') || 'Registered Attendee';
+      const resolvedEmail = user.email || profile.email || 'attendee@campus.edu';
+      const resolvedCollege = user.college || profile.college || 'Campus Institution';
+      const resolvedDegree = profile.degree ? (profile.degree.toUpperCase() + (profile.specialization ? ' • ' + profile.specialization : '')) : (user.degree || 'Verified Attendee');
+      const resolvedWhatsapp = user.whatsapp || (profile.whatsapp ? '+91 ' + profile.whatsapp : '+91 9876543210');
+
       return {
-        name: user.displayName || user.email?.split('@')[0] || profile.fullName || 'Alex Johnson',
-        email: user.email || profile.email || 'alex.johnson@campus.edu',
-        college: profile.college || 'IIT Bombay',
-        degree: (profile.degree ? profile.degree.toUpperCase() : 'B.TECH') + (profile.specialization ? ' • ' + profile.specialization : ' • Computer Science'),
-        whatsapp: profile.whatsapp ? '+91 ' + profile.whatsapp : '+91 9876543210'
+        name: resolvedName,
+        email: resolvedEmail,
+        college: resolvedCollege,
+        degree: resolvedDegree,
+        whatsapp: resolvedWhatsapp
       };
     }
 
@@ -609,10 +635,10 @@
             ticketId: customUrlPass.ticketId,
             eventId: ev.id,
             eventName: ev.name,
-            attendeeName: customUrlPass.attendeeName,
-            attendeeEmail: customUrlPass.attendeeEmail,
-            college: customUrlPass.college,
-            whatsapp: customUrlPass.whatsapp,
+            attendeeName: customUrlPass.attendeeName || user.name,
+            attendeeEmail: customUrlPass.attendeeEmail || user.email,
+            college: customUrlPass.college || user.college,
+            whatsapp: customUrlPass.whatsapp || user.whatsapp,
             category: ev.category || 'General',
             issuedAt: customUrlPass.issuedAt || new Date().toISOString()
           }),
@@ -697,7 +723,7 @@
       document.getElementById('empty-tickets').style.display = 'none';
 
       const ev = allEvents[currentEventIndex];
-      const user = getUserData();
+      const user = getUserData(ev ? ev.id : null);
       const { ticketId, payload, customPass } = generateQrCodeData(ev, user);
 
       // Check if ticket has already been checked in
@@ -708,10 +734,10 @@
       document.getElementById('t-category').textContent = ev.category || 'Event';
       document.getElementById('t-event-name').textContent = ev.name;
       document.getElementById('t-venue').textContent = [ev.venue, ev.city, ev.state].filter(Boolean).join(', ') || 'Campus Venue';
-      document.getElementById('t-name').textContent = (customPass && customPass.attendeeName) || user.name;
-      document.getElementById('t-college').textContent = (customPass && customPass.college) || user.college;
-      document.getElementById('t-degree').textContent = (customPass && customPass.degree) || user.degree;
-      document.getElementById('t-whatsapp').textContent = (customPass && customPass.whatsapp) || user.whatsapp;
+      document.getElementById('t-name').textContent = (customPass && customPass.attendeeName) || user.name || 'Verified Attendee';
+      document.getElementById('t-college').textContent = (customPass && customPass.college) || user.college || 'Campus Institution';
+      document.getElementById('t-degree').textContent = (customPass && customPass.degree) || user.degree || 'REGISTERED ATTENDEE';
+      document.getElementById('t-whatsapp').textContent = (customPass && customPass.whatsapp) || user.whatsapp || '+91 9876543210';
       document.getElementById('t-datetime').textContent = (ev.date || '2026-10-24') + ' • ' + (ev.startTime || '09:00 AM');
       document.getElementById('t-hash').textContent = ticketId;
 
