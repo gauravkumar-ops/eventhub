@@ -352,6 +352,62 @@
       from { transform: scale(0.92); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
+
+    /* Mobile Optimization Enhancements */
+    @media (max-width: 768px) {
+      .event-top-nav {
+        padding: 10px 14px;
+      }
+      .nav-actions {
+        gap: 6px;
+      }
+      .nav-actions .btn {
+        padding: 6px 10px;
+        font-size: 0.78rem;
+      }
+      .event-page-container {
+        padding: 16px 12px 60px;
+      }
+      .event-hero {
+        padding: 20px 16px;
+        border-radius: var(--md-sys-shape-corner-large);
+        margin-bottom: 20px;
+      }
+      .event-tags-bar {
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+      .event-tags-bar .badge {
+        font-size: 0.72rem;
+        padding: 4px 8px;
+        white-space: nowrap;
+      }
+      .event-main-title {
+        font-size: 1.65rem;
+        margin-bottom: 14px;
+        word-break: break-word;
+      }
+      .event-meta-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .meta-card {
+        padding: 12px 14px;
+      }
+      .panel-card {
+        padding: 18px 14px;
+        border-radius: var(--md-sys-shape-corner-medium);
+        margin-bottom: 16px;
+      }
+      .qr-frame img, .qr-frame canvas {
+        width: 150px !important;
+        height: 150px !important;
+      }
+      .modal-dialog {
+        padding: 20px 16px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -975,14 +1031,44 @@
     function isEventExpired(ev) {
       if (!ev || !ev.date) return false;
       try {
-        const timePart = ev.endTime || ev.startTime || '23:59:59';
-        const timeStr = timePart.length === 5 ? timePart + ':00' : timePart;
-        const eventDateTime = new Date(`${ev.date}T${timeStr}`);
-        if (isNaN(eventDateTime.getTime())) {
-          const d = new Date(ev.date + 'T23:59:59');
-          return !isNaN(d.getTime()) && Date.now() > d.getTime();
+        const now = new Date();
+        const eventDate = new Date(ev.date + 'T00:00:00');
+        if (isNaN(eventDate.getTime())) return false;
+
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const evDateOnly = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+
+        // If event date is in the future, it is definitely active
+        if (evDateOnly.getTime() > todayStart.getTime()) return false;
+
+        // If event date is in past days (before today)
+        if (evDateOnly.getTime() < todayStart.getTime()) {
+          // Check if it's an overnight event that ended today early morning
+          if (ev.endTime && ev.startTime && ev.endTime < ev.startTime) {
+            const yesterday = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
+            if (evDateOnly.getTime() === yesterday.getTime()) {
+              const [endH, endM] = ev.endTime.split(':').map(Number);
+              const endDateTime = new Date(todayStart.getFullYear(), todayStart.getMonth(), todayStart.getDate(), endH || 0, endM || 0);
+              return now.getTime() > endDateTime.getTime();
+            }
+          }
+          return true;
         }
-        return Date.now() > eventDateTime.getTime();
+
+        // If event date is TODAY:
+        if (ev.endTime) {
+          const [endH, endM] = ev.endTime.split(':').map(Number);
+          // If overnight event (endTime < startTime, e.g. 12:50 PM to 3:00 AM next day)
+          if (ev.startTime && ev.endTime < ev.startTime) {
+            // Event ends tomorrow morning at endTime
+            return false;
+          }
+          const endDateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endH || 0, endM || 0);
+          return now.getTime() > endDateTime.getTime();
+        }
+
+        // If no explicit endTime, allow registration for the entire day
+        return false;
       } catch (_) {
         return false;
       }
