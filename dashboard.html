@@ -1535,17 +1535,20 @@
       .ev-footer-actions {
         display: flex !important;
         align-items: center !important;
-        gap: 8px !important;
+        justify-content: flex-end !important;
         width: 100% !important;
       }
 
-      .ev-footer-actions .btn {
+      .ev-footer-actions .m3-connected-pills {
+        width: 100% !important;
+        justify-content: space-between !important;
+      }
+
+      .ev-footer-actions .m3-pill-btn {
         flex: 1 1 0 !important;
-        justify-content: center !important;
-        text-align: center !important;
-        padding: 0 8px !important;
+        padding: 6px 8px !important;
         font-size: 0.75rem !important;
-        white-space: nowrap !important;
+        justify-content: center !important;
       }
 
       /* Profile Overview and Quick Actions on Mobile */
@@ -1613,11 +1616,12 @@
       }
 
       .ev-footer-actions {
-        flex-wrap: wrap !important;
+        width: 100% !important;
       }
 
-      .ev-footer-actions .btn {
-        min-width: 100px !important;
+      .ev-footer-actions .m3-connected-pills {
+        width: 100% !important;
+        display: flex !important;
       }
     }
   </style>
@@ -1830,16 +1834,22 @@
         <div class="topbar-title">Organizer Console</div>
 
         <div class="topbar-chipset">
-          <button class="m3-chip active"
-            onclick="document.getElementById('my-events-card').scrollIntoView({behavior:'smooth'})">
-            <i data-lucide="calendar"></i> Events (<span id="chip-events-cnt">0</span>)
-          </button>
-          <a href="create-event.html" class="m3-chip">
-            <i data-lucide="plus"></i> New Event
-          </a>
-          <a href="register.html" class="m3-chip">
-            <i data-lucide="user-check"></i> Profile
-          </a>
+          <div class="m3-connected-pills">
+            <button class="m3-pill-btn active"
+              onclick="document.getElementById('my-events-card').scrollIntoView({behavior:'smooth'})"
+              data-tooltip="View Events List">
+              <i data-lucide="calendar"></i>
+              <span>Events (<span id="chip-events-cnt">0</span>)</span>
+            </button>
+            <a href="create-event.html" class="m3-pill-btn" data-tooltip="Create New Event">
+              <i data-lucide="plus"></i>
+              <span>New</span>
+            </a>
+            <a href="register.html" class="m3-pill-btn" data-tooltip="Academic Profile">
+              <i data-lucide="user-check"></i>
+              <span>Profile</span>
+            </a>
+          </div>
         </div>
       </div>
 
@@ -1889,12 +1899,12 @@
         </a>
       </div>
 
-      <!-- ── INTERACTIVE FEATURE SLIDER ── -->
+      <!-- ── INTERACTIVE FEATURE SLIDER (M3 Connected Pills Navigation Hub) ── -->
       <section class="dashboard-features-slider-section" id="dashboard-features-slider">
         <div class="feature-slider-header">
           <div class="feature-slider-title">
             <i data-lucide="sparkles"></i>
-            <span>Features Hub — Quick Navigation</span>
+            <span>Features Hub</span>
           </div>
           <div class="feature-slider-controls">
             <button class="slider-nav-arrow" onclick="scrollFeatureSlider(-200)" aria-label="Slide Left">
@@ -1908,41 +1918,31 @@
 
         <div class="feature-slider-track-wrap">
           <div class="feature-slider-track" id="feature-slider-track">
-            <div class="feature-slide-card active" onclick="handleFeatureSlideClick('dashboard')">
-              <div class="feature-slide-icon"><i data-lucide="layout-dashboard"></i></div>
-              <div class="feature-slide-name">Dashboard</div>
-              <div class="feature-slide-desc">Console &amp; Live Stats</div>
-            </div>
-            <div class="feature-slide-card" onclick="handleFeatureSlideClick('create-event')">
-              <div class="feature-slide-icon"
-                style="background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container);">
-                <i data-lucide="calendar-plus"></i></div>
-              <div class="feature-slide-name">Create Event</div>
-              <div class="feature-slide-desc">Build microsite &amp; tickets</div>
-            </div>
-            <div class="feature-slide-card" onclick="handleFeatureSlideClick('my-events')">
-              <div class="feature-slide-icon"
-                style="background:var(--md-sys-color-tertiary-container);color:var(--md-sys-color-on-tertiary-container);">
-                <i data-lucide="calendar"></i></div>
-              <div class="feature-slide-name">My Events</div>
-              <div class="feature-slide-desc">Manage registrations</div>
-            </div>
-            <div class="feature-slide-card" onclick="handleFeatureSlideClick('scanner')">
-              <div class="feature-slide-icon"
-                style="background:var(--md-sys-color-success-container);color:var(--md-sys-color-success);"><i
-                  data-lucide="scan-line"></i></div>
-              <div class="feature-slide-name">Gate Scanner</div>
-              <div class="feature-slide-desc">Sub-second QR verification</div>
-            </div>
-            <div class="feature-slide-card" onclick="handleFeatureSlideClick('academic')">
-              <div class="feature-slide-icon"><i data-lucide="graduation-cap"></i></div>
-              <div class="feature-slide-name">Academic Profile</div>
-              <div class="feature-slide-desc">College &amp; dept records</div>
-            </div>
-            <div class="feature-slide-card" onclick="handleFeatureSlideClick('settings')">
-              <div class="feature-slide-icon"><i data-lucide="settings"></i></div>
-              <div class="feature-slide-name">System Settings</div>
-              <div class="feature-slide-desc">Themes &amp; configurations</div>
+            <div class="m3-connected-pills feature-pills-bar">
+              <button class="m3-pill-btn active" onclick="handleFeatureSlideClick('dashboard')" data-tooltip="Dashboard Overview">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Dashboard</span>
+              </button>
+              <button class="m3-pill-btn" onclick="handleFeatureSlideClick('create-event')" data-tooltip="Create &amp; Publish Event">
+                <i data-lucide="calendar-plus"></i>
+                <span>Create Event</span>
+              </button>
+              <button class="m3-pill-btn" onclick="handleFeatureSlideClick('my-events')" data-tooltip="View &amp; Manage Events">
+                <i data-lucide="calendar"></i>
+                <span>My Events</span>
+              </button>
+              <button class="m3-pill-btn" onclick="handleFeatureSlideClick('scanner')" data-tooltip="Gate QR Pass Scanner">
+                <i data-lucide="scan-line"></i>
+                <span>Gate Scanner</span>
+              </button>
+              <button class="m3-pill-btn" onclick="handleFeatureSlideClick('academic')" data-tooltip="Academic Profile Details">
+                <i data-lucide="graduation-cap"></i>
+                <span>Academic</span>
+              </button>
+              <button class="m3-pill-btn" onclick="handleFeatureSlideClick('settings')" data-tooltip="System Settings">
+                <i data-lucide="settings"></i>
+                <span>Settings</span>
+              </button>
             </div>
           </div>
         </div>
@@ -2264,9 +2264,9 @@
     };
 
     window.handleFeatureSlideClick = function (featureKey) {
-      // Highlight slide card
-      document.querySelectorAll('.feature-slide-card').forEach(card => card.classList.remove('active'));
-      const activeCard = event.currentTarget;
+      // Highlight active pill / slide
+      document.querySelectorAll('.feature-pills-bar .m3-pill-btn, .feature-slide-card').forEach(card => card.classList.remove('active'));
+      const activeCard = window.event ? window.event.currentTarget : null;
       if (activeCard) activeCard.classList.add('active');
 
       const isMobile = window.innerWidth <= 768;
@@ -2563,8 +2563,8 @@
         const capacityLabel = maxCapacity ? `${attendeeCount} / ${maxCapacity} Registered` : `${attendeeCount} Registered`;
 
         const deleteButtonHtml = isCreator
-          ? `<button onclick="openDeleteModal('${ev.id}')" class="btn btn-ghost btn-sm" style="color:var(--md-sys-color-error); border:1px solid rgba(239,68,68,0.3); height:32px; padding:0 10px; font-size:0.8rem;" title="Delete this event">
-              <i data-lucide="trash-2" style="width:14px;height:14px;"></i> Delete
+          ? `<button onclick="openDeleteModal('${ev.id}')" class="m3-pill-btn danger m3-pill-icon-btn" data-tooltip="Delete Event" aria-label="Delete Event">
+              <i data-lucide="trash-2"></i>
             </button>`
           : '';
 
@@ -2608,13 +2608,16 @@
               <a href="ticket.html?id=${ev.id}" style="color:var(--md-sys-color-primary); font-weight:600; font-size:0.82rem; text-decoration:none;">Passes 🎟️</a>
             </div>
             <div class="ev-footer-actions">
-              ${deleteButtonHtml}
-              <button onclick="openDashboardShareModal('${ev.id}')" class="btn btn-tonal btn-sm" style="height:32px; padding:0 12px; font-size:0.8rem;">
-                <i data-lucide="qr-code" style="width:14px;height:14px;"></i> Share QR
-              </button>
-              <a href="scanner.html?eventId=${ev.id}" class="btn btn-primary btn-sm" style="height:32px; padding:0 14px; font-size:0.8rem;">
-                <i data-lucide="scan-line" style="width:14px;height:14px;"></i> Gate Scanner
-              </a>
+              <div class="m3-connected-pills">
+                ${deleteButtonHtml}
+                <button onclick="openDashboardShareModal('${ev.id}')" class="m3-pill-btn m3-pill-icon-btn" data-tooltip="Share QR Code" aria-label="Share QR Code">
+                  <i data-lucide="qr-code"></i>
+                </button>
+                <a href="scanner.html?eventId=${ev.id}" class="m3-pill-btn primary" data-tooltip="Open Gate Scanner" aria-label="Gate Scanner">
+                  <i data-lucide="scan-line"></i>
+                  <span>Scanner</span>
+                </a>
+              </div>
             </div>
           </div>`;
 

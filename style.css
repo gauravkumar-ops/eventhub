@@ -1654,6 +1654,128 @@ img, video, canvas, svg {
   height: 16px;
 }
 
+/* ============================================================
+   MATERIAL 3 CONNECTED PILLS (Segmented Button Group)
+   ============================================================ */
+.m3-connected-pills {
+  display: inline-flex;
+  align-items: center;
+  background: var(--md-sys-color-surface-container-high);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-full);
+  padding: 3px;
+  gap: 2px;
+  position: relative;
+}
+
+.m3-connected-pills.full-width {
+  width: 100%;
+  display: flex;
+}
+
+.m3-connected-pills.full-width .m3-pill-btn {
+  flex: 1 1 0;
+}
+
+.m3-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  height: 34px;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  transition: all var(--md-sys-motion-duration-short3) var(--md-sys-motion-easing-emphasized);
+  user-select: none;
+}
+
+.m3-pill-btn:hover {
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface);
+  transform: translateY(-1px);
+}
+
+.m3-pill-btn:active {
+  transform: scale(0.96);
+}
+
+.m3-pill-btn.active {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.m3-pill-btn.primary {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+.m3-pill-btn.primary:hover {
+  background: var(--md-sys-color-primary-fixed);
+  color: var(--md-sys-color-on-primary-fixed);
+}
+
+.m3-pill-btn.danger {
+  color: var(--md-sys-color-error);
+}
+.m3-pill-btn.danger:hover {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+/* Icon-only connected pill variant */
+.m3-pill-icon-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: var(--md-sys-shape-corner-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.m3-pill-icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Tooltip on hover for icon pills */
+.m3-pill-btn[data-tooltip]::after,
+.m3-pill-icon-btn[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--md-sys-color-inverse-surface);
+  color: var(--md-sys-color-inverse-on-surface);
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: var(--md-sys-shape-corner-small);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.18s ease;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.m3-pill-btn[data-tooltip]:hover::after,
+.m3-pill-icon-btn[data-tooltip]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* Drawer Backdrop for Mobile */
 .features-drawer-backdrop {
   position: fixed;
