@@ -20,9 +20,11 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'data_store.json');
+const FRONTEND_DIR = path.join(__dirname, '..', 'frontend');
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(FRONTEND_DIR));
 app.use(express.static(__dirname));
 
 // Initialize or load mock database / data store

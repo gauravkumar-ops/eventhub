@@ -37,45 +37,60 @@
 
 ```
 eventhub/
-├── assets/
-│   └── images/                   # High-res UI showcases & feature assets
-├── index.html                    # Main landing page
-├── login.html                    # Auth / sign-in portal
-├── signup.html                   # Onboarding & registration
-├── dashboard.html                # Organizer management dashboard
-├── create-event.html             # Event creation & ticket designer
-├── ticket.html                   # Dynamic QR pass viewer
-├── scanner.html                  # Gate check-in camera scanner
-├── style.css                     # Design system & stylesheet
-├── app.js                        # Client-side routing & core logic
+├── frontend/                     # Client-side UI & Web pages
+│   ├── assets/
+│   │   └── images/               # High-res UI showcases & feature assets
+│   ├── index.html                # Main landing page
+│   ├── login.html                # Auth / sign-in portal
+│   ├── signup.html               # Onboarding & registration
+│   ├── dashboard.html            # Organizer management dashboard
+│   ├── create-event.html         # Event creation & ticket designer
+│   ├── event.html                # Public event view & registration
+│   ├── register.html             # Academic user profile configuration
+│   ├── ticket.html               # Dynamic QR pass viewer
+│   ├── scanner.html              # Gate check-in camera scanner
+│   ├── style.css                 # Material Design 3 design system & stylesheet
+│   ├── app.js                    # Client-side routing & core UI interactions
+│   ├── firebase-config.js        # Dynamic Firebase auth credentials loader
+│   └── supabaseClient.js         # Supabase client connector
+├── backend/                      # Backend APIs & Serverless handlers
+│   └── api/
+│       ├── config.js             # Environment config resolver API
+│       ├── cron/                 # Automated cron jobs (send-reminders.js)
+│       └── notifications/        # Email (Nodemailer) & SMS (Twilio/Fast2SMS) dispatch APIs
+├── server/                       # Standalone local servers & real-time socket gateway
+│   ├── server.js                 # Express + Socket.io real-time event sync server
+│   ├── server_native.js          # Zero-dependency Node.js HTTP + SSE live stream server
+│   ├── server.py                 # Zero-dependency Python 3 HTTP + notification server
+│   └── data_store.json           # Local development JSON persistence store
+├── vercel.json                   # Cloud deployment routing & cron configuration
+├── package.json                  # Node.js project & dependency management
+├── .env.example                  # Environment variable reference template
 ├── .gitignore                    # Git exclusions
-└── README.md                     # Documentation
+└── README.md                     # Root project documentation
 ```
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- Any modern web browser (Chrome, Firefox, Edge, Safari)
-- No build tools or Node.js required — it's pure HTML/CSS/JS!
-
 ### Run Locally
 
-**Option 1 — Open directly in browser / Local server:**
+**Option 1 — Run with Python Server:**
 ```bash
-# 1. Copy the environment template
-cp .env.example .env
-
-# 2. Serve with Python:
-python -m http.server 3000
+python server/server.py
 ```
 Then open **[http://localhost:3000](http://localhost:3000)**
 
-**Option 2 — Serve with Node.js:**
+**Option 2 — Run with Node.js & Socket.io Real-Time Server:**
 ```bash
-npx serve .
+npm start
 ```
+or
+```bash
+node server/server.js
+```
+Then open **[http://localhost:3000](http://localhost:3000)**
 
 ---
 

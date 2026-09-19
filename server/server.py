@@ -12,7 +12,10 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
 # Load .env manually without external dependencies
-ENV_FILE = os.path.join(os.path.dirname(__file__), '.env')
+ENV_FILE = os.path.join(os.path.dirname(__file__), '..', '.env')
+if not os.path.exists(ENV_FILE):
+    ENV_FILE = os.path.join(os.path.dirname(__file__), '.env')
+
 if os.path.exists(ENV_FILE):
     try:
         with open(ENV_FILE, 'r', encoding='utf-8') as f:
@@ -26,6 +29,7 @@ if os.path.exists(ENV_FILE):
 
 PORT = int(os.environ.get('PORT', 3000))
 DATA_FILE = os.path.join(os.path.dirname(__file__), 'data_store.json')
+FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
 
 db = {
     "events": [
@@ -225,6 +229,9 @@ def send_sms_notification(phone_number, event_name, event_date, event_venue, eve
 
 
 class EventHandler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory=FRONTEND_DIR, **kwargs)
+
     def end_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
