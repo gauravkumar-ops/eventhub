@@ -1292,7 +1292,11 @@
         }).catch(console.warn);
       }
 
-      // Record email notification dispatch in logs
+      function fmt(t) { var p=t.split(':'),h=+p[0]; return (h%12||12)+':'+p[1]+' '+(h<12?'AM':'PM'); }
+      var formattedDate = new Date(date + 'T00:00:00').toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+      var formattedTime = fmt(start) + (end ? ' - ' + fmt(end) : '');
+
+      // Record email & SMS notification dispatch in local activity log
       var notifications = [];
       try { notifications = JSON.parse(localStorage.getItem('eventhub_dispatches') || '[]'); } catch(e){}
       notifications.unshift({
@@ -1300,35 +1304,32 @@
         eventName: ev.name,
         sentTo:    email,
         phone:     phone,
-        service:   'Python FastApi / SendGrid',
+        service:   'EventHub Gateway (SMTP / SMS)',
         timestamp: new Date().toISOString(),
-        status:    'Delivered'
+        status:    'Dispatched'
       });
       localStorage.setItem('eventhub_dispatches', JSON.stringify(notifications));
 
-      // Attempt async dispatch to local Python backend if online
-      if (sendEmail) {
-        fetch('http://127.0.0.1:8000/api/notifications/send', {
+      // Attempt async dispatch to backend notification service (/api/notifications/send)
+      if (sendEmail || sendSms) {
+        fetch('/api/notifications/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            to_email: email,
-            subject: '[EventHub] 🎉 Your Event is Live: ' + name,
-            template_type: 'event_summary',
-            data: {
-              event_name: name,
-              event_date: date,
-              event_time: start + (end ? ' - ' + end : ''),
-              event_venue: venue + (city ? ', ' + city : ''),
-              category: selCat
-            }
+            to_email: sendEmail ? email : null,
+            phone: sendSms ? phone : null,
+            event_name: name,
+            event_date: formattedDate,
+            event_time: formattedTime,
+            event_venue: [venue, city, state].filter(Boolean).join(', '),
+            category: selCat,
+            event_url: eventRegUrl,
+            organizer_name: email.split('@')[0]
           })
+        }).then(function(res){ return res.json(); }).then(function(data){
+          console.log('[EventHub Notifications] Dispatch result:', data);
         }).catch(function(err){ /* Graceful offline fallback */ });
       }
-
-      function fmt(t) { var p=t.split(':'),h=+p[0]; return (h%12||12)+':'+p[1]+' '+(h<12?'AM':'PM'); }
-      var formattedDate = new Date(date + 'T00:00:00').toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
-      var formattedTime = fmt(start) + (end ? ' - ' + fmt(end) : '');
 
       // Populate Summary Modal
       document.getElementById('modal-sent-email').textContent = email;
