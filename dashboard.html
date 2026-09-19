@@ -972,6 +972,10 @@
       padding: 16px 20px;
     }
 
+    .ev-card-header-row {
+      display: contents;
+    }
+
     .ev-date-box {
       width: 50px;
       height: 56px;
@@ -1025,6 +1029,7 @@
       font-weight: 600;
       background-color: var(--md-sys-color-secondary-container);
       color: var(--md-sys-color-on-secondary-container);
+      flex-shrink: 0;
     }
 
     .ev-footer {
@@ -1036,6 +1041,22 @@
       border-top: 1px solid var(--md-sys-color-outline-variant);
       font-size: 0.75rem;
       color: var(--md-sys-color-on-surface-variant);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .ev-footer-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .ev-footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     /* M3 Settings Modal Sheet */
@@ -1439,6 +1460,138 @@
         width: 100% !important;
         max-width: 100% !important;
       }
+
+      .content {
+        padding: 14px 10px !important;
+      }
+
+      .card {
+        padding: 16px 14px !important;
+        border-radius: var(--md-sys-shape-corner-large) !important;
+      }
+
+      /* Fix Event Cards on Mobile */
+      .ev-card-inner {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        padding: 14px !important;
+        position: relative;
+      }
+
+      .ev-card-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 10px;
+      }
+
+      .ev-date-box {
+        width: 48px !important;
+        height: 50px !important;
+      }
+
+      .ev-cat-badge {
+        align-self: flex-start !important;
+      }
+
+      .ev-body {
+        width: 100% !important;
+      }
+
+      .ev-name {
+        font-size: 0.95rem !important;
+        line-height: 1.35 !important;
+        margin-bottom: 8px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: 6px !important;
+      }
+
+      .ev-row {
+        font-size: 0.78rem !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        line-height: 1.4 !important;
+      }
+
+      .ev-footer {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        padding: 12px 14px !important;
+      }
+
+      .ev-footer-status {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+      }
+
+      .ev-footer-actions {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        width: 100% !important;
+      }
+
+      .ev-footer-actions .btn {
+        flex: 1 1 0 !important;
+        justify-content: center !important;
+        text-align: center !important;
+        padding: 0 8px !important;
+        font-size: 0.75rem !important;
+        white-space: nowrap !important;
+      }
+
+      /* Profile Overview and Quick Actions on Mobile */
+      .pd-row {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        padding: 8px 0 !important;
+        border-bottom: 1px dashed var(--md-sys-color-outline-variant) !important;
+      }
+
+      .pd-row:last-child {
+        border-bottom: none !important;
+      }
+
+      .pd-key {
+        font-size: 0.8rem !important;
+        flex-shrink: 0 !important;
+        color: var(--md-sys-color-on-surface-variant) !important;
+      }
+
+      .pd-val {
+        font-size: 0.82rem !important;
+        text-align: right !important;
+        word-break: break-word !important;
+        max-width: 65% !important;
+      }
+
+      .quick-action {
+        padding: 10px 12px !important;
+      }
+
+      .quick-action strong {
+        font-size: 0.82rem !important;
+      }
+
+      .quick-action span {
+        font-size: 0.72rem !important;
+      }
+
+      .fab-container {
+        bottom: 20px !important;
+        right: 18px !important;
+      }
     }
 
     @media (max-width: 480px) {
@@ -1457,6 +1610,14 @@
 
       .user-pill {
         padding: 4px 6px;
+      }
+
+      .ev-footer-actions {
+        flex-wrap: wrap !important;
+      }
+
+      .ev-footer-actions .btn {
+        min-width: 100px !important;
       }
     }
   </style>
@@ -2413,28 +2574,31 @@
 
         card.innerHTML = `
           <div class="ev-card-inner">
-            <div class="ev-date-box" style="${isExpired ? 'background:var(--md-sys-color-surface-container);' : ''}">
-              <span class="ev-month">${dt.mon}</span>
-              <span class="ev-day">${dt.day}</span>
+            <div class="ev-card-header-row" style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+              <div class="ev-date-box" style="${isExpired ? 'background:var(--md-sys-color-surface-container);' : ''}">
+                <span class="ev-month">${dt.mon}</span>
+                <span class="ev-day">${dt.day}</span>
+              </div>
+              <div class="ev-cat-badge">${ev.category || 'Event'}</div>
             </div>
-            <div class="ev-body">
+            <div class="ev-body" style="flex:1; min-width:0; width:100%;">
               <div class="ev-name" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                ${ev.name || 'Untitled Event'}
+                <span style="font-weight:700; color:var(--md-sys-color-on-surface);">${ev.name || 'Untitled Event'}</span>
                 ${creatorBadge}
                 ${notificationBadge}
                 <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; font-weight:700; font-size:0.75rem; display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:999px;">
                   <i data-lucide="users" style="width:12px;height:12px;"></i> ${capacityLabel}
                 </span>
               </div>
-              <div class="ev-row">
-                <i data-lucide="clock" style="width:14px;height:14px;"></i> ${timeStr || 'Time TBA'} &nbsp;•&nbsp; 
-                <i data-lucide="map-pin" style="width:14px;height:14px;"></i> ${location || 'Venue TBA'}
+              <div class="ev-row" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:0.8125rem; color:var(--md-sys-color-on-surface-variant); margin-top:4px;">
+                <span style="display:inline-flex; align-items:center; gap:4px;"><i data-lucide="clock" style="width:14px;height:14px;"></i> ${timeStr || 'Time TBA'}</span>
+                <span>•</span>
+                <span style="display:inline-flex; align-items:center; gap:4px;"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> ${location || 'Venue TBA'}</span>
               </div>
             </div>
-            <div class="ev-cat-badge">${ev.category || 'Event'}</div>
           </div>
-          <div class="ev-footer" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <div class="ev-footer">
+            <div class="ev-footer-status">
               ${statusBadge}
               <span style="color:var(--md-sys-color-outline);">•</span>
               <a href="event.html?id=${ev.id}" style="color:var(--md-sys-color-primary); font-weight:600; font-size:0.82rem; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
@@ -2443,7 +2607,7 @@
               <span style="color:var(--md-sys-color-outline);">•</span>
               <a href="ticket.html?id=${ev.id}" style="color:var(--md-sys-color-primary); font-weight:600; font-size:0.82rem; text-decoration:none;">Passes 🎟️</a>
             </div>
-            <div style="display:flex; align-items:center; gap:8px;">
+            <div class="ev-footer-actions">
               ${deleteButtonHtml}
               <button onclick="openDashboardShareModal('${ev.id}')" class="btn btn-tonal btn-sm" style="height:32px; padding:0 12px; font-size:0.8rem;">
                 <i data-lucide="qr-code" style="width:14px;height:14px;"></i> Share QR
